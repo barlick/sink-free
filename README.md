@@ -4,7 +4,9 @@ By Barlick. Last update 25/10/2025.
           
 Simply copy "Sink.exe" to the folder of your choice e.g. "Documents" and run it - That's it as far as "installation" goes.
 
-Here's the documentation:
+If you want to compile it yourself then please read the "Compiling Sink" section below.
+
+I've included two screenshots "Sink Configuration screenshot.png" and "Sink Running screenshot.png" which show you what it does but here's the documentation anyway:
 
 This "Sink" app can sync files between multiple source and target folders which are defined via the "Configuration" tab.
 
@@ -39,3 +41,17 @@ If this sounds like you(!), then give Sink a go. It will only take five minutes 
 If it does, then use Sink. If it doesn't then please delete Sink.exe and use something else!
 
 Cheers - Barlick.
+
+Compiling Sink:
+
+Sink is written in Delphi (pascal) and I used the Delphi 2007 IDE but I assume you can use later versions of Delphi and possibly the Windows version of the Lazarus free pascal IDE as well.
+
+Extract all files in the sink-free "Source code.zip" file to a suitable folder.
+
+Start your Delphi (or equivalent pascal IDE).
+
+Click "Open project", search for "sink.dpr" and open it.
+
+Compile it and run it.
+
+That's it.
