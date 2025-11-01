@@ -2,8 +2,8 @@ object sinkmainform: Tsinkmainform
   Left = 0
   Top = 0
   Caption = 'Sink'
-  ClientHeight = 571
-  ClientWidth = 835
+  ClientHeight = 578
+  ClientWidth = 867
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,24 +19,23 @@ object sinkmainform: Tsinkmainform
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 835
-    Height = 571
+    Width = 867
+    Height = 578
     ActivePage = HomeTabSheet
     Align = alClient
     Images = ImageList1
     TabOrder = 0
-    ExplicitLeft = -8
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
       object Panel2: TPanel
         Left = 0
-        Top = 392
-        Width = 827
+        Top = 405
+        Width = 859
         Height = 109
         Align = alBottom
         TabOrder = 0
         DesignSize = (
-          827
+          859
           109)
         object pathLabel: TLabel
           Left = 9
@@ -87,22 +86,26 @@ object sinkmainform: Tsinkmainform
           Height = 13
           Caption = '......'
         end
-        object ProgressBarBR: TcxProgressBar
+        object ProgressBarBR: TProgressBar
           Left = 9
-          Top = 64
+          Top = 66
+          Width = 841
+          Height = 17
           Anchors = [akLeft, akTop, akRight]
-          Properties.BeginColor = clBlack
+          Smooth = True
           TabOrder = 0
-          Width = 808
         end
       end
       object Panel1: TPanel
         Left = 0
-        Top = 501
-        Width = 827
-        Height = 41
+        Top = 514
+        Width = 859
+        Height = 35
         Align = alBottom
         TabOrder = 1
+        DesignSize = (
+          859
+          35)
         object StartButton: TBitBtn
           Left = 9
           Top = 6
@@ -141,7 +144,7 @@ object sinkmainform: Tsinkmainform
         end
         object Stopbutton: TBitBtn
           Left = 9
-          Top = 6
+          Top = 5
           Width = 88
           Height = 25
           Caption = '  Stop'
@@ -175,20 +178,55 @@ object sinkmainform: Tsinkmainform
             6CEFEFEFF5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56868682B2B2B0E
             0E0E101010303030707070CFCFCFF5F5F5F5F5F5F5F5F5F5F5F5}
         end
+        object setfilestampsbutton: TBitBtn
+          Left = 678
+          Top = 5
+          Width = 172
+          Height = 25
+          Anchors = [akTop, akRight]
+          Caption = ' Sync Date+Time File Stamps'
+          TabOrder = 2
+          OnClick = setfilestampsbuttonClick
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000030000C30E0000C30E00000000000000000000F5F5F5F5F5F5
+            F5F5F5F2F2F29B9B9B3B3B3B0707070303030303030707073B3B3B9C9C9CF2F2
+            F2F4F4F4F5F5F5F5F5F5F5F5F5F4F4F4D8D8D8383838030303030303030303FF
+            FFFF030303030303030303030303383838D8D8D8F4F4F4F5F5F5F5F5F5D9D9D9
+            202020030303030303030303030303FFFFFF0303030303030303030303030303
+            03202020DADADAF5F5F5F3F3F33D3D3D030303030303040404030303030303FF
+            FFFF0303030303030303030303030303030303033E3E3EF3F3F3A7A7A7030303
+            030303030303000000000000030303FFFFFF0303030303030000000000000303
+            03030303030303A7A7A7494949030303030303030303000000000000000000FF
+            FFFF030303000000000000000000030303030303030303494949101010030303
+            0303030303030303030000000000007676760000000000000000000303030303
+            03030303030303101010030303030303030303030303030303030303000000F1
+            F1F1F0F0F0000000030303030303030303030303030303020202040404030303
+            030303030303030303030303000000EFEFEFEFEFEF0000000303030303030303
+            0303030303030303030317171703030303030303030303030300000000000000
+            0000000000EFEFEF000000030303030303030303030303171717575757030303
+            030303030303000000000000000000030303030303000000FFFFFF0000000303
+            03030303030303575757BABABA03030303030303030300000000000003030303
+            0303030303030303000000FFFFFF030303030303040404BBBBBBF5F5F5585858
+            030303030303030303030303030303030303030303030303030303030303FFFF
+            FF030303595959F5F5F5F5F5F5E8E8E838383803030303030303030303030303
+            0303030303030303030303030303030303393939E9E9E9F5F5F5F5F5F5F4F4F4
+            E9E9E95F5F5F0404040303030303030303030303030303030303030404045F5F
+            5FE9E9E9F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56565652828280B
+            0B0B0A0A0A282828656565C5C5C5F5F5F5F5F5F5F5F5F5F5F5F5}
+        end
       end
       object ActivityLogMemo: TMemo
         Left = 0
         Top = 0
-        Width = 827
-        Height = 392
+        Width = 859
+        Height = 405
         Align = alClient
         Lines.Strings = (
           'ActivityLogMemo')
         ReadOnly = True
         ScrollBars = ssBoth
         TabOrder = 2
-        ExplicitLeft = 257
-        ExplicitWidth = 570
       end
     end
     object ConfigurationTabSheet: TTabSheet
@@ -197,10 +235,10 @@ object sinkmainform: Tsinkmainform
       object SourceAndTargetFoldersStringGrid: TStringGrid
         Left = 0
         Top = 0
-        Width = 827
-        Height = 450
+        Width = 859
+        Height = 410
         Align = alClient
-        ColCount = 2
+        ColCount = 4
         DefaultRowHeight = 20
         FixedCols = 0
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
@@ -208,18 +246,20 @@ object sinkmainform: Tsinkmainform
         OnClick = SourceAndTargetFoldersStringGridClick
         ColWidths = (
           391
-          430)
+          430
+          64
+          64)
       end
       object Panel3: TPanel
         Left = 0
-        Top = 450
-        Width = 827
-        Height = 92
+        Top = 410
+        Width = 859
+        Height = 139
         Align = alBottom
         TabOrder = 1
         DesignSize = (
-          827
-          92)
+          859
+          139)
         object SourceFolderLabel: TLabel
           Left = 88
           Top = 9
@@ -233,6 +273,13 @@ object sinkmainform: Tsinkmainform
           Width = 65
           Height = 13
           Caption = 'Target Folder'
+        end
+        object Label2: TLabel
+          Left = 88
+          Top = 63
+          Width = 26
+          Height = 13
+          Caption = 'Mode'
         end
         object NewBitBtn: TBitBtn
           Left = 5
@@ -309,7 +356,7 @@ object sinkmainform: Tsinkmainform
         object SourceFolderEdit: TEdit
           Left = 160
           Top = 6
-          Width = 632
+          Width = 664
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
@@ -319,7 +366,7 @@ object sinkmainform: Tsinkmainform
         object TargetFolderEdit: TEdit
           Left = 160
           Top = 33
-          Width = 632
+          Width = 664
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 4
@@ -327,7 +374,7 @@ object sinkmainform: Tsinkmainform
           OnChange = TargetFolderEditChange
         end
         object SourceFolderBrowseBitBtn: TBitBtn
-          Left = 796
+          Left = 828
           Top = 6
           Width = 25
           Height = 21
@@ -363,12 +410,12 @@ object sinkmainform: Tsinkmainform
             F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8}
         end
         object TargetFolderBrowseBitBtn: TBitBtn
-          Left = 796
+          Left = 828
           Top = 33
           Width = 25
           Height = 21
           Anchors = [akTop, akRight]
-          TabOrder = 5
+          TabOrder = 6
           OnClick = TargetFolderBrowseBitBtnClick
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
@@ -399,13 +446,13 @@ object sinkmainform: Tsinkmainform
             F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8F8}
         end
         object ApplyChangesBitBtn: TBitBtn
-          Left = 160
-          Top = 60
+          Left = 5
+          Top = 106
           Width = 113
           Height = 25
           Caption = 'Apply changes'
           Enabled = False
-          TabOrder = 6
+          TabOrder = 8
           OnClick = ApplyChangesBitBtnClick
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
@@ -436,13 +483,13 @@ object sinkmainform: Tsinkmainform
             00000000000303034D4D4DB3B3B3FFFFFFFFFFFFFFFFFFFFFFFF}
         end
         object DiscardChangesBitBtn: TBitBtn
-          Left = 280
-          Top = 60
+          Left = 125
+          Top = 106
           Width = 114
           Height = 25
           Caption = 'Discard Changes'
           Enabled = False
-          TabOrder = 7
+          TabOrder = 9
           OnClick = DiscardChangesBitBtnClick
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
@@ -472,6 +519,40 @@ object sinkmainform: Tsinkmainform
             5FE9E9E9F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56565652828280B
             0B0B0A0A0A282828656565C5C5C5F5F5F5F5F5F5F5F5F5F5F5F5}
         end
+        object copymodeComboBox: TComboBox
+          Left = 159
+          Top = 60
+          Width = 694
+          Height = 21
+          Anchors = [akLeft, akTop, akRight]
+          ItemHeight = 13
+          ItemIndex = 0
+          TabOrder = 5
+          Text = 
+            'Copy files from the Source folder that are not present in the Ta' +
+            'rget folder.'
+          OnChange = copymodeComboBoxChange
+          Items.Strings = (
+            
+              'Copy files from the Source folder that are not present in the Ta' +
+              'rget folder.'
+            
+              'Copy files from the Source folder that are not present in the Ta' +
+              'rget folder OR have been changed in the Source folder.')
+        end
+        object DeleteFilesCheckBox: TCheckBox
+          Left = 88
+          Top = 85
+          Width = 761
+          Height = 17
+          Alignment = taLeftJustify
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 
+            'Delete files from the Target folder that are no longer present i' +
+            'n the Source folder after syncing Source and Target folders?'
+          TabOrder = 7
+          OnClick = DeleteFilesCheckBoxClick
+        end
       end
     end
     object DocumentationTabSheet: TTabSheet
@@ -480,8 +561,8 @@ object sinkmainform: Tsinkmainform
       object Memo1: TMemo
         Left = 0
         Top = 0
-        Width = 827
-        Height = 542
+        Width = 859
+        Height = 549
         Align = alClient
         BevelOuter = bvRaised
         Lines.Strings = (
@@ -542,7 +623,7 @@ object sinkmainform: Tsinkmainform
   object ImageList1: TImageList
     Left = 296
     Bitmap = {
-      494C010103001000500010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C0101030010007C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       00000000000000000000000000000000000000000000D2D2D2008C8C8C008C8C
       8C008C8C8C008C8C8C00BBBBBB000000000000000000C8C8C8008C8C8C008C8C

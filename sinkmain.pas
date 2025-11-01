@@ -5,13 +5,21 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, ImgList, Grids, Buttons, cxControls, cxContainer, cxEdit,
-  cxProgressBar, jpeg, pngimage;
+  ComCtrls, ImgList, Grids, Buttons;
+
+const
+ runmodecopyfiles : integer = 0;
+ runmodesetfilestamps : integer = 1;
+
+ copyifnotpresent : integer = 0;
+ copyifnotpresentorchanged : integer = 1;
 
 type
   source_and_target_rec = record
    sourcefolder : string;
    targetfolder : string;
+   copymode : integer;
+   deletefiles : boolean;
   end;
 
   Tsinkmainform = class(TForm)
@@ -37,7 +45,6 @@ type
     pathLabel: TLabel;
     filenameLabel: TLabel;
     Label1: TLabel;
-    ProgressBarBR: TcxProgressBar;
     Panel1: TPanel;
     StartButton: TBitBtn;
     ActivityLogMemo: TMemo;
@@ -46,6 +53,11 @@ type
     LabelTR: TLabel;
     LabelTET: TLabel;
     LabelTRT: TLabel;
+    copymodeComboBox: TComboBox;
+    ProgressBarBR: TProgressBar;
+    Label2: TLabel;
+    DeleteFilesCheckBox: TCheckBox;
+    setfilestampsbutton: TBitBtn;
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SourceAndTargetFoldersStringGridClick(Sender: TObject);
@@ -59,11 +71,15 @@ type
     procedure ApplyChangesBitBtnClick(Sender: TObject);
     procedure DiscardChangesBitBtnClick(Sender: TObject);
     procedure StopbuttonClick(Sender: TObject);
+    procedure copymodeComboBoxChange(Sender: TObject);
+    procedure DeleteFilesCheckBoxClick(Sender: TObject);
+    procedure setfilestampsbuttonClick(Sender: TObject);
   private
     { Private declarations }
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     master_filesize : int64;
+    master_bytes_written : int64;
     abort : boolean;
     PT1,PTL : TDateTime;
   public
@@ -72,8 +88,8 @@ type
     procedure save_ini_settings;
     procedure fill_in_SourceAndTargetFoldersStringGrid;
     function fn_SourceAndTargetFoldersStringGrid_has_changed : boolean;
-    procedure run_process;
-    procedure sIncProgress(numw : longint);
+    procedure run_process(runmode : integer);
+    procedure sIncProgress(numw : int64);
   end;
 
 var
@@ -83,8 +99,42 @@ implementation
 
 {$R *.dfm}
 
-uses dhpstrutils,shlobj,activex,PBFolderDialog;
+uses shlobj,activex,PBFolderDialog;
 
+function FileTime2DateTime(FileTime: TFileTime): TDateTime;
+// Copied from \Custom\FileCopier.pas to DHPFileUtils.pas - Paul : 2008-07-08
+var
+   LocalFileTime : TFileTime;
+   SystemTime : TSystemTime;
+begin
+     FileTimeToLocalFileTime(FileTime, LocalFileTime);
+     FileTimeToSystemTime(LocalFileTime, SystemTime);
+     Result := SystemTimeToDateTime(SystemTime);
+end;
+
+function GetFileDetails(sFileName : string; var FileDateTime : TDateTime; var iFileSize : int64) : boolean;
+// Copied from \Custom\FileCopier.pas to DHPFileUtils.pas - Paul : 2008-07-08
+// Moved from CanOverwriteFile so that other procedures / functions can call it - Paul : 04/05/2005
+var
+  SearchRec : TSearchRec;
+begin
+  Result := false;
+  FileDateTime := 0;
+  iFileSize := 0;
+
+  if FindFirst(sFileName, faANYFILE, SearchRec) = 0 then
+  begin
+    FileDateTime := FileTime2DateTime(SearchRec.FindData.ftLastWriteTime);
+    // iFileSize := SearchRec.Size;
+    // Switched to 64 bit sized integer so we can have file sizes greater than 2GB! - Paul : 05/05/2005
+    // Source for doing this: http://groups.google.co.uk/group/borland.public.delphi.objectpascal/msg/c0b83e81e937d225?dmode=source&hl=en
+    // Also look at thread "Get file size bigger than 2GB?"
+    TULargeInteger(iFileSize).LowPart := SearchRec.FindData.nFileSizeLow;
+    TULargeInteger(iFileSize).HighPart := SearchRec.FindData.nFileSizeHigh;
+    FindClose(SearchRec);
+    Result := true;
+  end;
+end;
 
 function DelimitPath(PathIn : string) : string;
 begin
@@ -92,6 +142,34 @@ begin
  if PathIn <> '' then
   if PathIn[Length(PathIn)] <> '\' then
    Result := PathIn + '\';
+end;
+
+function sr(s : real; intpart,fractpart : integer) : string;
+var
+ st : string;
+begin
+ str(s:intpart:fractpart,st);
+ result := st;
+end;
+
+function strip(s : string) : string;
+var
+ i : integer;
+begin
+ i := length(s);
+ while (i > 0) and (s[i] = ' ') do dec(i);
+ setlength(s,i);
+ result := s;
+end;
+
+function stripfront(s : string) : string;
+var
+ i,l : integer;
+begin
+ i := 1;  l := length(s);
+ while (i <= l) and (s[i] = ' ') do inc(i);
+ delete(s,1,i-1);
+ result := s;
 end;
 
 function GetLocation(Folder: DWord): String;
@@ -161,10 +239,10 @@ begin
  end;
 end;
 
-procedure Tsinkmainform.sIncProgress(numw : longint);
+procedure Tsinkmainform.sIncProgress(numw : int64);
 var
  T : TDateTime;
- throughput,numsec : double;
+ throughput,numsec,onepercent,progpos : double;
  throughputstr : string;
 
 function NumberOfSeconds(tim: TDateTime): double;
@@ -175,7 +253,11 @@ begin
 end;
 
 begin
- ProgressBarBR.Position := ProgressBarBR.Position + numw;
+ master_bytes_written := master_bytes_written + numw;
+ onepercent := master_filesize / 1000; // Note that progbar.max = 1000 not 100 so as to improve the granularity of the progress bar.
+ progpos := master_bytes_written / onepercent;
+ if master_filesize - master_bytes_written < onepercent then progpos := 1000;
+ ProgressBarBR.Position := trunc(progpos);
 
  PTL := now;
  T := PTL - PT1;
@@ -186,7 +268,7 @@ begin
    numsec := NumberOfSeconds(T);
    if numsec > 0 then
     begin
-     throughput := ProgressBarBR.Position; // Bytes written.
+     throughput := master_bytes_written; // Bytes written.
      throughput := throughput/1024; // 1024 = kilo bytes.
      throughput := throughput/1024; // 1024 = Mega bytes.
      throughputstr := ' Read+Write Speed '+sr(throughput/numsec,12,1) + ' MB/s';
@@ -197,18 +279,20 @@ begin
    throughputstr := '';
   end;
 
- if ProgressBarBR.Position > 0 then
+ if master_bytes_written > 0 then
   begin
-   T := (PTL - PT1) * (1 - ProgressBarBR.properties.Max / ProgressBarBR.Position);
+   T := (PTL - PT1) * (1 - master_filesize / master_bytes_written);
   end
   else T := 0;
  LabelTRT.Caption := FormatDateTime('hh:mm.ss', T) + throughputstr; // Time remaning + Throughout
 
 end;
 
-procedure Tsinkmainform.run_process;
+procedure Tsinkmainform.run_process(runmode : integer);
 var
  sourcefolder,targetfolder : string;
+ copymode : integer;
+ deletefiles : boolean;
  dtop : string;
  pass,ct : integer;
 
@@ -249,7 +333,7 @@ var
  f,f1 : file;
  numr,numw : longint;
  psave : ^ppsave;
- propertofile,origfileext,killfile : string;
+ propertofile,origfileext : string;
  ct : integer;
 begin
  {$I-}
@@ -289,22 +373,27 @@ begin
  if result then // OK, if it worked, then rename the tofile.tmp to tofile.<correct file extension>:
   begin
    propertofile := ChangeFileExt(tofile,origfileext);
+   deletefile(propertofile); // In case the target file exists we need to delete it just in case.
    renamefile(tofile,propertofile);
   end
   else // Didn't work - kill the duff target file.
   begin
+   ActivityLogMemo.Lines.Add('Error: Unable to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
    deletefile(tofile);
   end;
  if ioresult = 0 then begin end;
  {$I+}
 end;
 
-procedure scanforfiles(scanmode : integer; startpath : string);
+procedure scanforfiles(scanmode : integer; startpath : string; copymode : integer; deletefiles : boolean);
 var
  mySearchRec : sysutils.TSearchRec;
  ReturnValue : integer;
  s : string;
- doit : boolean;
+ doit,oktosettimestamp : boolean;
+ sourceFileDateTime,targetFileDateTime : TDateTime;
+ sourceFileSize,targetFileSize : Int64;
+ use_windows_copyfile : boolean;
 begin
  {$I-}
  try
@@ -319,7 +408,7 @@ begin
        (pos('THUMBS.DB',uppercase(mySearchRec.name)) = 0) and
        (pos('INDEXERVOLUMEGUID',uppercase(mySearchRec.name)) = 0) then
     begin
-     scanforfiles(scanmode,startpath+mysearchrec.name+'\');
+     scanforfiles(scanmode,startpath+mysearchrec.name+'\',copymode,deletefiles);
     end
     else if (mySearchRec.Attr and faDirectory = 0) and
             (pos('THUMBS.DB',uppercase(mySearchRec.name)) = 0) and
@@ -327,32 +416,162 @@ begin
     begin
      application.processmessages;
      doit := false;
+     oktosettimestamp := false;
      s := stringreplace(startpath+mysearchrec.name,sourcefolder,targetfolder,[rfreplaceall,rfignorecase]);
-     if not fileexists(s) then doit := true;
-     // Danny 10-8-2023:
-     // Apparently delphi "assignfile" has a limit of 259 char limit so can't do those...
-     if length(startpath+mysearchrec.name) > 258 then doit := false;
-     if length(s) > 258 then doit := false;
-     if doit then
+
+     if scanmode = 2 then // Scanmode = "2" = delete files present in targetfolder that are not present in the sourcefolder. The "startpath" is the targetfolder.
       begin
-       // Copy: startpath+mysearchrec.name to "s":
-       if scanmode = 0 then // Scan only...
+       if deletefiles then
         begin
-         pathlabel.caption := 'Scanning Folder: '+startpath;
-         filenamelabel.caption := 'Scanning File: '+mysearchrec.name;
-         application.processmessages;
-         master_filesize := master_filesize + mysearchrec.Size;
-        end
-        else
+         s := stringreplace(startpath+mysearchrec.name,targetfolder,sourcefolder,[rfreplaceall,rfignorecase]);
+         if not fileexists(s) then // Not present in Source folder?
+          begin
+           ActivityLogMemo.Lines.Add('File "'+mysearchrec.name+'" in the Target folder "'+targetfolder+'" does not exist in the Source folder "'+sourcefolder+'" so deleting it.');
+           deletefile(startpath+mysearchrec.name);
+          end;
+        end;
+      end
+      else if scanmode = 3 then // 3 = setfilestamps mode.
+      begin
+       if fileexists(s) then
         begin
-         pathlabel.caption := 'Coping From: '+startpath;
-         filenamelabel.caption := 'Coping File: '+mysearchrec.name;
-         application.processmessages;
-         if fn_make_and_test_folder(extractfilepath(s)) then
-         begin
-          if fn_optimacopyfile(startpath+mysearchrec.name,s) then;
-          ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
+         oktosettimestamp := false;
+         try
+          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then oktosettimestamp := true;
+         except
+          oktosettimestamp := false
          end;
+         if oktosettimestamp then doit := true;
+         try
+          if oktosettimestamp and GetFileDetails(s,targetFileDateTime,targetFileSize) then
+           begin
+            if abs(sourceFileDateTime - targetFileDateTime) < encodetime(0,1,0,0) then // < 1 minute differnet? If so, then don't bother updating the target file's date + time stamp.
+             begin
+              doit := false;
+             end;
+           end;
+         except
+          doit := false;
+         end;
+        end;
+      end
+      else
+      begin
+       // OK, If "copymode" = copyifnotpresent (0) or copyifnotpresentorchanged (1) and the source file does not exist in the target folder then we DO want to copy it:
+       oktosettimestamp := false;
+       if not fileexists(s) then
+        begin
+         try
+          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then oktosettimestamp := true;
+          doit := true;
+         except
+          doit := false;
+         end;
+        end
+        else if copymode = copyifnotpresentorchanged then
+        begin
+         // Source file does not exist in the target folder but copymode = copyifnotpresentorchanged so if the file size of the source and target file is different then we DO want to (re)copy this file:
+         try
+          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then
+           begin
+            oktosettimestamp := true;
+            if GetFileDetails(s,targetFileDateTime,targetFileSize) then
+             begin
+              if sourceFileSize <> targetFileSize then
+               begin
+                doit := true;
+               end
+               else
+               begin
+                // Size is same but what about the timestamps?
+                if abs(sourceFileDateTime - targetFileDateTime) > encodetime(0,1,0,0) then // > 1 minute differnet? (so as not to risk odd differences in timestamps between different file systems 1 minute should be "safe").
+                 begin
+                  doit := true;
+                 end;
+               end;
+             end;
+           end;
+         except
+          doit := false;
+         end;
+        end;
+      end;
+     if scanmode <> 2 then // 2 = Delete files mode so don't do any of this stuff:
+      begin
+       // Danny 10-8-2023:
+       // Apparently delphi "assignfile" has a limit of 259 char limit so can't do those using "fn_optimacopyfile" use "windows.copyfile" instead:
+       use_windows_copyfile := false;
+       if (length(startpath+mysearchrec.name) > 258) or (length(s) > 258) then
+        begin
+         if scanmode = 1 then // Only care about the actual file copy mode (scanmode = 1).
+          begin
+           use_windows_copyfile := true;
+          end;
+        end;
+       if doit then
+        begin
+         // Copy: startpath+mysearchrec.name to "s":
+         if scanmode = 3 then // 3 = setfilestamps mode.
+          begin
+           try
+            FileSetDate(s,DateTimeToFileDate(sourcefiledatetime));
+            ActivityLogMemo.Lines.Add('Set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
+           except
+            ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
+           end;
+          end
+          else if scanmode = 0 then // Scan only...
+          begin
+           pathlabel.caption := 'Scanning Folder: '+startpath;
+           filenamelabel.caption := 'Scanning File: '+mysearchrec.name;
+           application.processmessages;
+           if fileexists(startpath+mysearchrec.name) then
+            begin
+             master_filesize := master_filesize + mysearchrec.Size;
+            end;
+          end
+          else if scanmode = 1 then // Main "copy files" scan mode:
+          begin
+           if fileexists(startpath+mysearchrec.name) then
+            begin
+             pathlabel.caption := 'Coping From: '+startpath;
+             filenamelabel.caption := 'Coping File: '+mysearchrec.name;
+             application.processmessages;
+             if fn_make_and_test_folder(extractfilepath(s)) then
+              begin
+               if use_windows_copyfile then
+                begin
+                 try
+                  windows.CopyFile(pchar(startpath+mysearchrec.name),pchar(s),false);
+                 except
+                 end;
+                 sIncProgress(mysearchrec.Size);
+                 application.processmessages;
+                end
+                else
+                begin
+                 if fn_optimacopyfile(startpath+mysearchrec.name,s) then;
+                end;
+               if oktosettimestamp then
+                begin
+                 if fileexists(s) then
+                  begin
+                   // OK: Set the date time stamp on the "new" target file (s) to match the date time stamp on the source file:
+                   try
+                    FileSetDate(s,DateTimeToFileDate(sourcefiledatetime));
+                   except
+                    ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
+                   end;
+                  end;
+                end;
+               ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
+              end
+              else
+              begin
+               ActivityLogMemo.Lines.Add('Error: Failed to create/access Target folder "'+extractfilepath(s)+'".');
+              end;
+            end;
+          end;
         end;
       end;
     end;
@@ -366,11 +585,11 @@ begin
  end;
 end;
 
-procedure sync_folders(scanmode : integer; sourcefolder,targetfolder : string);
+procedure sync_folders(scanmode : integer; sourcefolder,targetfolder: string; copymode : integer; deletefiles : boolean);
 begin
  pathlabel.caption := 'Scanning: '+sourcefolder;
  filenamelabel.caption := '';
- scanforfiles(scanmode,sourcefolder);
+ scanforfiles(scanmode,sourcefolder,copymode,deletefiles);
 end;
 
 begin
@@ -381,32 +600,70 @@ begin
  LabelTRT.Caption := '......';
  PT1 := now;
  try
-  master_filesize := 0;
+  master_filesize := 0; master_bytes_written := 0;
   if source_and_target_array_count > 0 then
    begin
-    pass := 0;
-    while (pass <= 1) and not abort do
+    if runmode = runmodecopyfiles then
      begin
-      if pass = 1 then
+      pass := 0;
+      while (pass <= 1) and not abort do
        begin
-        ProgressBarBR.Position := 0;
-        ProgressBarBR.properties.Max := master_filesize;
-        progressbarbr.visible := true;
+        if pass = 1 then
+         begin
+          ProgressBarBR.Position := 0;
+          try
+           ProgressBarBR.Max := 1000;
+          except
+          end;
+          progressbarbr.visible := true;
+         end;
+        ct := 0;
+        while (ct < source_and_target_array_count) and not abort do
+         begin
+          sourcefolder := source_and_target_array[ct].sourcefolder;
+          targetfolder := source_and_target_array[ct].targetfolder;
+          copymode := source_and_target_array[ct].copymode;
+          deletefiles := source_and_target_array[ct].deletefiles;
+          if pass = 0 then
+           begin
+            ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
+            ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'".');
+           end;
+          sync_folders(pass,sourcefolder,targetfolder,copymode,deletefiles);
+          inc(ct);
+         end;
+        inc(pass);
        end;
+      // OK, now got back through the source_and_target_array and if any of them have the "deletfiles" option enabled the do an extra pass (2) to delete any files that are present in
+      // the target folder but are NOT present in the source folder:
+      ct := 0;
+      while (ct < source_and_target_array_count) and not abort do
+       begin
+        if source_and_target_array[ct].deletefiles then
+         begin
+          sourcefolder := source_and_target_array[ct].sourcefolder;
+          targetfolder := source_and_target_array[ct].targetfolder;
+          copymode := source_and_target_array[ct].copymode;
+          deletefiles := source_and_target_array[ct].deletefiles;
+          ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
+          ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'" to locate any files that need to be deleted.');
+          sync_folders(2,targetfolder,sourcefolder,copymode,deletefiles); // Pass "2" = delete files.
+         end;
+        inc(ct);
+       end;
+     end
+     else if runmode = runmodesetfilestamps then
+     begin
       ct := 0;
       while (ct < source_and_target_array_count) and not abort do
        begin
         sourcefolder := source_and_target_array[ct].sourcefolder;
         targetfolder := source_and_target_array[ct].targetfolder;
-        if pass = 0 then
-         begin
-          ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
-          ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'".');
-         end;
-        sync_folders(pass,sourcefolder,targetfolder);
+        copymode := source_and_target_array[ct].copymode;
+        deletefiles := source_and_target_array[ct].deletefiles;
+        sync_folders(3,sourcefolder,targetfolder,copymode,deletefiles); // Pass "3" = set filestamps on target folder files.
         inc(ct);
        end;
-      inc(pass);
      end;
    end;
 
@@ -433,6 +690,26 @@ procedure Tsinkmainform.SourceAndTargetFoldersStringGridClick(Sender: TObject);
 begin
  sourcefolderedit.Text := SourceAndTargetFoldersStringGrid.cells[0,SourceAndTargetFoldersStringGrid.Row];
  targetfolderedit.Text := SourceAndTargetFoldersStringGrid.cells[1,SourceAndTargetFoldersStringGrid.Row];
+ if SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.Row] <> '' then
+  begin
+   try
+    copymodecombobox.ItemIndex := strtoint(SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.Row]);
+   except
+    copymodecombobox.ItemIndex := 0; // copyifnotpresent
+   end;
+  end
+  else
+  begin
+   copymodecombobox.ItemIndex := 0; // copyifnotpresent
+  end;
+ if SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.Row] <> '' then
+  begin
+   deletefilescheckbox.Checked := SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.Row] = 'Y';
+  end
+  else
+  begin
+   deletefilescheckbox.Checked := false;
+  end;
 end;
 
 procedure Tsinkmainform.SourceFolderBrowseBitBtnClick(Sender: TObject);
@@ -460,6 +737,7 @@ begin
   end;
 end;
 
+
 procedure Tsinkmainform.TargetFolderBrowseBitBtnClick(Sender: TObject);
 var
  stemp : string;
@@ -485,16 +763,48 @@ begin
   end;
 end;
 
+procedure Tsinkmainform.copymodeComboBoxChange(Sender: TObject);
+begin
+ try
+  SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.Row] := inttostr(copymodecombobox.ItemIndex);
+ except
+  SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.Row] := '0'; // copyifnotpresent
+ end;
+ if fn_SourceAndTargetFoldersStringGrid_has_changed then
+  begin
+   applychangesbitbtn.Enabled := true;
+   discardchangesbitbtn.Enabled := true;
+  end;
+end;
+
+procedure Tsinkmainform.DeleteFilesCheckBoxClick(Sender: TObject);
+begin
+ if deletefilescheckbox.Checked then SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.Row] := 'Y' else SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.Row] := 'N';
+ if fn_SourceAndTargetFoldersStringGrid_has_changed then
+  begin
+   applychangesbitbtn.Enabled := true;
+   discardchangesbitbtn.Enabled := true;
+  end;
+end;
+
 procedure Tsinkmainform.fill_in_SourceAndTargetFoldersStringGrid;
 var
  ct : integer;
  sourcefolder,targetfolder : string;
+ copymode : integer;
+ deletefiles : boolean;
 begin
  SourceAndTargetFoldersStringGrid.rowcount := 2;
  SourceAndTargetFoldersStringGrid.cells[0,0] := 'Source Folders';
  SourceAndTargetFoldersStringGrid.cells[1,0] := 'Target Folders';
+ SourceAndTargetFoldersStringGrid.cells[2,0] := '';
+ SourceAndTargetFoldersStringGrid.cells[3,0] := '';
  SourceAndTargetFoldersStringGrid.cells[0,1] := '';
  SourceAndTargetFoldersStringGrid.cells[1,1] := '';
+ SourceAndTargetFoldersStringGrid.cells[2,1] := '';
+ SourceAndTargetFoldersStringGrid.cells[3,1] := '';
+ copymodecombobox.ItemIndex := 0; // copyifnotpresent
+ deletefilescheckbox.Checked := false;
  if source_and_target_array_count > 0 then
   begin
    ct := 0;
@@ -502,9 +812,13 @@ begin
     begin
      if ct > 0 then SourceAndTargetFoldersStringGrid.rowcount := SourceAndTargetFoldersStringGrid.rowcount + 1;
      sourcefolder := source_and_target_array[ct].sourcefolder;
-     targetfolder := source_and_target_array[ct].targetfolder;
      SourceAndTargetFoldersStringGrid.cells[0,ct+1] := sourcefolder;
+     targetfolder := source_and_target_array[ct].targetfolder;
      SourceAndTargetFoldersStringGrid.cells[1,ct+1] := targetfolder;
+     copymode := source_and_target_array[ct].copymode;
+     SourceAndTargetFoldersStringGrid.cells[2,ct+1] := inttostr(copymode);
+     deletefiles := source_and_target_array[ct].deletefiles;
+     if deletefiles then SourceAndTargetFoldersStringGrid.cells[3,ct+1] := 'Y' else SourceAndTargetFoldersStringGrid.cells[3,ct+1] := 'N';
      inc(ct);
     end;
   end;
@@ -543,6 +857,8 @@ begin
      SourceAndTargetFoldersStringGrid.rowcount := 2;
      SourceAndTargetFoldersStringGrid.cells[0,1] := '';
      SourceAndTargetFoldersStringGrid.cells[1,1] := '';
+     SourceAndTargetFoldersStringGrid.cells[2,1] := '';
+     SourceAndTargetFoldersStringGrid.cells[3,1] := '';
      SourceAndTargetFoldersStringGrid.Row := 1;
      SourceAndTargetFoldersStringGridClick(nil);
      applychangesbitbtn.Enabled := true;
@@ -553,6 +869,8 @@ begin
      // Just delete last row then.
      SourceAndTargetFoldersStringGrid.cells[0,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
      SourceAndTargetFoldersStringGrid.cells[1,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
+     SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
+     SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
      SourceAndTargetFoldersStringGrid.rowcount := SourceAndTargetFoldersStringGrid.rowcount -1;
      SourceAndTargetFoldersStringGrid.Row := SourceAndTargetFoldersStringGrid.rowcount-1;
      SourceAndTargetFoldersStringGridClick(nil);
@@ -569,11 +887,15 @@ begin
     begin
      SourceAndTargetFoldersStringGrid.cells[0,ct] := SourceAndTargetFoldersStringGrid.cells[0,ct+1];
      SourceAndTargetFoldersStringGrid.cells[1,ct] := SourceAndTargetFoldersStringGrid.cells[1,ct+1];
+     SourceAndTargetFoldersStringGrid.cells[2,ct] := SourceAndTargetFoldersStringGrid.cells[2,ct+1];
+     SourceAndTargetFoldersStringGrid.cells[3,ct] := SourceAndTargetFoldersStringGrid.cells[3,ct+1];
      ct := ct + 1;
     end;
    // Now delete last row.
    SourceAndTargetFoldersStringGrid.cells[0,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
    SourceAndTargetFoldersStringGrid.cells[1,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
+   SourceAndTargetFoldersStringGrid.cells[2,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
+   SourceAndTargetFoldersStringGrid.cells[3,SourceAndTargetFoldersStringGrid.rowcount -1] := '';
    SourceAndTargetFoldersStringGrid.rowcount := SourceAndTargetFoldersStringGrid.rowcount -1;
    SourceAndTargetFoldersStringGrid.Row := SourceAndTargetFoldersStringGrid.rowcount-1;
    SourceAndTargetFoldersStringGridClick(nil);
@@ -591,6 +913,8 @@ end;
 procedure Tsinkmainform.load_ini_settings;
 var
  s,appdatafolder,sourcefolder,targetfolder : string;
+ x,copymode : integer;
+ finished,deletefiles : boolean;
  f : textfile;
 begin
  {$I-}
@@ -604,7 +928,8 @@ begin
     begin
      readln(f,s);
      // Is it a "[Source Folder]"? If so them MUST be followed be "[Target Folder]" line so read them both:
-     if uppercase(copy(s,1,15)) = '[SOURCE FOLDER]' then
+     copymode := copyifnotpresent; deletefiles := false;
+     if uppercase(copy(s,1,15)) = '[SOURCE FOLDER]' then // Legacy type file.
       begin
        targetfolder := '';
        sourcefolder := copy(s,16,length(s));
@@ -618,6 +943,69 @@ begin
          inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
          source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
          source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
+         source_and_target_array[source_and_target_array_count-1].copymode := copymode;
+         source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
+        end;
+      end
+      else
+      begin
+       // New type sink.ini:
+       if pos('<START_DEFINITION>',uppercase(s)) > 0 then
+        begin
+         sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
+         finished := false;
+         while not finished and not eof(f) do
+          begin
+           readln(f,s);
+           s := strip(stripfront(s));
+           if copy(s,1,1) <> '#' then // Ignore comments.
+            begin
+             if pos('SOURCE_FOLDER=',uppercase(s)) > 0 then
+              begin
+               x := pos('=',uppercase(s));
+               s := copy(s,x+1,length(s));
+               s := strip(stripfront(s));
+               sourcefolder := s;
+              end
+              else if pos('TARGET_FOLDER=',uppercase(s)) > 0 then
+              begin
+               x := pos('=',uppercase(s));
+               s := copy(s,x+1,length(s));
+               s := strip(stripfront(s));
+               targetfolder := s;
+              end
+              else if pos('COPY_MODE=',uppercase(s)) > 0 then
+              begin
+               x := pos('=',uppercase(s));
+               s := copy(s,x+1,length(s));
+               s := strip(stripfront(s));
+               try
+                copymode := strtoint(s);
+               except
+                copymode := copyifnotpresent;
+               end;
+              end
+              else if pos('DELETE_FILES=',uppercase(s)) > 0 then
+              begin
+               x := pos('=',uppercase(s));
+               s := copy(s,x+1,length(s));
+               s := strip(stripfront(s));
+               deletefiles := uppercase(copy(s,1,1)) = 'Y';
+              end
+              else if pos('<END_DEFINITION>',uppercase(s)) > 0 then
+              begin
+               finished := true;
+               if (sourcefolder <> '') and (targetfolder <> '') then
+                begin
+                 inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
+                 source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
+                 source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
+                 source_and_target_array[source_and_target_array_count-1].copymode := copymode;
+                 source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
+                end;
+              end;
+            end;
+          end;
         end;
       end;
     end;
@@ -639,6 +1027,7 @@ begin
   begin
    if source_and_target_array_count > 0 then
     begin
+     writeln(f,'# Sink.exe configuration file. If you are no longer using the Sink.exe file syncing/backup applidation then you can safely delete this file.');
      ct := 0;
      while ct < source_and_target_array_count do
       begin
@@ -646,8 +1035,19 @@ begin
        targetfolder := source_and_target_array[ct].targetfolder;
        if (sourcefolder <> '') and (targetfolder <> '') then
         begin
-         writeln(f,'[Source Folder]'+sourcefolder);
-         writeln(f,'[Target Folder]'+targetfolder);
+         writeln(f,'<Start_Definition>');
+         writeln(f,' Source_Folder='+sourcefolder);
+         writeln(f,' Target_Folder='+targetfolder);
+         writeln(f,' Copy_Mode='+inttostr(source_and_target_array[ct].copymode));
+         if source_and_target_array[ct].deletefiles then
+          begin
+           writeln(f,' Delete_Files=Y');
+          end
+          else
+          begin
+           writeln(f,' Delete_Files=N');
+          end;
+         writeln(f,'<End_Definition>');
         end;
        inc(ct);
       end;
@@ -658,8 +1058,10 @@ end;
 
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
 var
- ct : integer;
- sourcefolder,targetfolder : string;
+ ct,ct1 : integer;
+ sourcefolder,targetfolder,thistargetfolder,testtargetfolder,mes : string;
+ copymode : integer;
+ deletefiles,bad : boolean;
 begin
  // Transfer grid to array and then save to ini.
  source_and_target_array_count := 0; setlength(source_and_target_array,source_and_target_array_count);
@@ -668,15 +1070,79 @@ begin
   begin
    sourcefolder := SourceAndTargetFoldersStringGrid.cells[0,ct];
    targetfolder := SourceAndTargetFoldersStringGrid.cells[1,ct];
+   if SourceAndTargetFoldersStringGrid.cells[2,ct] = '' then
+    begin
+     copymode := copyifnotpresent;
+    end
+    else
+    begin
+     try
+      copymode := strtoint(SourceAndTargetFoldersStringGrid.cells[2,ct]);
+     except
+      copymode := copyifnotpresent;
+     end;
+    end;
+   deletefiles := SourceAndTargetFoldersStringGrid.cells[3,ct] = 'Y';
    if (sourcefolder <> '') and (targetfolder <> '') then
     begin
      inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
      source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
      source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
+     source_and_target_array[source_and_target_array_count-1].copymode := copymode;
+     source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
     end;
    inc(ct);
   end;
- save_ini_settings;
+ // Sanity check the targetfolders to make sure thay are unique and safe to use:
+ bad := false;
+ if source_and_target_array_count > 1 then // OK it only one defined.
+  begin
+   ct := 0;
+   while (ct < source_and_target_array_count) and not bad do
+    begin
+     ct1 := 0;
+     while (ct1 < source_and_target_array_count) and not bad do
+      begin
+       if ct <> ct1 then // Don't do yourself.
+        begin
+         thistargetfolder := source_and_target_array[ct].targetfolder;
+         testtargetfolder := source_and_target_array[ct1].targetfolder;
+         // OK, two different folders e.g. "d:\backup\" and "d:\backup\files\" - no good.
+         if uppercase(thistargetfolder) = uppercase(testtargetfolder) then
+          begin
+           bad := true; // Exact match - no good.
+          end
+          else
+          begin
+           if length(thistargetfolder) > length(testtargetfolder) then // E.g. "d:\backup\files\" (this) and "d:\backup\" (test) no good:
+            begin
+             if copy(uppercase(testtargetfolder),1,length(testtargetfolder)) = copy(uppercase(thistargetfolder),1,length(testtargetfolder)) then
+              begin
+               bad := true;
+              end;
+            end;
+          end;
+         if bad then
+          begin
+           mes := 'Error: The Specified Target folders:'+#13+#13+
+                  '"'+thistargetfolder+'"'+#13+
+                  'and:'+#13+
+                  '"'+testtargetfolder+'"'+#13+#13+
+                  'Are in conflict.'+#13+#13+
+                  'All specified Target folders must be unique and not be a sub-folder of another Target folder.'+#13+#13+
+                  'Please correct this and re-apply your changes.';
+           if messagedlg(mes,mterror,[mbok],0) = mrok then begin end;
+          end;
+        end;
+       inc(ct1);
+      end;
+     inc(ct);
+    end;
+  end;
+ if not bad then
+  begin
+   save_ini_settings;
+  end;
  fill_in_SourceAndTargetFoldersStringGrid;
 end;
 
@@ -684,6 +1150,8 @@ function Tsinkmainform.fn_SourceAndTargetFoldersStringGrid_has_changed : boolean
 var
  ct : integer;
  sourcefolder,targetfolder : string;
+ copymode : integer;
+ deletefiles : boolean;
 begin
  result := false;
  if source_and_target_array_count = SourceAndTargetFoldersStringGrid.rowcount-1 then
@@ -693,8 +1161,23 @@ begin
     begin
      sourcefolder := SourceAndTargetFoldersStringGrid.cells[0,ct];
      targetfolder := SourceAndTargetFoldersStringGrid.cells[1,ct];
+     if SourceAndTargetFoldersStringGrid.cells[2,ct] = '' then
+      begin
+       copymode := copyifnotpresent;
+      end
+      else
+      begin
+       try
+        copymode := strtoint(SourceAndTargetFoldersStringGrid.cells[2,ct]);
+       except
+        copymode := copyifnotpresent;
+       end;
+      end;
+     deletefiles := SourceAndTargetFoldersStringGrid.cells[3,ct] = 'Y';
      if (source_and_target_array[ct-1].sourcefolder <> sourcefolder) or
-        (source_and_target_array[ct-1].targetfolder <> targetfolder) then
+        (source_and_target_array[ct-1].targetfolder <> targetfolder) or
+        (source_and_target_array[ct-1].copymode <> copymode) or
+        (source_and_target_array[ct-1].deletefiles <> deletefiles) then
       begin
        result := true; // Difference detected.
       end;
@@ -735,17 +1218,52 @@ end;
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
- startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false;
+ startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
  try
-  run_process;
+  run_process(runmodecopyfiles);
  finally
-  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true;
+  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
  end;
 end;
 
 procedure Tsinkmainform.StopbuttonClick(Sender: TObject);
 begin
  abort := true;
+end;
+
+procedure Tsinkmainform.setfilestampsbuttonClick(Sender: TObject);
+var
+ mes : string;
+begin
+ // OK: Go:
+ mes := 'This option will search through all of the files in all of your defined Source folders and look for matching filenames in the corresponding Target folders.'+#13+
+        'For any files that are found in a Target folder that have the same filenames as those in the corresponding Source folder it will set the date+time file'+#13+
+        'stamp on the Target file to match the date+time file stamp of the Source file.'+#13+
+        ''+#13+
+        'This ensures that the copy process will see the same date+time file stamps on both the Source and Target files and will therefore not force a re-copy'+#13+
+        'of the Target files based on non matching date+time file stamps if the relevant Source and Target folder definition uses the'+#13+
+        '"Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder" Copy Mode.'+#13+
+        ''+#13+
+        'Note the "Copy files from the Source folder that are not present in the Target folder" Copy Mode'+#13+
+        'doesn''t look at date+time file stamps so you don''t need to run this process if you only use that Copy Mode.'+#13+
+        ''+#13+
+        'Syncing the Target folder date+time stamps should help to avoid the unnecessary re-copying of files that already exist in the Target folder just because of'+#13+
+        'mismatched date+time file stamps and is especially relevant if you have (say) a large number of video files in a Target folder which you don''t want to re-copy'+#13+
+        'on the initial Sink.exe copy process.'+#13+
+        ''+#13+
+        'The Sink.exe copy process will set the Target date+time file stamps to match the Source date+time file stamps after successfully copying files from'+#13+
+        'Source to Target so hence this "Sync Date+Time File Stamps" process only needs to be run once or if you edit your Source and Target folder definitions.'+#13+
+        ''+#13+
+        'Click "OK" to proceed or "Cancel" to quit.';
+ if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
+  begin
+   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+   try
+    run_process(runmodesetfilestamps);
+   finally
+    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
+   end;
+  end;
 end;
 
 end.
