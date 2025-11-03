@@ -90,10 +90,20 @@ type
     source_and_target_array_count : integer;
     master_filesize : int64;
     master_bytes_written : int64;
+    master_numfiles_copied : int64;
+    master_numfiles_scanned : int64;
+    master_filesize_scanned : int64;
+    master_numfiles_deleted : int64;
+    master_numerrors : int64;
     abort : boolean;
     PT1,PTL : TDateTime;
     usersettingsdir : string;
     targetfolderfoldersstringlist : TStringlist;
+    filesinsourcealsointargetstringlist : TStringlist;
+    filesinsourcealsointargetstringlist_count : int64;
+    filesinsourcealsointargetstringlist_maxsize : int64;
+    filesinsourcealsointargetstringlist_bytesadded : int64;
+    ok_to_use_filesinsourcealsointargetstringlist : boolean;
   public
     { Public declarations }
     procedure load_ini_settings;
@@ -237,6 +247,7 @@ end;
 procedure Tsinkmainform.run_process(runmode : integer);
 var
  sourcefolder,targetfolder,s1 : string;
+ statsstringlist : TStringList;
  copymode : integer;
  deletefiles : boolean;
  pass,ct,ct1 : integer;
@@ -323,6 +334,7 @@ begin
   else // Didn't work - kill the duff target file.
   begin
    ActivityLogMemo.Lines.Add('Error: Unable to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
+   inc(master_numerrors);
    deletefile(tofile);
   end;
  if ioresult = 0 then begin end;
@@ -387,12 +399,36 @@ begin
   end;
 end;
 
+procedure add_to_filesinsourcealsointargetstringlist(targetfilename : string);
+var
+ x : integer;
+begin
+ if ok_to_use_filesinsourcealsointargetstringlist then
+  begin
+   inc(filesinsourcealsointargetstringlist_count);
+   filesinsourcealsointargetstringlist.Add(targetfilename);
+   x := (length(targetfilename) + 2);
+   filesinsourcealsointargetstringlist_bytesadded := filesinsourcealsointargetstringlist_bytesadded + x;
+   if filesinsourcealsointargetstringlist_count mod(1000) = 0 then
+    begin
+     // Every 1000th file check to see if we have gone over the "filesinsourcealsointargetstringlist_maxsize".
+     if filesinsourcealsointargetstringlist_bytesadded > filesinsourcealsointargetstringlist_maxsize then
+      begin
+       // OK: Got too big so nuke it.
+       filesinsourcealsointargetstringlist.clear;
+       filesinsourcealsointargetstringlist_count := 0;
+       ok_to_use_filesinsourcealsointargetstringlist := false;
+      end;
+    end;
+  end;
+end;
+
 procedure scanforfiles(scanmode : integer; startpath : string; copymode : integer; deletefiles : boolean);
 var
  mySearchRec : sysutils.TSearchRec;
  ReturnValue : integer;
  s : string;
- doit,oktosettimestamp : boolean;
+ doit,oktosettimestamp,thistargetfileexists,skip : boolean;
  sourceFileDateTime,targetFileDateTime : TDateTime;
  sourceFileSize,targetFileSize : Int64;
 begin
@@ -424,15 +460,34 @@ begin
      oktosettimestamp := false;
      s := stringreplace(startpath+mysearchrec.name,sourcefolder,targetfolder,[rfreplaceall,rfignorecase]);
 
+     if scanmode = scanmode_scanonly then // Scan only mode so increment count of files scanned.
+      begin
+       inc(master_numfiles_scanned);
+       master_filesize_scanned := master_filesize_scanned + mysearchrec.Size;
+      end;
+
      if scanmode = scanmode_deletefiles then // Scanmode = "2" = delete files present in targetfolder that are not present in the sourcefolder. The "startpath" is the targetfolder.
       begin
        if deletefiles then
         begin
          s := stringreplace(startpath+mysearchrec.name,targetfolder,sourcefolder,[rfreplaceall,rfignorecase]);
-         if not fileexists(s) then // Not present in Source folder?
+         skip := false;
+         if ok_to_use_filesinsourcealsointargetstringlist then
           begin
-           ActivityLogMemo.Lines.Add('File "'+mysearchrec.name+'" in the Target folder "'+targetfolder+'" does not exist in the Source folder "'+sourcefolder+'" so deleting it.');
-           deletefile(startpath+mysearchrec.name);
+           if filesinsourcealsointargetstringlist.IndexOf(startpath+mysearchrec.name) <> -1 then
+            begin
+             // It's OK, this file "startpath+mysearchrec.name" in the target folder was seen in the copy/file checking process so we don't need to check to see if we can delete it.
+             skip := true;
+            end;
+          end;
+         if not skip then
+          begin
+           if not fileexists(s) then // Not present in Source folder?
+            begin
+             ActivityLogMemo.Lines.Add('File "'+mysearchrec.name+'" in the Target folder "'+targetfolder+'" does not exist in the Source folder "'+sourcefolder+'" so deleting it.');
+             deletefile(startpath+mysearchrec.name);
+             inc(master_numfiles_deleted);
+            end;
           end;
         end;
       end
@@ -465,7 +520,12 @@ begin
       begin
        // OK, If "copymode" = copyifnotpresent (0) or copyifnotpresentorchanged (1) and the source file does not exist in the target folder then we DO want to copy it:
        oktosettimestamp := false;
-       if not fileexists(s) then
+       thistargetfileexists := fileexists(s);
+       if thistargetfileexists then
+        begin
+         add_to_filesinsourcealsointargetstringlist(s);
+        end;
+       if not thistargetfileexists then
         begin
          try
           if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then oktosettimestamp := true;
@@ -502,6 +562,7 @@ begin
          end;
         end;
       end;
+     if abort then doit := false;
      if scanmode <> scanmode_deletefiles then // 2 = Delete files mode so don't do any of this stuff:
       begin
        // Apparently delphi "assignfile" has a limit of 259 char limit so can't do those using "fn_optimacopyfile".
@@ -510,6 +571,7 @@ begin
          if (length(startpath+mysearchrec.name) > MaxPathLen) or (length(s) > MaxPathLen) then
           begin
            ActivityLogMemo.Lines.Add('Error: Source folder + filename is too long the max_path length on this OS is '+inttostr(MaxPathLen)+' bytes. Skipping "'+startpath+mysearchrec.name+'".');
+           inc(master_numerrors);
            doit := false;
           end;
         end;
@@ -526,9 +588,11 @@ begin
              else
              begin
               ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
+              inc(master_numerrors);
              end;
            except
             ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
+            inc(master_numerrors);
            end;
           end
           else if scanmode = scanmode_scanonly then // Scan only...
@@ -550,7 +614,11 @@ begin
              application.processmessages;
              if fn_make_and_test_folder(extractfilepath(s)) then
               begin
-               if fn_optimacopyfile(startpath+mysearchrec.name,s) then;
+               if fn_optimacopyfile(startpath+mysearchrec.name,s) then
+                begin
+                 inc(master_numfiles_copied);
+                 add_to_filesinsourcealsointargetstringlist(s);
+                end;
                if oktosettimestamp then
                 begin
                  if fileexists(s) then
@@ -560,9 +628,11 @@ begin
                     if NOT fn_my_FileSetDate(s,sourcefiledatetime) then
                      begin
                       ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
+                      inc(master_numerrors);
                      end;
                    except
                     ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
+                    inc(master_numerrors);
                    end;
                   end;
                 end;
@@ -571,6 +641,7 @@ begin
               else
               begin
                ActivityLogMemo.Lines.Add('Error: Failed to create/access Target folder "'+extractfilepath(s)+'".');
+               inc(master_numerrors);
               end;
             end;
           end;
@@ -594,9 +665,30 @@ begin
  scanforfiles(scanmode,sourcefolder,copymode,deletefiles);
 end;
 
+function HumanReadableFileSize(Bytes: Int64): string;
+var
+ Units: array[0..7] of string = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB');
+ Factor: Integer;
+ Size: Double;
+begin
+ Size := Bytes;
+ Factor := 0;
+ while (Size >= 1024) and (Factor < High(Units)) do
+  begin
+   Size := Size / 1024;
+   Inc(Factor);
+  end;
+ Result := Format('%.2f %s', [Size, Units[Factor]]);
+end;
+
 begin
  abort := false;
  targetfolderfoldersstringlist := TStringlist.create;
+ filesinsourcealsointargetstringlist := TStringlist.create;
+ statsstringlist := TStringList.create;
+ filesinsourcealsointargetstringlist_count := 0;
+ filesinsourcealsointargetstringlist_bytesadded := 0;
+ ok_to_use_filesinsourcealsointargetstringlist := true;
  ActivityLogMemo.Clear;
  progressbarbr.visible := false;
  LabelTET.Caption := '......';
@@ -604,7 +696,10 @@ begin
  PT1 := now;
  try
   targetfolderfoldersstringlist.clear;
-  master_filesize := 0; master_bytes_written := 0;
+  filesinsourcealsointargetstringlist.clear;
+  filesinsourcealsointargetstringlist.Sorted := true;
+  statsstringlist.clear;
+  master_filesize := 0; master_bytes_written := 0; master_numfiles_scanned := 0; master_numfiles_copied := 0; master_filesize_scanned := 0; master_numfiles_deleted := 0; master_numerrors := 0;
   if source_and_target_array_count > 0 then
    begin
     if runmode = runmodecopyfiles then
@@ -663,7 +758,7 @@ begin
           if targetfolderfoldersstringlist.Count > 0 then
            begin
             ct1 := 0;
-            while ct1 < targetfolderfoldersstringlist.count do
+            while (ct1 < targetfolderfoldersstringlist.count) and not abort do
              begin
               //ActivityLogMemo.Lines.Add('scanmode_deletefiles saw this folder in target: '+targetfolderfoldersstringlist[ct1]);
               s1 := stringreplace(targetfolderfoldersstringlist[ct1],targetfolder,sourcefolder,[rfreplaceall,rfignorecase]);
@@ -677,6 +772,7 @@ begin
                  else
                  begin
                   ActivityLogMemo.Lines.Add('Error: This folder does not exist on the source but could not be deleted from the target: '+targetfolderfoldersstringlist[ct1]);
+                  inc(master_numerrors);
                  end;
                end;
               inc(ct1);
@@ -701,15 +797,46 @@ begin
      end;
    end;
 
+  statsstringlist.clear;
+  statsstringlist.Add(' ');
+  statsstringlist.Add('Stats:');
+  statsstringlist.Add('Number of files scanned: '+inttostr(master_numfiles_scanned));
+  statsstringlist.Add('Total size of files scanned: '+HumanReadableFileSize(master_filesize_scanned));
+  statsstringlist.Add('Number of files copied from Source to Target folders: '+inttostr(master_numfiles_copied));
+  statsstringlist.Add('Total size of files copied: '+HumanReadableFileSize(master_bytes_written));
+  statsstringlist.Add('Number of files deleted: '+inttostr(master_numfiles_deleted));
+  statsstringlist.Add('Number of errors/warnings reported: '+inttostr(master_numerrors));
+  statsstringlist.Add('Total time taken: '+ FormatDateTime('hh:mm.ss',(now - PT1)));
+
   if abort then
    begin
     pathlabel.caption := 'Process was stopped.';
+    ActivityLogMemo.Lines.Add(' ');
     ActivityLogMemo.Lines.Add('Process was stopped.');
+    if statsstringlist.count > 0 then
+     begin
+      ct := 0;
+      while (ct < statsstringlist.count) do
+       begin
+        ActivityLogMemo.Lines.Add(statsstringlist[ct]);
+        inc(ct);
+       end;
+     end;
    end
    else
    begin
     pathlabel.caption := 'Finished';
+    ActivityLogMemo.Lines.Add(' ');
     ActivityLogMemo.Lines.Add('Finished.');
+    if statsstringlist.count > 0 then
+     begin
+      ct := 0;
+      while (ct < statsstringlist.count) do
+       begin
+        ActivityLogMemo.Lines.Add(statsstringlist[ct]);
+        inc(ct);
+       end;
+     end;
    end;
   filenamelabel.caption := '';
  finally
@@ -718,6 +845,10 @@ begin
   LabelTRT.Caption := '......';
   targetfolderfoldersstringlist.clear;
   targetfolderfoldersstringlist.free;
+  filesinsourcealsointargetstringlist.clear;
+  filesinsourcealsointargetstringlist.free;
+  statsstringlist.clear;
+  statsstringlist.free;
  end;
 end;
 
@@ -745,6 +876,8 @@ begin
   begin
    deletefilescheckbox.Checked := false;
   end;
+ SourceAndTargetFoldersStringGrid.Col := 0;
+ FormResize(Sender);
 end;
 
 procedure Tsinkmainform.SourceFolderBrowseBitBtnClick(Sender: TObject);
@@ -1227,6 +1360,7 @@ procedure Tsinkmainform.FormResize(Sender: TObject);
 var
  maxwidth,newcolwidth : integer;
 begin
+ SourceAndTargetFoldersStringGrid.Col := 0;
  maxwidth := sinkmainform.width - 30;
  if maxwidth < 0 then maxwidth := 1;
 
@@ -1234,7 +1368,7 @@ begin
  if newcolwidth < 0 then newcolwidth := 1;
  SourceAndTargetFoldersStringGrid.ColWidths[0] := newcolwidth;
 
- newcolwidth := (sinkmainform.width - SourceAndTargetFoldersStringGrid.ColWidths[0]) - 30;
+ newcolwidth := (sinkmainform.width - SourceAndTargetFoldersStringGrid.ColWidths[0]) - 10;
  if newcolwidth < 0 then newcolwidth := 1;
  SourceAndTargetFoldersStringGrid.ColWidths[1] := newcolwidth;
 end;
@@ -1269,7 +1403,12 @@ begin
 end;
 
 begin
+ SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
+ SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
+ PageControl1.ActivePageIndex := 0;
  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
+ ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 3-11-2025. Waiting to start.');
+ filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
  LabelTET.Caption := '......';
  LabelTRT.Caption := '......';
  if not fn_determine_usersettingsdir then
