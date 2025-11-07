@@ -1,7 +1,7 @@
 object sinkmainform: Tsinkmainform
-  Left = 2481
+  Left = 940
   Height = 578
-  Top = 327
+  Top = 375
   Width = 867
   Caption = 'Sink'
   ClientHeight = 578
@@ -80,6 +80,8 @@ object sinkmainform: Tsinkmainform
           Top = 66
           Width = 841
           Anchors = [akTop, akLeft, akRight]
+          Color = clBtnFace
+          ParentColor = False
           Smooth = True
           TabOrder = 0
         end

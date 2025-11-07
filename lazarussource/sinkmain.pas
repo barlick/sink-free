@@ -86,13 +86,13 @@ type
     { Private declarations }
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
-    master_filesize : int64;
-    master_bytes_written : int64;
-    master_numfiles_copied : int64;
-    master_numfiles_scanned : int64;
-    master_filesize_scanned : int64;
-    master_numfiles_deleted : int64;
-    master_numerrors : int64;
+    stats_filesize : int64;
+    stats_bytes_written : int64;
+    stats_numfiles_copied : int64;
+    stats_numfiles_scanned : int64;
+    stats_filesize_scanned : int64;
+    stats_numfiles_deleted : int64;
+    stats_numerrors : int64;
     abort : boolean;
     processstarttime : TDateTime;
     copyfilesstarttime : TDateTime;
@@ -122,6 +122,41 @@ implementation
 
 {$R *.lfm}
 
+function fn_OSVersion: string;
+begin
+  {$IFDEF LCLcarbon}
+  fn_OSVersion := 'Mac';
+  {$ELSE}
+  {$IFDEF Linux}
+  fn_OSVersion := 'Linux';
+  {$ELSE}
+  {$IFDEF UNIX}
+  fn_OSVersion := 'Linux';
+  {$ELSE}
+  {$IFDEF WINDOWS}
+  fn_OSVersion:= 'Windows';
+  {$ENDIF}
+  {$ENDIF}
+  {$ENDIF}
+  {$ENDIF}
+end;
+
+function HumanReadableNumbytes(Bytes: Int64): string;
+var
+ Units: array[0..7] of string = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB');
+ Factor: Integer;
+ Size: Double;
+begin
+ Size := Bytes;
+ Factor := 0;
+ while (Size >= 1024) and (Factor < High(Units)) do
+  begin
+   Size := Size / 1024;
+   Inc(Factor);
+  end;
+ Result := Format('%.2f %s', [Size, Units[Factor]]);
+end;
+
 function GetFileDetails(sFileName : string; var FileDateTime : TDateTime; var iFileSize : int64) : boolean;
 var
   SearchRec : TSearchRec;
@@ -142,12 +177,6 @@ end;
 function DelimitPath(PathIn : string) : string;
 begin
  result := AppendPathDelim(PathIn);
- (*
- Result := PathIn;
- if PathIn <> '' then
-  if PathIn[Length(PathIn)] <> '\' then
-   Result := PathIn + '\';
-  *)
 end;
 
 function sr(s : real; intpart,fractpart : integer) : string;
@@ -199,7 +228,7 @@ end;
 procedure Tsinkmainform.sIncProgress(numw : int64);
 var
  timenow,T : TDateTime;
- throughput,numsec,onepercent,progpos : double;
+ percentcomplete,throughput,numsec,onepercent,progpos : double;
  throughputstr : string;
 
 function NumberOfSeconds(tim: TDateTime): double;
@@ -210,26 +239,36 @@ begin
 end;
 
 begin
- master_bytes_written := master_bytes_written + numw;
- onepercent := master_filesize / 1000; // Note that progbar.max = 1000 not 100 so as to improve the granularity of the progress bar.
- progpos := master_bytes_written / onepercent;
- if master_filesize - master_bytes_written < onepercent then progpos := 1000;
- if master_filesize < master_bytes_written then progpos := 1000; // Make sure we don't fall off the end.
+ stats_bytes_written := stats_bytes_written + numw;
+ onepercent := stats_filesize / ProgressBarBR.Max; // Note that progbar.max = 1000 not 100 so as to improve the granularity of the progress bar.
+ progpos := stats_bytes_written / onepercent;
+ if stats_filesize - stats_bytes_written < onepercent then progpos := ProgressBarBR.Max;
+ if stats_filesize < stats_bytes_written then progpos := ProgressBarBR.Max; // Make sure we don't fall off the end.
  ProgressBarBR.Position := trunc(progpos);
+ if progpos >= ProgressBarBR.Max then
+  begin
+   percentcomplete := 100;
+  end
+  else
+  begin
+   if ProgressBarBR.Max <> 0 then
+    begin
+     percentcomplete := (progpos / ProgressBarBR.Max) * 100;
+    end
+    else percentcomplete := 100;
+  end;
 
  timenow := now;
  T := timenow - copyfilesstarttime;
  LabelTimeElapsed.Caption := 'Time Elapsed: ' + FormatDateTime('hh:mm.ss', T); // Time elapsed.
- // So ProgressBarBR.Position = number of bytes written and "T" is the elapsed time, so throughput bytes per second = ProgressBarBR.Position/T.
+ // So stats_bytes_written = number of bytes written and "T" is the elapsed time, so throughput bytes per second = stats_bytes_written/seconds elapsed (now - copy files start time).
  if T > 0  then
   begin
    numsec := NumberOfSeconds(T);
    if numsec > 0 then
     begin
-     throughput := master_bytes_written; // Bytes written.
-     throughput := throughput/1024; // 1024 = kilo bytes.
-     throughput := throughput/1024; // 1024 = Mega bytes.
-     throughputstr := ' Read+Write Speed '+sr(throughput/numsec,12,1) + ' MB/s';
+     throughput := stats_bytes_written; // Bytes written.
+     throughputstr := ' Read+Write Speed '+ HumanReadableNumbytes(trunc(throughput/numsec))+'/s';
     end;
   end
   else
@@ -237,12 +276,12 @@ begin
    throughputstr := '';
   end;
 
- if master_bytes_written > 0 then
+ if stats_bytes_written > 0 then
   begin
-   T := (timenow - copyfilesstarttime) * (1 - master_filesize / master_bytes_written);
+   T := (timenow - copyfilesstarttime) * (1 - stats_filesize / stats_bytes_written);
   end
   else T := 0;
- LabelTimeRemaining.Caption := 'Time Remaining: ' + FormatDateTime('hh:mm.ss', T) + throughputstr; // Time remaning + Throughout
+ LabelTimeRemaining.Caption := 'Time Remaining: ' + FormatDateTime('hh:mm.ss', T) +' (' + sr(percentcomplete,3,2)+'% complete)'+ throughputstr; // Time remaning + Throughout
 end;
 
 procedure Tsinkmainform.run_process(runmode : integer);
@@ -271,7 +310,7 @@ begin
  err := ioresult;
  if err = 0 then
   begin
-   writeln(testfile,'This is a test file from Optima (Checking validity of foldername).');
+   writeln(testfile,'This is a test file from the Sink app (Checking validity of foldername).');
   end;
  closefile(testfile);
  if ioresult = 0 then begin end;
@@ -282,7 +321,7 @@ begin
  result := matf;
 end;
 
-function fn_optimacopyfile(fromfile,tofile : string) : boolean;
+function fn_sinkcopyfile(fromfile,tofile : string) : boolean;
 type
  ppsave = array[1..1048576] of char; // 1MB (1024 bytes * 1024).
 var
@@ -314,7 +353,7 @@ begin
   begin
    closefile(f); if ioresult = 0 then begin end;
    ActivityLogMemo.Lines.Add('Error: Unable to read from "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
-   inc(master_numerrors);
+   inc(stats_numerrors);
   end
   else
   begin
@@ -324,7 +363,7 @@ begin
      closefile(f); if ioresult = 0 then begin end;
      closefile(f1); if ioresult = 0 then begin end;
      ActivityLogMemo.Lines.Add('Error: Unable to write to "'+extractfilename(tofile)+'" from "'+extractfilepath(tofile)+'" check file access permissions.');
-     inc(master_numerrors);
+     inc(stats_numerrors);
     end
     else
     begin
@@ -359,14 +398,14 @@ begin
         begin
          result := false;
          ActivityLogMemo.Lines.Add('Error: Unable to rename "'+tofile+' to "'+propertofile+'.');
-         inc(master_numerrors);
+         inc(stats_numerrors);
         end;
        if ioresult = 0 then begin end;
       end
       else // Didn't work - kill the duff target file.
       begin
        ActivityLogMemo.Lines.Add('Error: Unable to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
-       inc(master_numerrors);
+       inc(stats_numerrors);
        deletefile(tofile);
        if ioresult = 0 then begin end;
       end;
@@ -434,6 +473,12 @@ begin
           workedok := true;
           result := true;
          end;
+       end
+       else
+       begin
+        ActivityLogMemo.Lines.Add('Error: Failed inside "fn_my_FileSetDate". Possible network connection issue?');
+        inc(stats_numerrors);
+        abort := true;
        end;
      end
      else
@@ -487,6 +532,12 @@ begin
  {$I-}
  try
   ReturnValue:=FindFirst(startpath+'*',faAnyFile,mysearchrec);
+  if ReturnValue <> 0 then
+   begin
+    ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+    inc(stats_numerrors);
+    abort := true;
+   end;
   While (ReturnValue=0) and not abort do
    begin
     application.processmessages;
@@ -514,8 +565,8 @@ begin
 
      if scanmode = scanmode_scanonly then // Scan only mode so increment count of files scanned.
       begin
-       inc(master_numfiles_scanned);
-       master_filesize_scanned := master_filesize_scanned + mysearchrec.Size;
+       inc(stats_numfiles_scanned);
+       stats_filesize_scanned := stats_filesize_scanned + mysearchrec.Size;
       end;
 
      if scanmode = scanmode_deletefiles then // Scanmode = "2" = delete files present in targetfolder that are not present in the sourcefolder. The "startpath" is the targetfolder.
@@ -538,7 +589,7 @@ begin
             begin
              ActivityLogMemo.Lines.Add('File "'+mysearchrec.name+'" in the Target folder "'+targetfolder+'" does not exist in the Source folder "'+sourcefolder+'" so deleting it.');
              deletefile(startpath+mysearchrec.name);
-             inc(master_numfiles_deleted);
+             inc(stats_numfiles_deleted);
             end;
           end;
         end;
@@ -550,7 +601,17 @@ begin
         begin
          oktosettimestamp := false;
          try
-          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then oktosettimestamp := true;
+          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then
+           begin
+            oktosettimestamp := true;
+           end
+           else
+           begin
+            ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+            inc(stats_numerrors);
+            abort := true;
+            doit := false;
+           end;
          except
           oktosettimestamp := false
          end;
@@ -564,6 +625,9 @@ begin
              end;
            end;
          except
+          ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+          inc(stats_numerrors);
+          abort := true;
           doit := false;
          end;
         end;
@@ -583,8 +647,18 @@ begin
        if not thistargetfileexists then
         begin
          try
-          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then oktosettimestamp := true;
           doit := true;
+          if GetFileDetails(startpath+mysearchrec.name,sourceFileDateTime,sourceFileSize) then
+           begin
+            oktosettimestamp := true;
+           end
+           else
+           begin
+            ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+            inc(stats_numerrors);
+            abort := true;
+            doit := false;
+           end;
          except
           doit := false;
          end;
@@ -611,8 +685,18 @@ begin
                  end;
                end;
              end;
+           end
+           else
+           begin
+            ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+            inc(stats_numerrors);
+            abort := true;
+            doit := false;
            end;
          except
+          ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+          inc(stats_numerrors);
+          abort := true;
           doit := false;
          end;
         end;
@@ -620,13 +704,13 @@ begin
      if abort then doit := false;
      if scanmode <> scanmode_deletefiles then // 2 = Delete files mode so don't do any of this stuff:
       begin
-       // Apparently delphi "assignfile" has a limit of 259 char limit so can't do those using "fn_optimacopyfile".
+       // Apparently delphi "assignfile" has a limit of 259 char limit so can't do those using "fn_sinkcopyfile".
        if doit then
         begin
          if (length(startpath+mysearchrec.name) > MaxPathLen) or (length(s) > MaxPathLen) then
           begin
            ActivityLogMemo.Lines.Add('Error: Source folder + filename is too long the max_path length on this OS is '+inttostr(MaxPathLen)+' bytes. Skipping "'+startpath+mysearchrec.name+'".');
-           inc(master_numerrors);
+           inc(stats_numerrors);
            doit := false;
           end;
         end;
@@ -643,11 +727,12 @@ begin
              else
              begin
               ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
-              inc(master_numerrors);
+              inc(stats_numerrors);
              end;
            except
             ActivityLogMemo.Lines.Add('Error: Exception: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
-            inc(master_numerrors);
+            inc(stats_numerrors);
+            abort := true;
            end;
           end
           else if scanmode = scanmode_scanonly then // Scan only...
@@ -657,7 +742,7 @@ begin
            application.processmessages;
            if fileexists(startpath+mysearchrec.name) then
             begin
-             master_filesize := master_filesize + mysearchrec.Size;
+             stats_filesize := stats_filesize + mysearchrec.Size;
             end;
           end
           else if scanmode = scanmode_copyfiles then // Main "copy files" scan mode:
@@ -669,9 +754,9 @@ begin
              application.processmessages;
              if fn_make_and_test_folder(extractfilepath(s)) then
               begin
-               if fn_optimacopyfile(startpath+mysearchrec.name,s) then
+               if fn_sinkcopyfile(startpath+mysearchrec.name,s) then
                 begin
-                 inc(master_numfiles_copied);
+                 inc(stats_numfiles_copied);
                  add_to_filesinsourcealsointargetstringlist(s);
                  if oktosettimestamp then
                   begin
@@ -683,11 +768,11 @@ begin
                       if NOT fn_my_FileSetDate(s,sourcefiledatetime) then
                        begin
                         ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
-                        inc(master_numerrors);
+                        inc(stats_numerrors);
                        end;
                      except
                       ActivityLogMemo.Lines.Add('Error: Exception: Failed to set file date+time for "'+s+'".');
-                      inc(master_numerrors);
+                      inc(stats_numerrors);
                      end;
                     end;
                   end
@@ -703,7 +788,7 @@ begin
               else
               begin
                ActivityLogMemo.Lines.Add('Error: Failed to create/access Target folder "'+extractfilepath(s)+'".');
-               inc(master_numerrors);
+               inc(stats_numerrors);
               end;
             end;
           end;
@@ -717,7 +802,7 @@ begin
   on e : exception do
    begin
     ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
-    inc(master_numerrors);
+    inc(stats_numerrors);
     abort := true;
    end;
  end;
@@ -728,22 +813,6 @@ begin
  pathlabel.caption := 'Scanning: '+sourcefolder;
  filenamelabel.caption := '';
  scanforfiles(scanmode,sourcefolder,copymode,deletefiles);
-end;
-
-function HumanReadableFileSize(Bytes: Int64): string;
-var
- Units: array[0..7] of string = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB');
- Factor: Integer;
- Size: Double;
-begin
- Size := Bytes;
- Factor := 0;
- while (Size >= 1024) and (Factor < High(Units)) do
-  begin
-   Size := Size / 1024;
-   Inc(Factor);
-  end;
- Result := Format('%.2f %s', [Size, Units[Factor]]);
 end;
 
 begin
@@ -765,7 +834,7 @@ begin
   filesinsourcealsointargetstringlist.clear;
   filesinsourcealsointargetstringlist.Sorted := true;
   statsstringlist.clear;
-  master_filesize := 0; master_bytes_written := 0; master_numfiles_scanned := 0; master_numfiles_copied := 0; master_filesize_scanned := 0; master_numfiles_deleted := 0; master_numerrors := 0;
+  stats_filesize := 0; stats_bytes_written := 0; stats_numfiles_scanned := 0; stats_numfiles_copied := 0; stats_filesize_scanned := 0; stats_numfiles_deleted := 0; stats_numerrors := 0;
   if source_and_target_array_count > 0 then
    begin
     if runmode = runmodecopyfiles then
@@ -840,7 +909,7 @@ begin
                  else
                  begin
                   ActivityLogMemo.Lines.Add('Error: This folder does not exist on the source but could not be deleted from the target: '+targetfolderfoldersstringlist[ct1]);
-                  inc(master_numerrors);
+                  inc(stats_numerrors);
                  end;
                end;
               inc(ct1);
@@ -868,12 +937,12 @@ begin
   statsstringlist.clear;
   statsstringlist.Add(' ');
   statsstringlist.Add('Stats:');
-  statsstringlist.Add('Number of files scanned: '+inttostr(master_numfiles_scanned));
-  statsstringlist.Add('Total size of files scanned: '+HumanReadableFileSize(master_filesize_scanned));
-  statsstringlist.Add('Number of files copied from Source to Target folders: '+inttostr(master_numfiles_copied));
-  statsstringlist.Add('Total size of files copied: '+HumanReadableFileSize(master_bytes_written));
-  statsstringlist.Add('Number of files deleted: '+inttostr(master_numfiles_deleted));
-  statsstringlist.Add('Number of errors/warnings reported: '+inttostr(master_numerrors));
+  statsstringlist.Add('Number of files scanned: '+inttostr(stats_numfiles_scanned));
+  statsstringlist.Add('Total size of files scanned: '+HumanReadableNumbytes(stats_filesize_scanned));
+  statsstringlist.Add('Number of files copied from Source to Target folders: '+inttostr(stats_numfiles_copied));
+  statsstringlist.Add('Total size of files copied: '+HumanReadableNumbytes(stats_bytes_written));
+  statsstringlist.Add('Number of files deleted: '+inttostr(stats_numfiles_deleted));
+  statsstringlist.Add('Number of errors/warnings reported: '+inttostr(stats_numerrors));
   if copyfilesendtime > copyfilesstarttime then
    begin
     statsstringlist.Add('Total time taken for the copy files process: '+ FormatDateTime('hh:mm.ss',(copyfilesendtime - copyfilesstarttime)));
@@ -927,6 +996,7 @@ begin
   filesinsourcealsointargetstringlist.free;
   statsstringlist.clear;
   statsstringlist.free;
+  abort := false; // Ready for next run...
  end;
 end;
 
@@ -1452,6 +1522,8 @@ begin
 end;
 
 procedure Tsinkmainform.FormShow(Sender: TObject);
+var
+ freespacebytes : int64;
 
 function fn_determine_usersettingsdir : boolean;
 begin
@@ -1485,7 +1557,7 @@ begin
  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
  PageControl1.ActivePageIndex := 0;
  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
- ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 5-11-2025. Waiting to start.');
+ ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 7-11-2025. Waiting to start.');
  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
  LabelTimeRemaining.Caption := 'Time Remaining: ......';
@@ -1497,6 +1569,20 @@ begin
   begin
    load_ini_settings;
    fill_in_SourceAndTargetFoldersStringGrid;
+
+   ActivityLogMemo.Lines.Add(fn_OSVersion);
+   if fn_Osversion = 'Windows' then
+    begin
+     freespacebytes := Diskfree(0);
+     ActivityLogMemo.Lines.Add('df c: '+HumanReadableNumbytes(freespacebytes));
+     freespacebytes := DiskSize(0);
+     ActivityLogMemo.Lines.Add('ds c: '+HumanReadableNumbytes(freespacebytes));
+     SetCurrentDir('n:\');
+     freespacebytes := Diskfree(0);
+     ActivityLogMemo.Lines.Add('df n: '+HumanReadableNumbytes(freespacebytes));
+     freespacebytes := DiskSize(0);
+     ActivityLogMemo.Lines.Add('ds n: '+HumanReadableNumbytes(freespacebytes));
+    end;
   end;
 end;
 
@@ -1504,6 +1590,7 @@ procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
  startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+ abort := false;
  try
   run_process(runmodecopyfiles);
  finally
