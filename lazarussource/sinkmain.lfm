@@ -1,7 +1,7 @@
 object sinkmainform: Tsinkmainform
-  Left = 889
+  Left = 2481
   Height = 578
-  Top = 376
+  Top = 327
   Width = 867
   Caption = 'Sink'
   ClientHeight = 578
@@ -19,10 +19,10 @@ object sinkmainform: Tsinkmainform
     Height = 578
     Top = 0
     Width = 867
-    ActivePage = ConfigurationTabSheet
+    ActivePage = HomeTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
@@ -60,33 +60,19 @@ object sinkmainform: Tsinkmainform
           Width = 35
           Caption = 'Status:'
         end
-        object LabelTE: TLabel
+        object LabelTimeElapsed: TLabel
           Left = 9
           Height = 13
           Top = 87
           Width = 62
           Caption = 'Time Elapsed'
         end
-        object LabelTR: TLabel
+        object LabelTimeRemaining: TLabel
           Left = 151
           Height = 13
           Top = 87
           Width = 74
           Caption = 'Time Remaining'
-        end
-        object LabelTET: TLabel
-          Left = 81
-          Height = 13
-          Top = 87
-          Width = 24
-          Caption = '......'
-        end
-        object LabelTRT: TLabel
-          Left = 233
-          Height = 13
-          Top = 87
-          Width = 24
-          Caption = '......'
         end
         object ProgressBarBR: TProgressBar
           Left = 9

@@ -9,7 +9,7 @@
         <Filename Value="sink.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos Y="15"/>
-        <UsageCount Value="39"/>
+        <UsageCount Value="50"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -20,12 +20,11 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="773"/>
-        <CursorPos X="17" Y="776"/>
-        <UsageCount Value="39"/>
+        <CursorPos X="58" Y="14"/>
+        <UsageCount Value="50"/>
         <Bookmarks Count="2">
-          <Item0 X="8" Y="466" Left="1" Top="416" ID="2"/>
-          <Item1 Y="800" Left="1" Top="798" ID="1"/>
+          <Item0 X="8" Y="518" Left="1" Top="466" ID="2"/>
+          <Item1 Y="1500" Left="1" Top="1447" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -34,14 +33,14 @@
         <Filename Value="PBFolderDialog.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="39"/>
+        <UsageCount Value="50"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="C:\lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\filutilh.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="49"/>
-        <CursorPos X="5" Y="78"/>
+        <TopLine Value="177"/>
+        <CursorPos X="21" Y="233"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
@@ -49,21 +48,21 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="388"/>
         <CursorPos X="27" Y="421"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="10"/>
       </Unit>
       <Unit>
         <Filename Value="C:\lazarus\fpc\3.2.2\source\packages\winunits-base\src\shlobj.pp"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2531"/>
         <CursorPos X="82" Y="2558"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="10"/>
       </Unit>
       <Unit>
         <Filename Value="C:\lazarus\fpc\3.2.2\source\rtl\win\sysutils.pp"/>
         <UnitName Value="SysUtils"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="88"/>
-        <CursorPos X="22" Y="143"/>
+        <TopLine Value="719"/>
+        <CursorPos X="12" Y="733"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
@@ -71,125 +70,116 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="133"/>
         <CursorPos X="28" Y="161"/>
-        <UsageCount Value="16"/>
+        <UsageCount Value="15"/>
+      </Unit>
+      <Unit>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="157"/>
+        <CursorPos X="47" Y="216"/>
+        <UsageCount Value="10"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="29">
+    <JumpHistory HistoryIndex="24">
       <Position>
         <Filename Value="sinkmain.pas"/>
+        <Caret Line="435" TopLine="402"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="98" Column="8" TopLine="49"/>
+        <Caret Line="390" TopLine="357"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="219" Column="48" TopLine="168"/>
+        <Caret Line="446" TopLine="414"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="767" Column="38" TopLine="749"/>
+        <Caret Line="388" TopLine="355"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
+        <Caret Line="386" TopLine="355"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="98" Column="8" TopLine="49"/>
+        <Caret Line="448" TopLine="416"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="218" Column="16" TopLine="168"/>
+        <Caret Line="682" TopLine="650"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="239" Column="19" TopLine="189"/>
+        <Caret Line="706" TopLine="650"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="657" Column="48" TopLine="621"/>
+        <Caret Line="733" Column="26" TopLine="668"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="693" Column="34" TopLine="665"/>
+        <Caret Line="1500" Column="31" TopLine="1467"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
+        <Caret Line="67"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="253" TopLine="198"/>
+        <Caret Line="1490" Column="16" TopLine="1490"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="790" Column="12" TopLine="770"/>
+        <Caret Line="17"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="810" TopLine="773"/>
+        <Caret Line="1500" Column="31" TopLine="1490"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="591" Column="71" TopLine="568"/>
+        <Caret Line="10" Column="58"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="793" Column="65" TopLine="775"/>
+        <Caret Line="67" Column="58"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="93" Column="21" TopLine="86"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="620" Column="44" TopLine="567"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="693" TopLine="646"/>
+        <Caret Line="1501" Column="15" TopLine="1486"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="340" TopLine="288"/>
+        <Caret Line="28" Column="60"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="386" Column="40" TopLine="335"/>
+        <Caret Line="1496" Column="9" TopLine="1468"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="399" Column="36" TopLine="349"/>
+        <Caret Line="1479" Column="2" TopLine="1450"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="577" TopLine="525"/>
+        <Caret Line="1457" Column="34" TopLine="1423"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="598" TopLine="544"/>
+        <Caret Line="1498" Column="15" TopLine="1447"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="639" TopLine="584"/>
+        <Caret Line="13" Column="66"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="646" TopLine="595"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="779" TopLine="725"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1308" Column="23" TopLine="1252"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1201" Column="31" TopLine="1144"/>
+        <Caret Line="1497" TopLine="1489"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -197,4 +187,15 @@
       <Modes ActiveMode=""/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="sinkmain.pas"/>
+        <Line Value="387"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

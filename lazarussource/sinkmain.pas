@@ -59,10 +59,8 @@ type
     StartButton: TBitBtn;
     ActivityLogMemo: TMemo;
     Stopbutton: TBitBtn;
-    LabelTE: TLabel;
-    LabelTR: TLabel;
-    LabelTET: TLabel;
-    LabelTRT: TLabel;
+    LabelTimeElapsed: TLabel;
+    LabelTimeRemaining: TLabel;
     copymodeComboBox: TComboBox;
     ProgressBarBR: TProgressBar;
     Label2: TLabel;
@@ -96,13 +94,16 @@ type
     master_numfiles_deleted : int64;
     master_numerrors : int64;
     abort : boolean;
-    PT1,PTL : TDateTime;
+    processstarttime : TDateTime;
+    copyfilesstarttime : TDateTime;
+    copyfilesendtime : TDateTime;
     usersettingsdir : string;
     targetfolderfoldersstringlist : TStringlist;
     filesinsourcealsointargetstringlist : TStringlist;
     filesinsourcealsointargetstringlist_count : int64;
     filesinsourcealsointargetstringlist_maxsize : int64;
     filesinsourcealsointargetstringlist_bytesadded : int64;
+    filesinsourcealsointargetstringlist_lastfilenameadded : string;
     ok_to_use_filesinsourcealsointargetstringlist : boolean;
   public
     { Public declarations }
@@ -197,7 +198,7 @@ end;
 
 procedure Tsinkmainform.sIncProgress(numw : int64);
 var
- T : TDateTime;
+ timenow,T : TDateTime;
  throughput,numsec,onepercent,progpos : double;
  throughputstr : string;
 
@@ -213,11 +214,12 @@ begin
  onepercent := master_filesize / 1000; // Note that progbar.max = 1000 not 100 so as to improve the granularity of the progress bar.
  progpos := master_bytes_written / onepercent;
  if master_filesize - master_bytes_written < onepercent then progpos := 1000;
+ if master_filesize < master_bytes_written then progpos := 1000; // Make sure we don't fall off the end.
  ProgressBarBR.Position := trunc(progpos);
 
- PTL := now;
- T := PTL - PT1;
- LabelTET.Caption := FormatDateTime('hh:mm.ss', T); // Time elapsed.
+ timenow := now;
+ T := timenow - copyfilesstarttime;
+ LabelTimeElapsed.Caption := 'Time Elapsed: ' + FormatDateTime('hh:mm.ss', T); // Time elapsed.
  // So ProgressBarBR.Position = number of bytes written and "T" is the elapsed time, so throughput bytes per second = ProgressBarBR.Position/T.
  if T > 0  then
   begin
@@ -237,11 +239,10 @@ begin
 
  if master_bytes_written > 0 then
   begin
-   T := (PTL - PT1) * (1 - master_filesize / master_bytes_written);
+   T := (timenow - copyfilesstarttime) * (1 - master_filesize / master_bytes_written);
   end
   else T := 0;
- LabelTRT.Caption := FormatDateTime('hh:mm.ss', T) + throughputstr; // Time remaning + Throughout
-
+ LabelTimeRemaining.Caption := 'Time Remaining: ' + FormatDateTime('hh:mm.ss', T) + throughputstr; // Time remaning + Throughout
 end;
 
 procedure Tsinkmainform.run_process(runmode : integer);
@@ -293,6 +294,7 @@ var
 begin
  {$I-}
  // Note the intended target file's file extension and then copy it as .tmp:
+ result := false;
  origfileext := ExtractFileExt(tofile);
  if uppercase(origfileext) = '.TMP' then // If we are unlucky enough to be copying a .tmp file then use the .$$$ temport file extension instead.
   begin
@@ -305,39 +307,72 @@ begin
  if fileexists(tofile) then // If a .tmp (or .$$$) version of "tofile" is present in the target folder then assume it's a partial copy of the file left over from a previous failed/interrupted run and kill it:
   begin
    deletefile(tofile);
+   if ioresult = 0 then begin end;
   end;
  assignfile(f,fromfile);  reset(f,1);
- assignfile(f1,tofile);   rewrite(f1,1);
- new(psave);
- ct := 0; numr := 0; numw := 0;
- repeat
-  blockread(f,psave^,1048576,numr);
-  blockwrite(f1,psave^,numr,numw);
-  sIncProgress(numw);
-  if ct = 20 then
-   begin
-    application.processmessages;
-    ct := 0;
-   end;
-  inc(ct);
- until (numr = 0) or (numr <> numw) or abort;
- dispose(psave);
- result := filesize(f) = filesize(f1);
- closefile(f); closefile(f1);
- if ioresult = 0 then begin end;
- if result then // OK, if it worked, then rename the tofile.tmp to tofile.<correct file extension>:
+ if ioresult <> 0 then
   begin
-   propertofile := ChangeFileExt(tofile,origfileext);
-   deletefile(propertofile); // In case the target file exists we need to delete it just in case.
-   renamefile(tofile,propertofile);
-  end
-  else // Didn't work - kill the duff target file.
-  begin
-   ActivityLogMemo.Lines.Add('Error: Unable to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
+   closefile(f); if ioresult = 0 then begin end;
+   ActivityLogMemo.Lines.Add('Error: Unable to read from "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
    inc(master_numerrors);
-   deletefile(tofile);
+  end
+  else
+  begin
+   assignfile(f1,tofile);   rewrite(f1,1);
+   if ioresult <> 0 then
+    begin
+     closefile(f); if ioresult = 0 then begin end;
+     closefile(f1); if ioresult = 0 then begin end;
+     ActivityLogMemo.Lines.Add('Error: Unable to write to "'+extractfilename(tofile)+'" from "'+extractfilepath(tofile)+'" check file access permissions.');
+     inc(master_numerrors);
+    end
+    else
+    begin
+     new(psave);
+     try
+      ct := 0; numr := 0; numw := 0;
+      repeat
+       blockread(f,psave^,1048576,numr);
+       blockwrite(f1,psave^,numr,numw);
+       sIncProgress(numw);
+       if ct = 20 then
+        begin
+         application.processmessages;
+         ct := 0;
+        end;
+       inc(ct);
+      until (numr = 0) or (numr <> numw) or abort;
+     finally
+      dispose(psave);
+     end;
+     result := filesize(f) = filesize(f1);
+     closefile(f);
+     if ioresult = 0 then begin end;
+     closefile(f1);
+     if ioresult = 0 then begin end;
+     if result then // OK, if it worked, then rename the tofile.tmp to tofile.<correct file extension>:
+      begin
+       propertofile := ChangeFileExt(tofile,origfileext);
+       deletefile(propertofile); // In case the target file exists we need to delete it just in case.
+       if ioresult = 0 then begin end;
+       if NOT renamefile(tofile,propertofile) then
+        begin
+         result := false;
+         ActivityLogMemo.Lines.Add('Error: Unable to rename "'+tofile+' to "'+propertofile+'.');
+         inc(master_numerrors);
+        end;
+       if ioresult = 0 then begin end;
+      end
+      else // Didn't work - kill the duff target file.
+      begin
+       ActivityLogMemo.Lines.Add('Error: Unable to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
+       inc(master_numerrors);
+       deletefile(tofile);
+       if ioresult = 0 then begin end;
+      end;
+     if ioresult = 0 then begin end;
+    end;
   end;
- if ioresult = 0 then begin end;
  {$I+}
 end;
 
@@ -345,57 +380,70 @@ function fn_my_FileSetDate(filename : string; requiredfiledatetime : TDateTime) 
 var
  newFileDateTime,differencedt : TDateTime;
  newFileSize : int64;
+ FileSetDateResult : Longint;
+ workedok : boolean;
+ FileSetDatepass : integer;
 begin
- result := false;
- FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime));
- // Check it:
- newFileDateTime := 0; newFileSize := 0;
- if GetFileDetails(filename,newFileDateTime,newFileSize) then
+ result := false; workedok := false; FileSetDatepass := 1;
+ while not workedok and (FileSetDatepass < 10) do
   begin
-   if abs(newFileDateTime - requiredFileDateTime) > encodetime(0,1,0,0) then
-    begin
-     // Different by at least one minute.
-     differencedt := newFileDateTime - requiredFileDateTime;
-     //ActivityLogMemo.Lines.Add('Difference: '+datetimetostr(differencedt)+' on '+filename);
-     //application.processmessages;
-     if differencedt >= 0 then
-      begin
-       FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime-differencedt));
-      end
-      else
-      begin
-       FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime+differencedt));
-      end;
-     //ActivityLogMemo.Lines.Add('Attempted to fix timestamp to resolve difference on '+filename);
-     //application.processmessages;
-     if GetFileDetails(filename,newFileDateTime,newFileSize) then
-      begin
-       //ActivityLogMemo.Lines.Add('"GetFileDetails" for '+filename+' returned newfiledatetime '+ datetimetostr(newFileDateTime)+' difference is now '+datetimetostr(abs(newFileDateTime - requiredFileDateTime)));
-       //application.processmessages;
-       if abs(newFileDateTime - requiredFileDateTime) < encodetime(0,1,0,0) then
-        begin
-         //ActivityLogMemo.Lines.Add('Success: Set filestamp for '+filename);
-         //application.processmessages;
-         result := true; // OK, that worked.
-        end;
-      end
-      else
-      begin
-       //ActivityLogMemo.Lines.Add('Error: Failed to "GetFileDetails" for '+filename);
-       //application.processmessages;
-      end;
-    end
-    else // < 1 minute out so OK.
-    begin
-     //ActivityLogMemo.Lines.Add('Success: The timestamp was set correctly for '+filename);
-     //application.processmessages;
-     result := true;
-    end;
-  end
-  else
-  begin
-   //ActivityLogMemo.Lines.Add('Error: Failed to "GetFileDetails" for '+filename);
-   //application.processmessages;
+   try
+    if FileSetDatepass > 1 then
+     begin
+      ActivityLogMemo.Lines.Add('Problem setting date timestamnp on '+filename+' will wait for 1 second and try again.');
+      sleep(1000);
+     end;
+    FileSetDateResult := FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime));
+    if FileSetDateResult = 0 then
+     begin
+      // Check it:
+      newFileDateTime := 0; newFileSize := 0;
+      if GetFileDetails(filename,newFileDateTime,newFileSize) then
+       begin
+        if abs(newFileDateTime - requiredFileDateTime) > encodetime(0,1,0,0) then
+         begin
+          // Different by at least one minute.
+          differencedt := newFileDateTime - requiredFileDateTime;
+          if differencedt >= 0 then
+           begin
+            FileSetDateResult := FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime-differencedt));
+            if FileSetDateResult <> 0 then
+             begin
+              //showmessage('failed to set date for: '+filename+' FileSetDateResult='+inttostr(FileSetDateResult));
+             end;
+           end
+           else
+           begin
+            FileSetDateResult := FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime+differencedt));
+            if FileSetDateResult <> 0 then
+             begin
+              //showmessage('failed to set date for: '+filename+' FileSetDateResult='+inttostr(FileSetDateResult));
+             end;
+           end;
+          if GetFileDetails(filename,newFileDateTime,newFileSize) then
+           begin
+            if abs(newFileDateTime - requiredFileDateTime) < encodetime(0,1,0,0) then
+             begin
+              workedok := true;
+              result := true; // OK, that worked.
+             end;
+           end;
+         end
+         else // < 1 minute out so OK.
+         begin
+          workedok := true;
+          result := true;
+         end;
+       end;
+     end
+     else
+     begin
+      //showmessage('failed to set date for: '+filename+' FileSetDateResult='+inttostr(FileSetDateResult));
+     end;
+   except
+    result := false;
+   end;
+   inc(FileSetDatepass);
   end;
 end;
 
@@ -405,21 +453,25 @@ var
 begin
  if ok_to_use_filesinsourcealsointargetstringlist then
   begin
-   inc(filesinsourcealsointargetstringlist_count);
-   filesinsourcealsointargetstringlist.Add(targetfilename);
-   x := (length(targetfilename) + 2);
-   filesinsourcealsointargetstringlist_bytesadded := filesinsourcealsointargetstringlist_bytesadded + x;
-   if filesinsourcealsointargetstringlist_count mod(1000) = 0 then
+   if filesinsourcealsointargetstringlist_lastfilenameadded <> targetfilename then // Don't bother storing this targetfilename if we just aded it.
     begin
-     // Every 1000th file check to see if we have gone over the "filesinsourcealsointargetstringlist_maxsize".
-     if filesinsourcealsointargetstringlist_bytesadded > filesinsourcealsointargetstringlist_maxsize then
+     inc(filesinsourcealsointargetstringlist_count);
+     filesinsourcealsointargetstringlist.Add(targetfilename);
+     x := (length(targetfilename) + 2);
+     filesinsourcealsointargetstringlist_bytesadded := filesinsourcealsointargetstringlist_bytesadded + x;
+     if filesinsourcealsointargetstringlist_count mod(1000) = 0 then
       begin
-       // OK: Got too big so nuke it.
-       filesinsourcealsointargetstringlist.clear;
-       filesinsourcealsointargetstringlist_count := 0;
-       ok_to_use_filesinsourcealsointargetstringlist := false;
+       // Every 1000th file check to see if we have gone over the "filesinsourcealsointargetstringlist_maxsize".
+       if filesinsourcealsointargetstringlist_bytesadded > filesinsourcealsointargetstringlist_maxsize then
+        begin
+         // OK: Got too big so nuke it.
+         filesinsourcealsointargetstringlist.clear;
+         filesinsourcealsointargetstringlist_count := 0;
+         ok_to_use_filesinsourcealsointargetstringlist := false;
+        end;
       end;
     end;
+   filesinsourcealsointargetstringlist_lastfilenameadded := targetfilename; // Note the last targetfilename we just added.
   end;
 end;
 
@@ -523,7 +575,10 @@ begin
        thistargetfileexists := fileexists(s);
        if thistargetfileexists then
         begin
-         add_to_filesinsourcealsointargetstringlist(s);
+         if scanmode = scanmode_copyfiles then // Only update the "filesinsourcealsointargetstringlist" when in the "Main "copy files" scan mode (saves a little time).
+          begin
+           add_to_filesinsourcealsointargetstringlist(s);
+          end;
         end;
        if not thistargetfileexists then
         begin
@@ -591,7 +646,7 @@ begin
               inc(master_numerrors);
              end;
            except
-            ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
+            ActivityLogMemo.Lines.Add('Error: Exception: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
             inc(master_numerrors);
            end;
           end
@@ -618,25 +673,32 @@ begin
                 begin
                  inc(master_numfiles_copied);
                  add_to_filesinsourcealsointargetstringlist(s);
-                end;
-               if oktosettimestamp then
-                begin
-                 if fileexists(s) then
+                 if oktosettimestamp then
                   begin
-                   // OK: Set the date time stamp on the "new" target file (s) to match the date time stamp on the source file:
-                   try
-                    if NOT fn_my_FileSetDate(s,sourcefiledatetime) then
-                     begin
-                      ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
+                   if fileexists(s) then
+                    begin
+                     ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
+                     // OK: Set the date time stamp on the "new" target file (s) to match the date time stamp on the source file:
+                     try
+                      if NOT fn_my_FileSetDate(s,sourcefiledatetime) then
+                       begin
+                        ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
+                        inc(master_numerrors);
+                       end;
+                     except
+                      ActivityLogMemo.Lines.Add('Error: Exception: Failed to set file date+time for "'+s+'".');
                       inc(master_numerrors);
                      end;
-                   except
-                    ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
-                    inc(master_numerrors);
-                   end;
+                    end;
+                  end
+                  else
+                  begin
+                   if fileexists(s) then
+                    begin
+                     ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
+                    end;
                   end;
                 end;
-               ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
               end
               else
               begin
@@ -654,6 +716,9 @@ begin
  except
   on e : exception do
    begin
+    ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
+    inc(master_numerrors);
+    abort := true;
    end;
  end;
 end;
@@ -689,11 +754,12 @@ begin
  filesinsourcealsointargetstringlist_count := 0;
  filesinsourcealsointargetstringlist_bytesadded := 0;
  ok_to_use_filesinsourcealsointargetstringlist := true;
+ filesinsourcealsointargetstringlist_lastfilenameadded := '';
  ActivityLogMemo.Clear;
  progressbarbr.visible := false;
- LabelTET.Caption := '......';
- LabelTRT.Caption := '......';
- PT1 := now;
+ LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+ LabelTimeRemaining.Caption := 'Time Remaining: ......';
+ copyfilesstarttime := now; processstarttime := now; copyfilesendtime := now;
  try
   targetfolderfoldersstringlist.clear;
   filesinsourcealsointargetstringlist.clear;
@@ -709,6 +775,7 @@ begin
        begin
         if pass = scanmode_copyfiles then
          begin
+          copyfilesstarttime := now; // Reset start time one we actually start the copy process.
           ProgressBarBR.Position := 0;
           try
            ProgressBarBR.Max := 1000;
@@ -740,6 +807,7 @@ begin
          end;
         inc(pass);
        end;
+      copyfilesendtime := now; // Remember when copy files process finished.
       // OK, now got back through the source_and_target_array and if any of them have the "deletfiles" option enabled the do an extra pass (2) to delete any files that are present in
       // the target folder but are NOT present in the source folder:
       ct := 0;
@@ -806,7 +874,17 @@ begin
   statsstringlist.Add('Total size of files copied: '+HumanReadableFileSize(master_bytes_written));
   statsstringlist.Add('Number of files deleted: '+inttostr(master_numfiles_deleted));
   statsstringlist.Add('Number of errors/warnings reported: '+inttostr(master_numerrors));
-  statsstringlist.Add('Total time taken: '+ FormatDateTime('hh:mm.ss',(now - PT1)));
+  if copyfilesendtime > copyfilesstarttime then
+   begin
+    statsstringlist.Add('Total time taken for the copy files process: '+ FormatDateTime('hh:mm.ss',(copyfilesendtime - copyfilesstarttime)));
+   end
+   else
+   begin
+    statsstringlist.Add('Total time taken for the copy files process: '+ FormatDateTime('hh:mm.ss',0));
+   end;
+  statsstringlist.Add('Total overall time taken (for the scan, copy and delete files processes): '+ FormatDateTime('hh:mm.ss',(now - processstarttime)));
+
+  //filesinsourcealsointargetstringlist.SaveToFile('C:\Users\Danny\Desktop\filesinsourcealsointargetstringlist.txt');
 
   if abort then
    begin
@@ -841,8 +919,8 @@ begin
   filenamelabel.caption := '';
  finally
   progressbarbr.visible := false;
-  LabelTET.Caption := '......';
-  LabelTRT.Caption := '......';
+  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+  LabelTimeRemaining.Caption := 'Time Remaining: ......';
   targetfolderfoldersstringlist.clear;
   targetfolderfoldersstringlist.free;
   filesinsourcealsointargetstringlist.clear;
@@ -1407,10 +1485,10 @@ begin
  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
  PageControl1.ActivePageIndex := 0;
  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
- ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 3-11-2025. Waiting to start.');
+ ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 5-11-2025. Waiting to start.');
  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
- LabelTET.Caption := '......';
- LabelTRT.Caption := '......';
+ LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+ LabelTimeRemaining.Caption := 'Time Remaining: ......';
  if not fn_determine_usersettingsdir then
   begin
    application.Terminate;
