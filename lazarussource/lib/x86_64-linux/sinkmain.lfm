@@ -100,8 +100,8 @@ object sinkmainform: Tsinkmainform
           Left = 9
           Height = 29
           Top = 2
-          Width = 88
-          Caption = '  Start'
+          Width = 95
+          Caption = '  Start Jobs'
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
             18000000000000030000C30E0000C30E00000000000000000000DDDDDDDDDDDD
@@ -137,8 +137,8 @@ object sinkmainform: Tsinkmainform
           Left = 9
           Height = 29
           Top = 2
-          Width = 88
-          Caption = '  Stop'
+          Width = 95
+          Caption = '  Stop Jobs'
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
             18000000000000030000C30E0000C30E00000000000000000000F5F5F5F5F5F5
@@ -224,7 +224,7 @@ object sinkmainform: Tsinkmainform
       end
     end
     object ConfigurationTabSheet: TTabSheet
-      Caption = 'Configuration'
+      Caption = 'Jobs Configuration'
       ClientHeight = 551
       ClientWidth = 859
       ImageIndex = 1

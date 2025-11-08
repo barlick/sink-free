@@ -1,7 +1,7 @@
 object sinkmainform: Tsinkmainform
-  Left = 889
+  Left = 940
   Height = 578
-  Top = 376
+  Top = 375
   Width = 867
   Caption = 'Sink'
   ClientHeight = 578
@@ -60,33 +60,19 @@ object sinkmainform: Tsinkmainform
           Width = 35
           Caption = 'Status:'
         end
-        object LabelTE: TLabel
+        object LabelTimeElapsed: TLabel
           Left = 9
           Height = 16
           Top = 87
           Width = 68
           Caption = 'Time Elapsed'
         end
-        object LabelTR: TLabel
+        object LabelTimeRemaining: TLabel
           Left = 151
           Height = 16
           Top = 87
           Width = 84
           Caption = 'Time Remaining'
-        end
-        object LabelTET: TLabel
-          Left = 81
-          Height = 16
-          Top = 87
-          Width = 18
-          Caption = '......'
-        end
-        object LabelTRT: TLabel
-          Left = 233
-          Height = 16
-          Top = 87
-          Width = 18
-          Caption = '......'
         end
         object ProgressBarBR: TProgressBar
           Left = 9
@@ -94,6 +80,8 @@ object sinkmainform: Tsinkmainform
           Top = 66
           Width = 839
           Anchors = [akTop, akLeft, akRight]
+          Color = clBtnFace
+          ParentColor = False
           Smooth = True
           TabOrder = 0
         end
@@ -110,8 +98,8 @@ object sinkmainform: Tsinkmainform
         TabOrder = 1
         object StartButton: TBitBtn
           Left = 9
-          Height = 25
-          Top = 6
+          Height = 29
+          Top = 2
           Width = 88
           Caption = '  Start'
           Glyph.Data = {
@@ -247,17 +235,33 @@ object sinkmainform: Tsinkmainform
         Width = 857
         Align = alClient
         ColCount = 4
+        Columns = <        
+          item
+            ReadOnly = True
+            Title.Caption = 'Source Folder'
+            Width = 427
+          end        
+          item
+            ReadOnly = True
+            Title.Caption = 'Target Folder'
+            Width = 428
+          end        
+          item
+            ReadOnly = True
+            Title.Caption = 'Copy Mode'
+            Width = 0
+          end        
+          item
+            ReadOnly = True
+            Title.Caption = 'Delete Files'
+            Width = 0
+          end>
         DefaultRowHeight = 20
         FixedCols = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goRowSelect]
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
+        ScrollBars = ssAutoVertical
         TabOrder = 0
         OnClick = SourceAndTargetFoldersStringGridClick
-        ColWidths = (
-          391
-          430
-          64
-          64
-        )
       end
       object Panel3: TPanel
         Left = 0
