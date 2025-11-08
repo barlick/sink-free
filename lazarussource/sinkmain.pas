@@ -877,7 +877,7 @@ begin
             if targetfreespacebytesremaining < (targetactualdisksize/100)*min_target_freediskspace_percent then
              begin
               ActivityLogMemo.Lines.Add('Error: Disk free space check on target drive/folder "'+targetfolder+'" reports '+HumanReadableNumbytes(targetfreespacebytes)+' of free space but we need to copy '+HumanReadableNumbytes(bytestocopy)+' which would leave less than '+sr(min_target_freediskspace_percent,3,0)+'% space remaining.');
-              ActivityLogMemo.Lines.Add('You would need to free up '+HumanReadableNumbytes(trunc((targetactualdisksize/100)*min_target_freediskspace_percent))+' of space on "'+targetfolder+'" to resolve this issue.');
+              ActivityLogMemo.Lines.Add('You would need to free up '+HumanReadableNumbytes((trunc((targetactualdisksize/100)*min_target_freediskspace_percent) - trunc(targetfreespacebytes)) + trunc(bytestocopy))+' of space on "'+targetfolder+'" to resolve this issue.');
               result := false;
              end
              else
@@ -1711,7 +1711,8 @@ begin
  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
  PageControl1.ActivePageIndex := 0;
  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
- ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 7-11-2025. Waiting to start.');
+ ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 8-11-2025. Waiting to start.');
+ ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
  LabelTimeRemaining.Caption := 'Time Remaining: ......';
