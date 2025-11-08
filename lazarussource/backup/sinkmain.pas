@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, ImgList, Grids, Buttons,LazFileUtils,FileUtil;
+  ComCtrls, ImgList, Grids, Buttons, Spin,LazFileUtils,FileUtil;
 
 const
  runmodecopyfiles : integer = 0;
@@ -27,23 +27,38 @@ type
    targetfolder : string;
    copymode : integer;
    deletefiles : boolean;
+   scan_filesize : int64; // Number of bytes that will be copied for this "source_and_target_rec" detected during scanmode_scanonly.
   end;
 
   { Tsinkmainform }
 
   Tsinkmainform = class(TForm)
+   AllowDeletefilesCheckBox: TCheckBox;
+   AllowDeleteFoldersCheckBox: TCheckBox;
+   AllowDiskFreeChecksCheckBox: TCheckBox;
+   FileSetDateSleepTimeSpinEdit: TSpinEdit;
+   Label4: TLabel;
+   Label5: TLabel;
+   PreferencesApplyChangesBitBtn: TBitBtn;
+   PreferencesDiscardChangesBitBtn: TBitBtn;
+   Label3: TLabel;
     PageControl1: TPageControl;
     DocumentationTabSheet: TTabSheet;
     Memo1: TMemo;
     HomeTabSheet: TTabSheet;
     ConfigurationTabSheet: TTabSheet;
     ImageList1: TImageList;
+    Panel4: TPanel;
+    PreferencesPanel: TPanel;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     SourceAndTargetFoldersStringGrid: TStringGrid;
     Panel3: TPanel;
     NewBitBtn: TBitBtn;
     DeleteBitBtn: TBitBtn;
     SourceFolderEdit: TEdit;
+    PreferencesTabSheet: TTabSheet;
+    MinFreeDiskSpacePercentSpinEdit: TSpinEdit;
+    FileSetDateMaxPassesSpinEdit: TSpinEdit;
     TargetFolderEdit: TEdit;
     SourceFolderLabel: TLabel;
     TargetFolderLabel: TLabel;
@@ -66,6 +81,9 @@ type
     Label2: TLabel;
     DeleteFilesCheckBox: TCheckBox;
     setfilestampsbutton: TBitBtn;
+    procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
+    procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
+    procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SourceAndTargetFoldersStringGridClick(Sender: TObject);
@@ -84,6 +102,13 @@ type
     procedure setfilestampsbuttonClick(Sender: TObject);
   private
     { Private declarations }
+    factive : boolean;
+    preference_switch_allow_deletefiles : boolean;
+    preference_switch_allow_deletefolders : boolean;
+    preference_switch_allow_diskfree_checks : boolean;
+    preference_switch_min_freediskspace_percent : int64;
+    preference_switch_FileSetDateMaxPasses : int64;
+    preference_switch_FileSetDateSleepTime : int64;
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     stats_filesize : int64;
@@ -110,6 +135,8 @@ type
     procedure load_ini_settings;
     procedure save_ini_settings;
     procedure fill_in_SourceAndTargetFoldersStringGrid;
+    procedure set_preferences_controls;
+    procedure transfer_preferences_controls_to_preferences;
     function fn_SourceAndTargetFoldersStringGrid_has_changed : boolean;
     procedure run_process(runmode : integer);
     procedure sIncProgress(numw : int64);
@@ -421,16 +448,20 @@ var
  newFileSize : int64;
  FileSetDateResult : Longint;
  workedok : boolean;
- FileSetDatepass : integer;
+ FileSetDatepass,FileSetDateMaxpass,sleep_time : int64;
 begin
+ sleep_time := preference_switch_FileSetDateSleepTime; // Msec... (1000 = 1 second).
+ if sleep_time <= 0 then sleep_time := 500;
+ FileSetDateMaxpass := preference_switch_FileSetDateMaxPasses;
+ if FileSetDateMaxpass <= 0 then FileSetDateMaxpass := 1;
  result := false; workedok := false; FileSetDatepass := 1;
- while not workedok and (FileSetDatepass < 10) do
+ while not workedok and (FileSetDatepass < FileSetDateMaxpass) do
   begin
    try
     if FileSetDatepass > 1 then
      begin
       ActivityLogMemo.Lines.Add('Problem setting date timestamnp on '+filename+' will wait for 1 second and try again.');
-      sleep(1000);
+      sleep(sleep_time);
      end;
     FileSetDateResult := FileSetDate(filename,DateTimeToFileDate(requiredfiledatetime));
     if FileSetDateResult = 0 then
@@ -520,7 +551,7 @@ begin
   end;
 end;
 
-procedure scanforfiles(scanmode : integer; startpath : string; copymode : integer; deletefiles : boolean);
+procedure scanforfiles(scanmode,source_and_target_array_slot : integer; startpath : string; copymode : integer; deletefiles : boolean);
 var
  mySearchRec : sysutils.TSearchRec;
  ReturnValue : integer;
@@ -552,7 +583,7 @@ begin
       begin
        targetfolderfoldersstringlist.add(delimitpath(startpath+mysearchrec.name));
       end;
-     scanforfiles(scanmode,delimitpath(startpath+mysearchrec.name),copymode,deletefiles);
+     scanforfiles(scanmode,source_and_target_array_slot,delimitpath(startpath+mysearchrec.name),copymode,deletefiles);
     end
     else if (mySearchRec.Attr and faDirectory = 0) and
             (pos('THUMBS.DB',uppercase(mySearchRec.name)) = 0) and
@@ -675,6 +706,12 @@ begin
               if sourceFileSize <> targetFileSize then
                begin
                 doit := true;
+                if scanmode = scanmode_scanonly then // Scan only...
+                 begin
+                  // We are going to delete this targetfile and replace it with a newer version so decrement the Number of bytes that will be copied for this "source_and_target_rec" detected during scanmode_scanonly:
+                  source_and_target_array[source_and_target_array_slot].scan_filesize := source_and_target_array[source_and_target_array_slot].scan_filesize - targetFileSize;
+                  // Note: We ARE going to (re)copy this file to target so don't decrement the overall total of bytes to copy "stats_filesize".
+                 end;
                end
                else
                begin
@@ -682,6 +719,12 @@ begin
                 if abs(sourceFileDateTime - targetFileDateTime) > encodetime(0,1,0,0) then // > 1 minute differnet? (so as not to risk odd differences in timestamps between different file systems 1 minute should be "safe").
                  begin
                   doit := true;
+                  if scanmode = scanmode_scanonly then // Scan only...
+                   begin
+                    // We are going to delete this targetfile and replace it with a newer version so decrement the Number of bytes that will be copied for this "source_and_target_rec" detected during scanmode_scanonly:
+                    source_and_target_array[source_and_target_array_slot].scan_filesize := source_and_target_array[source_and_target_array_slot].scan_filesize - targetFileSize;
+                    // Note: We ARE going to (re)copy this file to target so don't decrement the overall total of bytes to copy "stats_filesize".
+                   end;
                  end;
                end;
              end;
@@ -743,6 +786,7 @@ begin
            if fileexists(startpath+mysearchrec.name) then
             begin
              stats_filesize := stats_filesize + mysearchrec.Size;
+             source_and_target_array[source_and_target_array_slot].scan_filesize := source_and_target_array[source_and_target_array_slot].scan_filesize + mysearchrec.Size; // Number of bytes that will be copied for this "source_and_target_rec" detected during scanmode_scanonly.
             end;
           end
           else if scanmode = scanmode_copyfiles then // Main "copy files" scan mode:
@@ -808,11 +852,82 @@ begin
  end;
 end;
 
-procedure sync_folders(scanmode : integer; sourcefolder : string; copymode : integer; deletefiles : boolean);
+procedure sync_folders(scanmode,source_and_target_array_slot : integer; sourcefolder : string; copymode : integer; deletefiles : boolean);
 begin
  pathlabel.caption := 'Scanning: '+sourcefolder;
  filenamelabel.caption := '';
- scanforfiles(scanmode,sourcefolder,copymode,deletefiles);
+ scanforfiles(scanmode,source_and_target_array_slot,sourcefolder,copymode,deletefiles);
+end;
+
+function fn_disk_free_check(source_and_target_array_slot : integer) : boolean;
+var
+ targetfolder : string;
+ bytestocopy,targetfreespacebytes,targetactualdisksize,targetfreespacebytesremaining,min_target_freediskspace_percent : int64;
+begin
+ result := true; // Assume OK.
+ targetfolder := source_and_target_array[source_and_target_array_slot].targetfolder;
+ try
+  min_target_freediskspace_percent := preference_switch_min_freediskspace_percent; // Default is 5% minimum disk free space remaining on target drive(s) after file copy process.
+  if min_target_freediskspace_percent < 0 then min_target_freediskspace_percent := 0;
+  if min_target_freediskspace_percent > 100 then min_target_freediskspace_percent := 100;
+  bytestocopy := source_and_target_array[source_and_target_array_slot].scan_filesize;
+  if bytestocopy < 0 then bytestocopy := 0;
+  if (targetfolder <> '') and (bytestocopy > 0) then
+   begin
+    if fn_make_and_test_folder(extractfilepath(targetfolder)) then
+     begin
+      if (fn_Osversion = 'Windows') or (fn_OSversion = 'Linux') then
+       begin
+        SetCurrentDir(targetfolder);
+        targetfreespacebytes := Diskfree(0);
+        targetactualdisksize := DiskSize(0);
+        // OK, so how much targetfreespacebytes would be left after wed copied bytestocopy to it?
+        targetfreespacebytesremaining := targetfreespacebytes - bytestocopy;
+        if targetfreespacebytesremaining <= 0 then
+         begin
+          // Not enough space free on target drive/folder:
+          ActivityLogMemo.Lines.Add('Error: Disk free space check on target drive/folder "'+targetfolder+'" reports '+HumanReadableNumbytes(targetfreespacebytes)+' of free space but we need to copy '+HumanReadableNumbytes(bytestocopy)+' to it so this copy operation can''t be run.');
+          result := false;
+         end
+         else
+         begin
+          // OK, so that's enough phisical space on the target drive but would the resulting space remaining be less than the minimum allowed percentage free disk space that must remain after a copy operation?
+          if targetactualdisksize > 0 then
+           begin
+            if targetfreespacebytesremaining < (targetactualdisksize/100)*min_target_freediskspace_percent then
+             begin
+              ActivityLogMemo.Lines.Add('Error: Disk free space check on target drive/folder "'+targetfolder+'" reports '+HumanReadableNumbytes(targetfreespacebytes)+' of free space but we need to copy '+HumanReadableNumbytes(bytestocopy)+' which would leave less than '+sr(min_target_freediskspace_percent,3,0)+'% space remaining.');
+              ActivityLogMemo.Lines.Add('You would need to free up '+HumanReadableNumbytes((trunc((targetactualdisksize/100)*min_target_freediskspace_percent) - trunc(targetfreespacebytes)) + trunc(bytestocopy))+' of space on "'+targetfolder+'" to resolve this issue.');
+              result := false;
+             end
+             else
+             begin
+              // All good.
+              ActivityLogMemo.Lines.Add('Disk free space check on target drive/folder "'+targetfolder+'" reports '+HumanReadableNumbytes(targetfreespacebytes)+' of free space and we need to copy '+HumanReadableNumbytes(bytestocopy)+' to it so this copy operation should run OK.');
+             end;
+           end
+           else
+           begin
+            ActivityLogMemo.Lines.Add('Error: Disk free space check on target drive/folder "'+targetfolder+'" was unable to determine the size of the target drive/folder.');
+            result := false;
+           end;
+         end;
+       end
+       else
+       begin
+        ActivityLogMemo.Lines.Add('Note: The disk free space check can only run for Windows or Linux/Unix systems so no disk free space check as been run.');
+       end;
+     end
+     else
+     begin
+      ActivityLogMemo.Lines.Add('Error: Disk free space check on target drive/folder "'+targetfolder+'" was unable to access the that drive/folder.');
+      result := false;
+     end;
+   end;
+ except
+  ActivityLogMemo.Lines.Add('Error: Failed to run disk free space check for target folder "'+targetfolder+'". No files will be copied to this target folder.');
+  result := false; // Failed...
+ end;
 end;
 
 begin
@@ -866,11 +981,22 @@ begin
            end;
           if pass = scanmode_scanonly then
            begin
-            sync_folders(scanmode_scanonly,sourcefolder,copymode,deletefiles);
+            source_and_target_array[ct].scan_filesize := 0; // Zero the scan_filesize (bytes) for this source_and_target_rec:
+            sync_folders(scanmode_scanonly,ct,sourcefolder,copymode,deletefiles);
            end
            else if pass = scanmode_copyfiles then
            begin
-            sync_folders(scanmode_copyfiles,sourcefolder,copymode,deletefiles);
+            if preference_switch_allow_diskfree_checks then // Are we allowed to run disk free checks on the target drives?
+             begin
+              if fn_disk_free_check(ct) then
+               begin
+                sync_folders(scanmode_copyfiles,ct,sourcefolder,copymode,deletefiles);
+               end;
+             end
+             else
+             begin
+              sync_folders(scanmode_copyfiles,ct,sourcefolder,copymode,deletefiles);
+             end;
            end;
           inc(ct);
          end;
@@ -878,9 +1004,10 @@ begin
        end;
       copyfilesendtime := now; // Remember when copy files process finished.
       // OK, now got back through the source_and_target_array and if any of them have the "deletfiles" option enabled the do an extra pass (2) to delete any files that are present in
-      // the target folder but are NOT present in the source folder:
+      // the target folder but are NOT present in the source folder.
+      // NB: We can only delete files if the "preference_switch_allow_deletefiles" is enabled.
       ct := 0;
-      while (ct < source_and_target_array_count) and not abort do
+      while (ct < source_and_target_array_count) and not abort and preference_switch_allow_deletefiles do
        begin
         if source_and_target_array[ct].deletefiles then
          begin
@@ -891,8 +1018,9 @@ begin
           ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
           ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'" to locate any files that need to be deleted.');
           targetfolderfoldersstringlist.clear;
-          sync_folders(scanmode_deletefiles,targetfolder,copymode,deletefiles); // Pass "2" = delete files.
-          if targetfolderfoldersstringlist.Count > 0 then
+          sync_folders(scanmode_deletefiles,ct,targetfolder,copymode,deletefiles); // Pass "2" = delete files.
+          // NB: We can only delete redundant folders from the target folder if the "preference_switch_allow_deletefolders" is enabled.
+          if (targetfolderfoldersstringlist.Count > 0) and preference_switch_allow_deletefolders then
            begin
             ct1 := 0;
             while (ct1 < targetfolderfoldersstringlist.count) and not abort do
@@ -928,7 +1056,7 @@ begin
         targetfolder := source_and_target_array[ct].targetfolder;
         copymode := source_and_target_array[ct].copymode;
         deletefiles := source_and_target_array[ct].deletefiles;
-        sync_folders(scanmode_setfilestamps,sourcefolder,copymode,deletefiles); // Pass "3" = set filestamps on target folder files.
+        sync_folders(scanmode_setfilestamps,ct,sourcefolder,copymode,deletefiles); // Pass "3" = set filestamps on target folder files.
         inc(ct);
        end;
      end;
@@ -1242,82 +1370,101 @@ begin
    while not eof(f) do
     begin
      readln(f,s);
-     // Is it a "[Source Folder]"? If so them MUST be followed be "[Target Folder]" line so read them both:
-     copymode := copyifnotpresent; deletefiles := false;
-     if uppercase(copy(s,1,15)) = '[SOURCE FOLDER]' then // Legacy type file.
+     // New type sink.ini:
+     if pos('<PREFERENCE_SWITCH_ALLOW_DELETEFILES>',uppercase(s)) > 0 then
       begin
-       targetfolder := '';
-       sourcefolder := copy(s,16,length(s));
-       readln(f,targetfolder);
-       if uppercase(copy(targetfolder,1,15)) = '[TARGET FOLDER]' then
-        begin
-         targetfolder := copy(targetfolder,16,length(targetfolder));
-        end;
-       if (sourcefolder <> '') and (targetfolder <> '') then
-        begin
-         inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
-         source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
-         source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
-         source_and_target_array[source_and_target_array_count-1].copymode := copymode;
-         source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
-        end;
-      end
-      else
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_allow_deletefiles := s = 'Y';
+      end;
+     if pos('<PREFERENCE_SWITCH_ALLOW_DELETEFOLDERS>',uppercase(s)) > 0 then
       begin
-       // New type sink.ini:
-       if pos('<START_DEFINITION>',uppercase(s)) > 0 then
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_allow_deletefolders := s = 'Y';
+      end;
+     if pos('<PREFERENCE_SWITCH_ALLOW_DISKFREE_CHECKS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_allow_diskfree_checks := s = 'Y';
+      end;
+     if pos('<PREFERENCE_SWITCH_MIN_FREEDISKSPACE_PERCENT>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_min_freediskspace_percent := strtoint(s);
+      end;
+     if pos('<PREFERENCE_SWITCH_FILESETDATEMAXPASSES>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_FileSetDateMaxPasses := strtoint(s);
+      end;
+     if pos('<PREFERENCE_SWITCH_FILESETDATESLEEPTIME>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_FileSetDateSleepTime := strtoint(s);
+      end;
+     if pos('<START_DEFINITION>',uppercase(s)) > 0 then
+      begin
+       sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
+       finished := false;
+       while not finished and not eof(f) do
         begin
-         sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
-         finished := false;
-         while not finished and not eof(f) do
+         readln(f,s);
+         s := strip(stripfront(s));
+         if copy(s,1,1) <> '#' then // Ignore comments.
           begin
-           readln(f,s);
-           s := strip(stripfront(s));
-           if copy(s,1,1) <> '#' then // Ignore comments.
+           if pos('SOURCE_FOLDER=',uppercase(s)) > 0 then
             begin
-             if pos('SOURCE_FOLDER=',uppercase(s)) > 0 then
+             x := pos('=',uppercase(s));
+             s := copy(s,x+1,length(s));
+             s := strip(stripfront(s));
+             sourcefolder := s;
+            end
+            else if pos('TARGET_FOLDER=',uppercase(s)) > 0 then
+            begin
+             x := pos('=',uppercase(s));
+             s := copy(s,x+1,length(s));
+             s := strip(stripfront(s));
+             targetfolder := s;
+            end
+            else if pos('COPY_MODE=',uppercase(s)) > 0 then
+            begin
+             x := pos('=',uppercase(s));
+             s := copy(s,x+1,length(s));
+             s := strip(stripfront(s));
+             try
+              copymode := strtoint(s);
+             except
+              copymode := copyifnotpresent;
+             end;
+            end
+            else if pos('DELETE_FILES=',uppercase(s)) > 0 then
+            begin
+             x := pos('=',uppercase(s));
+             s := copy(s,x+1,length(s));
+             s := strip(stripfront(s));
+             deletefiles := uppercase(copy(s,1,1)) = 'Y';
+            end
+            else if pos('<END_DEFINITION>',uppercase(s)) > 0 then
+            begin
+             finished := true;
+             if (sourcefolder <> '') and (targetfolder <> '') then
               begin
-               x := pos('=',uppercase(s));
-               s := copy(s,x+1,length(s));
-               s := strip(stripfront(s));
-               sourcefolder := s;
-              end
-              else if pos('TARGET_FOLDER=',uppercase(s)) > 0 then
-              begin
-               x := pos('=',uppercase(s));
-               s := copy(s,x+1,length(s));
-               s := strip(stripfront(s));
-               targetfolder := s;
-              end
-              else if pos('COPY_MODE=',uppercase(s)) > 0 then
-              begin
-               x := pos('=',uppercase(s));
-               s := copy(s,x+1,length(s));
-               s := strip(stripfront(s));
-               try
-                copymode := strtoint(s);
-               except
-                copymode := copyifnotpresent;
-               end;
-              end
-              else if pos('DELETE_FILES=',uppercase(s)) > 0 then
-              begin
-               x := pos('=',uppercase(s));
-               s := copy(s,x+1,length(s));
-               s := strip(stripfront(s));
-               deletefiles := uppercase(copy(s,1,1)) = 'Y';
-              end
-              else if pos('<END_DEFINITION>',uppercase(s)) > 0 then
-              begin
-               finished := true;
-               if (sourcefolder <> '') and (targetfolder <> '') then
-                begin
-                 inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
-                 source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
-                 source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
-                 source_and_target_array[source_and_target_array_count-1].copymode := copymode;
-                 source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
-                end;
+               inc(source_and_target_array_count); setlength(source_and_target_array,source_and_target_array_count);
+               source_and_target_array[source_and_target_array_count-1].sourcefolder := delimitpath(sourcefolder);
+               source_and_target_array[source_and_target_array_count-1].targetfolder := delimitpath(targetfolder);
+               source_and_target_array[source_and_target_array_count-1].copymode := copymode;
+               source_and_target_array[source_and_target_array_count-1].deletefiles := deletefiles;
               end;
             end;
           end;
@@ -1342,6 +1489,35 @@ begin
    if source_and_target_array_count > 0 then
     begin
      writeln(f,'# Sink.exe configuration file. If you are no longer using the Sink.exe file syncing/backup applidation then you can safely delete this file.');
+
+     writeln(f,'# Are we allowed to delete files from target folders (preference_switch_allow_deletefiles)?');
+     if preference_switch_allow_deletefiles then
+      writeln(f,'<preference_switch_allow_deletefiles>=Y')
+     else
+     writeln(f,'<preference_switch_allow_deletefiles>=N');
+
+     writeln(f,'# Are we allowed to delete folders from target drives/folders (preference_switch_allow_deletefolders)?');
+     if preference_switch_allow_deletefolders then
+      writeln(f,'<preference_switch_allow_deletefolders>=Y')
+     else
+     writeln(f,'<preference_switch_allow_deletefolders>=N');
+
+     writeln(f,'# Are we allowed to run disk free checks on the target drives (preference_switch_allow_diskfree_checks)?');
+     if preference_switch_allow_diskfree_checks then
+      writeln(f,'<preference_switch_allow_diskfree_checks>=Y')
+     else
+     writeln(f,'<preference_switch_allow_diskfree_checks>=N');
+
+     writeln(f,'# Minimum disk free space remaining on target drive(s) before copy process is allowed to run (preference_switch_min_freediskspace_percent).');
+     writeln(f,'<preference_switch_min_freediskspace_percent>='+inttostr(trunc(preference_switch_min_freediskspace_percent)));
+
+     writeln(f,'# No. of retries allowed in the set file date+time stamp process (preference_switch_FileSetDateMaxPasses).');
+     writeln(f,'<preference_switch_FileSetDateMaxPasses>='+inttostr(trunc(preference_switch_FileSetDateMaxPasses)));
+
+     writeln(f,'# Sleep time in milliseconds (1000 = 1 second) between retries in the set file date+time stamp process (preference_switch_FileSetDateSleepTime).');
+     writeln(f,'<preference_switch_FileSetDateSleepTime>='+inttostr(trunc(preference_switch_FileSetDateSleepTime)));
+
+     writeln(f,'# Start of source and target folder jobs definitions:');
      ct := 0;
      while ct < source_and_target_array_count do
       begin
@@ -1368,6 +1544,29 @@ begin
     end;
   end;
  closefile(f); if ioresult = 0 then;
+end;
+
+
+procedure Tsinkmainform.set_preferences_controls;
+begin
+ AllowDeleteFilesCheckbox.Checked := preference_switch_allow_deletefiles;
+ AllowDeleteFoldersCheckbox.Checked := preference_switch_allow_deletefolders;
+ AllowDiskFreeChecksCheckbox.Checked := preference_switch_allow_diskfree_checks;
+ MinFreeDiskSpacePercentSpinEdit.Value := preference_switch_min_freediskspace_percent;
+ FileSetDateMaxPassesSpinEdit.Value := preference_switch_FileSetDateMaxPasses;
+ FileSetDateSleepTimeSpinEdit.Value := preference_switch_FileSetDateSleepTime;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
+end;
+
+procedure Tsinkmainform.transfer_preferences_controls_to_preferences;
+begin
+ preference_switch_allow_deletefiles := AllowDeleteFilesCheckbox.Checked;
+ preference_switch_allow_deletefolders := AllowDeleteFoldersCheckbox.Checked;
+ preference_switch_allow_diskfree_checks := AllowDiskFreeChecksCheckbox.Checked;
+ preference_switch_min_freediskspace_percent := MinFreeDiskSpacePercentSpinEdit.Value;
+ preference_switch_FileSetDateMaxPasses := FileSetDateMaxPassesSpinEdit.Value;
+ preference_switch_FileSetDateSleepTime := FileSetDateSleepTimeSpinEdit.Value;
 end;
 
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
@@ -1522,8 +1721,6 @@ begin
 end;
 
 procedure Tsinkmainform.FormShow(Sender: TObject);
-var
- freespacebytes : int64;
 
 function fn_determine_usersettingsdir : boolean;
 begin
@@ -1553,62 +1750,76 @@ begin
 end;
 
 begin
- SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
- SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
- PageControl1.ActivePageIndex := 0;
- pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
- ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 7-11-2025. Waiting to start.');
- filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
- LabelTimeElapsed.Caption := 'Time Elapsed: ......';
- LabelTimeRemaining.Caption := 'Time Remaining: ......';
- if not fn_determine_usersettingsdir then
-  begin
-   application.Terminate;
-  end
-  else
-  begin
-   load_ini_settings;
-   fill_in_SourceAndTargetFoldersStringGrid;
+ factive := false;
+ try
+  SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
+  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
+  PageControl1.ActivePageIndex := 0;
+  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
+  ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 8-11-2025. Waiting to start.');
+  ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
+  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
+  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+  LabelTimeRemaining.Caption := 'Time Remaining: ......';
 
-   ActivityLogMemo.Lines.Add(fn_OSVersion);
-   if fn_Osversion = 'Windows' then
-    begin
-     freespacebytes := Diskfree(0);
-     ActivityLogMemo.Lines.Add('df c: '+HumanReadableNumbytes(freespacebytes));
-     freespacebytes := DiskSize(0);
-     ActivityLogMemo.Lines.Add('ds c: '+HumanReadableNumbytes(freespacebytes));
-     SetCurrentDir('n:\');
-     freespacebytes := Diskfree(0);
-     ActivityLogMemo.Lines.Add('df n: '+HumanReadableNumbytes(freespacebytes));
-     freespacebytes := DiskSize(0);
-     ActivityLogMemo.Lines.Add('ds n: '+HumanReadableNumbytes(freespacebytes));
-    end
-    else if fn_OSVersion = 'Linux' then  s
-    begin
-     SetCurrentDir('/');
-     freespacebytes := Diskfree(0);
-     ActivityLogMemo.Lines.Add('df /: '+HumanReadableNumbytes(freespacebytes));
-     freespacebytes := DiskSize(0);
-     ActivityLogMemo.Lines.Add('ds /: '+HumanReadableNumbytes(freespacebytes));
-     SetCurrentDir('/run/media/barlick/Data/');
-     freespacebytes := Diskfree(0);
-     ActivityLogMemo.Lines.Add('df /run/media/barlick/Data/: '+HumanReadableNumbytes(freespacebytes));
-     freespacebytes := DiskSize(0);
-     ActivityLogMemo.Lines.Add('ds /run/media/barlick/Data/: '+HumanReadableNumbytes(freespacebytes));
-    end;
-  end;
+  // Set default preference switch values:
+  preference_switch_allow_deletefiles := true; // Are we allowed to delete files from target folders?
+  preference_switch_allow_deletefolders := true; // Are we alowed to delete folders from target folders?
+  preference_switch_allow_diskfree_checks := true; // Are we allowed to run disk free checks on the target drives?
+  preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
+  preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
+  preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
+
+  if not fn_determine_usersettingsdir then
+   begin
+    application.Terminate;
+   end
+   else
+   begin
+    load_ini_settings;
+    fill_in_SourceAndTargetFoldersStringGrid;
+    set_preferences_controls;
+   end;
+ finally
+  factive := true;
+ end;
 end;
 
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
- startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+ startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
  abort := false;
  try
   run_process(runmodecopyfiles);
  finally
-  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
+  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
  end;
+end;
+
+procedure Tsinkmainform.AllowDeletefilesCheckBoxChange(Sender: TObject);
+begin
+ if factive then
+  begin
+   PreferencesApplyChangesBitBtn.enabled := true;
+   PreferencesDiscardChangesBitBtn.Enabled := true;
+  end;
+end;
+
+procedure Tsinkmainform.PreferencesApplyChangesBitBtnClick(Sender: TObject);
+begin
+ transfer_preferences_controls_to_preferences;
+ save_ini_settings;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
+end;
+
+procedure Tsinkmainform.PreferencesDiscardChangesBitBtnClick(Sender: TObject);
+begin
+ set_preferences_controls;
+ save_ini_settings;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
 
 procedure Tsinkmainform.StopbuttonClick(Sender: TObject);
@@ -1642,11 +1853,11 @@ begin
         'Click "OK" to proceed or "Cancel" to quit.';
  if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
   begin
-   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
    try
     run_process(runmodesetfilestamps);
    finally
-    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
+    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
    end;
   end;
 end;

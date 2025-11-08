@@ -11,7 +11,7 @@ object sinkmainform: Tsinkmainform
   Font.Height = -11
   Font.Name = 'Tahoma'
   Position = poDesktopCenter
-  LCLVersion = '4.2.0.0'
+  LCLVersion = '4.0.0.4'
   OnResize = FormResize
   OnShow = FormShow
   object PageControl1: TPageControl
@@ -26,59 +26,59 @@ object sinkmainform: Tsinkmainform
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 550
+      ClientWidth = 857
       ImageIndex = 0
       object Panel2: TPanel
         Left = 0
         Height = 109
-        Top = 407
-        Width = 859
+        Top = 406
+        Width = 857
         Align = alBottom
         ClientHeight = 109
-        ClientWidth = 859
+        ClientWidth = 857
         ParentBackground = False
         TabOrder = 0
         object pathLabel: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 28
-          Width = 47
+          Width = 52
           Caption = 'pathLabel'
         end
         object filenameLabel: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 47
-          Width = 47
+          Width = 52
           Caption = 'pathLabel'
         end
         object Label1: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 8
           Width = 35
           Caption = 'Status:'
         end
         object LabelTimeElapsed: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 87
-          Width = 62
+          Width = 68
           Caption = 'Time Elapsed'
         end
         object LabelTimeRemaining: TLabel
           Left = 151
-          Height = 13
+          Height = 16
           Top = 87
-          Width = 74
+          Width = 84
           Caption = 'Time Remaining'
         end
         object ProgressBarBR: TProgressBar
           Left = 9
           Height = 17
           Top = 66
-          Width = 841
+          Width = 839
           Anchors = [akTop, akLeft, akRight]
           Color = clBtnFace
           ParentColor = False
@@ -89,11 +89,11 @@ object sinkmainform: Tsinkmainform
       object Panel1: TPanel
         Left = 0
         Height = 35
-        Top = 516
-        Width = 859
+        Top = 515
+        Width = 857
         Align = alBottom
         ClientHeight = 35
-        ClientWidth = 859
+        ClientWidth = 857
         ParentBackground = False
         TabOrder = 1
         object StartButton: TBitBtn
@@ -171,7 +171,7 @@ object sinkmainform: Tsinkmainform
           OnClick = StopbuttonClick
         end
         object setfilestampsbutton: TBitBtn
-          Left = 666
+          Left = 664
           Height = 29
           Top = 2
           Width = 184
@@ -211,9 +211,9 @@ object sinkmainform: Tsinkmainform
       end
       object ActivityLogMemo: TMemo
         Left = 0
-        Height = 407
+        Height = 406
         Top = 0
-        Width = 859
+        Width = 857
         Align = alClient
         Lines.Strings = (
           'ActivityLogMemo'
@@ -225,14 +225,14 @@ object sinkmainform: Tsinkmainform
     end
     object ConfigurationTabSheet: TTabSheet
       Caption = 'Jobs Configuration'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 550
+      ClientWidth = 857
       ImageIndex = 1
       object SourceAndTargetFoldersStringGrid: TStringGrid
         Left = 0
-        Height = 401
+        Height = 400
         Top = 0
-        Width = 859
+        Width = 857
         Align = alClient
         ColCount = 4
         Columns = <        
@@ -266,32 +266,32 @@ object sinkmainform: Tsinkmainform
       object Panel3: TPanel
         Left = 0
         Height = 150
-        Top = 401
-        Width = 859
+        Top = 400
+        Width = 857
         Align = alBottom
         ClientHeight = 150
-        ClientWidth = 859
+        ClientWidth = 857
         ParentBackground = False
         TabOrder = 1
         object SourceFolderLabel: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 11
-          Width = 66
+          Width = 72
           Caption = 'Source Folder'
         end
         object TargetFolderLabel: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 41
-          Width = 65
+          Width = 69
           Caption = 'Target Folder'
         end
         object Label2: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 72
-          Width = 26
+          Width = 30
           Caption = 'Mode'
         end
         object NewBitBtn: TBitBtn
@@ -370,9 +370,9 @@ object sinkmainform: Tsinkmainform
         end
         object SourceFolderEdit: TEdit
           Left = 160
-          Height = 21
+          Height = 28
           Top = 6
-          Width = 664
+          Width = 662
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 2
           Text = 'SourceFolderEdit'
@@ -380,16 +380,16 @@ object sinkmainform: Tsinkmainform
         end
         object TargetFolderEdit: TEdit
           Left = 160
-          Height = 21
+          Height = 28
           Top = 36
-          Width = 664
+          Width = 662
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 4
           Text = 'Edit1'
           OnChange = TargetFolderEditChange
         end
         object SourceFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 826
           Height = 29
           Top = 6
           Width = 25
@@ -426,7 +426,7 @@ object sinkmainform: Tsinkmainform
           OnClick = SourceFolderBrowseBitBtnClick
         end
         object TargetFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 826
           Height = 29
           Top = 36
           Width = 25
@@ -540,11 +540,11 @@ object sinkmainform: Tsinkmainform
         end
         object copymodeComboBox: TComboBox
           Left = 159
-          Height = 21
+          Height = 28
           Top = 66
-          Width = 694
+          Width = 692
           Anchors = [akTop, akLeft, akRight]
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 0
           Items.Strings = (
             'Copy files from the Source folder that are not present in the Target folder.'
@@ -556,9 +556,9 @@ object sinkmainform: Tsinkmainform
         end
         object DeleteFilesCheckBox: TCheckBox
           Left = 88
-          Height = 17
+          Height = 21
           Top = 95
-          Width = 761
+          Width = 759
           Alignment = taLeftJustify
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?'
@@ -567,16 +567,193 @@ object sinkmainform: Tsinkmainform
         end
       end
     end
+    object PreferencesTabSheet: TTabSheet
+      Caption = 'Preferences'
+      ClientHeight = 550
+      ClientWidth = 857
+      ImageIndex = 3
+      object PreferencesPanel: TPanel
+        Left = 0
+        Height = 514
+        Top = 0
+        Width = 857
+        Align = alClient
+        ClientHeight = 514
+        ClientWidth = 857
+        ParentBackground = False
+        TabOrder = 0
+        object AllowDeletefilesCheckBox: TCheckBox
+          Left = 16
+          Height = 21
+          Top = 16
+          Width = 257
+          Caption = 'Allow Sink to delete files from target folders?'
+          TabOrder = 0
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object AllowDeleteFoldersCheckBox: TCheckBox
+          Left = 16
+          Height = 21
+          Top = 44
+          Width = 367
+          Caption = 'Allow Sink to delete redundant folders from target drives/folders?'
+          TabOrder = 1
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object AllowDiskFreeChecksCheckBox: TCheckBox
+          Left = 16
+          Height = 21
+          Top = 72
+          Width = 361
+          Caption = 'Allow Sink to run disk free space checks on target drives/folders?'
+          TabOrder = 2
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object Label3: TLabel
+          Left = 79
+          Height = 16
+          Top = 99
+          Width = 756
+          Caption = 'Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation.'
+        end
+        object MinFreeDiskSpacePercentSpinEdit: TSpinEdit
+          Left = 16
+          Height = 26
+          Top = 96
+          Width = 56
+          MaxValue = 100
+          TabOrder = 3
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object Label4: TLabel
+          Left = 79
+          Height = 16
+          Top = 126
+          Width = 461
+          Caption = 'Maximum No. of retries allowed within the "set target file date + time file stamp" process.'
+        end
+        object FileSetDateMaxPassesSpinEdit: TSpinEdit
+          Left = 16
+          Height = 26
+          Top = 123
+          Width = 56
+          TabOrder = 4
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object Label5: TLabel
+          Left = 79
+          Height = 16
+          Top = 153
+          Width = 591
+          Caption = 'Sleep time (milliseconds 1000 = 1 second) between retries within the "set target file date + time file stamp" process.'
+        end
+        object FileSetDateSleepTimeSpinEdit: TSpinEdit
+          Left = 16
+          Height = 26
+          Top = 150
+          Width = 56
+          TabOrder = 5
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+      end
+      object Panel4: TPanel
+        Left = 0
+        Height = 36
+        Top = 514
+        Width = 857
+        Align = alBottom
+        ClientHeight = 36
+        ClientWidth = 857
+        ParentBackground = False
+        TabOrder = 1
+        object PreferencesApplyChangesBitBtn: TBitBtn
+          Left = 5
+          Height = 29
+          Top = 3
+          Width = 113
+          Caption = 'Apply changes'
+          Enabled = False
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000030000C30E0000C30E00000000000000000000FFFFFFFFFFFF
+            FFFFFFFEFEFEACACAC4B4B4B0202020000000000000303034D4D4DB4B4B4FFFF
+            FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE3E3E33B3B3B00000000000000000000
+            00000000000000000000000000003D3D3DE5E5E5FFFFFFFFFFFFFFFFFFE1E1E1
+            1515150000000000000000000000000000000000000000000000000000000000
+            00161616DEDEDEFFFFFFF9F9F92B2B2B00000000000000000000000000000000
+            00000000000000000000000000000000000000002D2D2DFAFAFA909090000000
+            0000000000000000000D0D0D8787874242420000000000000000000000000000
+            000000000000009696961A1A1A0000000000000000000E0E0EBCBCBCF5F5F5E2
+            E2E22929290000000000000000000000000000000000001B1B1B000000000000
+            000000030303A3A3A3F4F4F4D1D1D1F4F4F4CDCDCD1313130000000000000000
+            00000000000000000000000000000000000000121212E7E7E7A7A7A706060683
+            8383F4F4F4A6A6A6030303000000000000000000000000000000000000000000
+            0000000000000D0D0D030303000000020202ACACACF4F4F47D7D7D0000000000
+            0000000000000000000000000000000000000000000000000000000000000000
+            0000121212CBCBCBF1F1F1505050000000000000000000000000191919000000
+            000000000000000000000000000000000000000000282828E6E6E6E3E3E30E0E
+            0E0000000000001B1B1B90909000000000000000000000000000000000000000
+            00000000000000003C3C3C818181020202000000000000959595F9F9F92B2B2B
+            0000000000000000000000000000000000000000000000000000000000000000
+            00000000323232FAFAFAFFFFFFE1E1E115151500000000000000000000000000
+            0000000000000000000000000000000000161616DEDEDEFFFFFFFFFFFFFFFFFF
+            E3E3E33B3B3B0000000000000000000000000000000000000000000000003D3D
+            3DE5E5E5FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFDFDA7A7A74B4B4B02020200
+            00000000000303034D4D4DB3B3B3FFFFFFFFFFFFFFFFFFFFFFFF
+          }
+          TabOrder = 0
+          OnClick = PreferencesApplyChangesBitBtnClick
+        end
+        object PreferencesDiscardChangesBitBtn: TBitBtn
+          Left = 125
+          Height = 29
+          Top = 3
+          Width = 131
+          Caption = 'Discard Changes'
+          Enabled = False
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000030000C30E0000C30E00000000000000000000F5F5F5F5F5F5
+            F5F5F5F2F2F29B9B9B3B3B3B0707070303030303030707073B3B3B9C9C9CF2F2
+            F2F4F4F4F5F5F5F5F5F5F5F5F5F4F4F4D8D8D838383803030303030303030303
+            0303030303030303030303030303383838D8D8D8F4F4F4F5F5F5F5F5F5D9D9D9
+            2020200303030303030303030303030303030303030303030303030303030303
+            03202020DADADAF5F5F5F3F3F33D3D3D03030303030304040403030303030303
+            03030303030303030303030303030303030303033E3E3EF3F3F3A7A7A7030303
+            030303030303C9C9C9767676030303030303030303030303777777C7C7C70303
+            03030303030303A7A7A7494949030303030303030303535353EFEFEF76767603
+            0303030303787878EEEEEE525252030303030303030303494949101010030303
+            030303030303030303535353EFEFEF767676787878EEEEEE5252520303030303
+            03030303030303101010030303030303030303030303030303030303535353F1
+            F1F1F0F0F0525252030303030303030303030303030303020202040404030303
+            030303030303030303030303787878EFEFEFEFEFEF7676760303030303030303
+            03030303030303030303171717030303030303030303030303787878EFEFEF52
+            5252535353EFEFEF767676030303030303030303030303171717575757030303
+            030303030303757575EEEEEE525252030303030303535353EFEFEF7474740303
+            03030303030303575757BABABA030303030303030303A7A7A751515103030303
+            0303030303030303525252A6A6A6030303030303040404BBBBBBF5F5F5585858
+            0303030303030303030303030303030303030303030303030303030303030303
+            03030303595959F5F5F5F5F5F5E8E8E838383803030303030303030303030303
+            0303030303030303030303030303030303393939E9E9E9F5F5F5F5F5F5F4F4F4
+            E9E9E95F5F5F0404040303030303030303030303030303030303030404045F5F
+            5FE9E9E9F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56565652828280B
+            0B0B0A0A0A282828656565C5C5C5F5F5F5F5F5F5F5F5F5F5F5F5
+          }
+          TabOrder = 1
+          OnClick = PreferencesDiscardChangesBitBtnClick
+        end
+      end
+    end
     object DocumentationTabSheet: TTabSheet
       Caption = 'Documentation'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 550
+      ClientWidth = 857
       ImageIndex = 2
       object Memo1: TMemo
         Left = 0
-        Height = 551
+        Height = 550
         Top = 0
-        Width = 859
+        Width = 857
         Align = alClient
         Lines.Strings = (
           'Sink.exe: A free very simple folder syncing application.'
@@ -613,40 +790,41 @@ object sinkmainform: Tsinkmainform
     end
   end
   object ImageList1: TImageList
-    Left = 296
+    Left = 544
+    Top = 65508
     Bitmap = {
-      4C7A0300000010000000100000004F0300000000000078DAED95CB2B7D5114C7
-      91B71422AF4C10331203B35B0A7F80A494895779662011EA8E8818DC7B496484
-      3060208FBC5F0364A03C87521E9162E099E8FBEBBB73F6EFDCF3B8D7FD95D96F
-      D5EADCB3D6FAECB3F6DA6BEDEBE5652E333333181F1FC7DBDB1BF87E7B7B0B87
-      C301BBDD8E8585059871CFCFCFA8AEAEA65F684141011E1F1FB1B9B9296DB9B9
-      B9863CBFF1ED437C7C3C525353C5EFACAC2C4C4C4CB8E44F4F4F657C666626F6
-      F6F6B0BBBB2BD70B0C0C34E5979696101E1E2EF3DDDADA424242022222223037
-      3787AAAA2AC96AF9FEFE7EF8F9F9C1DBDB1B6D6D6DA266C1C1C132D6D7D71736
-      9B4DD48E71B46567678BBAD6D6D68AF7A0A0208C8C8CA0BDBD5DACA3FE96A215
-      1515989D9D95791616168A676C6C2C983FF336E2D46AB158C4DE525252C47B46
-      4606B6B7B7C5D31DAB6862622236363690939383878707949595FD9855D78F7D
-      C2FA959696EAFCAC19CF8BAAD4CCACFE463CEBCAFA52BBBABAFE8957FCDDDDDD
-      BFCA9797977BCCE7E7E74BFFD1D1117A7A7A9C74656545FA39075AFFCECE8E6E
-      7E3E3E3ED0D8D888E4E464CCCFCF4BFFFAFA3A929292D0DADA8AAFAF2FD3B93F
-      3F3F97F9454545617878184343438889891136F6F5F5F5B5297F7979E9B26738
-      23DAEFBFBEBEE2EAEA0A4F4F4FBA1935D2DEDE5E7C7E7EE2E6E646F41FCF8E79
-      F9F8F8C818F65B4D4D8D987B6A5D5D1D020202A49F3D49A6A4A4047171714EEB
-      FBFBFB636D6D4DB747CE98FAFEA18686868AF5592BA373D70ACF4689E31D3035
-      352562C7C6C6A49DEB99F1ABABAB328E3DA0D8474747A55D7DEE5AF9DE9750FE
-      07D0B6B8B8E8947F7D7DBD29DFDCDC2CE3A2A3A3B1BCBC2CEE78754D5867D64A
-      CBEEEFEF8BF357C7868585A1B2B25277C6AC73535313D8B7D4969616A7FB58D1
-      E2E262BCBCBCE0F0F050F425CFD35DFFF07EBFBFBFC7C1C101D87BEA1C4F4E4E
-      5CB2CC8BBD67569FC9C949A7F3EDEBEBC3C0C000222323858D3DCABE35E3EFEE
-      EE505454849090104C4F4FCB38F6047B8DF7F4FBFBBB8EE73DDED0D0E0521993
-      9E9EAE6369A3DF9D7476760A5EBB06DFCFCECEDCF283838332072AC5139E62B5
-      5A9DF6939696064F78B51C1F1FCB5C14BEA3A3C3508DE4E2E242C77B22BFC19B
-      E56FB49FFFF9FFE539F79E0A1985FFC9FC68858C324B7979796EE757AB64C8FE
-      01B670CA58
+      4C7A040000001000000010000000680300000000000078DAED96CB2BB55114C6
+      91BB1422B74C1033120333A5F007484A99B8956B0612A18C8818B82532421830
+      104EC7FD324006CA7528E5122906AE891E3D3BEFFEDEF35ECE717C9FC157563D
+      9DF3EEBD7EFB5D7BEDB5F6392E2EE6363D3D8DB1B1313C3F3F83CF575757E8E9
+      E9417777372C160BCCB8878707949595715E283B3B1B777777585B5B93631919
+      19863CDFF13987C8C848C4C7C78BEF292929181F1FB7CB1F1D1D49FFE4E4646C
+      6F6F636B6B4BAEE7EDED6DCACFCFCF23303050C6BBBEBE8EA8A8280405056176
+      7616A5A5A592D5F27D7D7DF0F0F080ABAB2B1A1B1B45CE7C7D7DA5AFBBBB3BBA
+      BABA44EEE8C7B1D4D45491D78A8A0AF1ECE3E383E1E1613435358975D4EF5254
+      5C5C8C99991919674E4E8EF80C0F0F07E367DC469C5A696969626F717171E239
+      2929091B1B1BE2D311AB283A3A1AABABAB484F4FC7EDED2D0A0B0BBFCCAAF3C7
+      3A61FE0A0A0A74F3CC19CF8B527266967F239E79657EA9B6B6B66FF1CA7C7B7B
+      FB8FF24545454EF3595959727E7F7F1F1D1D1D365A5C5C94F3EC03EDFCE6E6A6
+      AE7F5E5F5F51535383D8D858CCCDCDC9F9959515C4C4C4A0A1A101EFEFEFA67D
+      7F727222E30B0909C1D0D01006070711161626C658D7171717A6FCD9D999DD9A
+      618F68DFFFF4F484F3F373DCDFDFEB7AD4489D9D9D787B7BC3E5E5A5A83F9E1D
+      E3727373933EACB7F2F272D1F754656525BCBCBCE43C6B924C7E7E3E2222226C
+      D6F7F4F4C4F2F2B26E8FEC31F5FD43F9FBFB8BF5992BA373D71ACF46F1E31D30
+      3939297C474747E538D733E3979696A41F6B40191F191991E3EA73D7DAE7BE84
+      F81BC031ABD56A137F555595295F575727FD424343B1B0B020EE78754E9867E6
+      4ACBEEECEC88F357FB060404A0A4A44477C6CC736D6D2D58B7547D7DBDCD7DAC
+      282F2F0F8F8F8FD8DBDB1375C9F374543FBCDF6F6E6EB0BBBB0BD69E3AC6C3C3
+      43BB2CE362ED99E5676262C2E67C7B7B7BD1DFDF8FE0E06031C61A65DD9AF1D7
+      D7D7C8CDCD859F9F1FA6A6A6A41F6B82B5C67BFAE5E545C7F31EAFAEAEB62BFA
+      242626EA588E71DE91B5B6B60A5EBB069F8F8F8F1DF203030332068AE60C4F6B
+      6E6EB6D94F4242029CE1D5767070206351F89696164319D9E9E9A98E77C67E82
+      378BDF683FBFF1FFE1D9F7CE1A1985FF4AFF688D8CD24B9999990EFB572B3264
+      D946DF15EF92BFE1BECB1BC9D9FF9FFFEABDBFF1FFC6FF3FEB036FDF6AA3
     }
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog
-    Left = 440
-    Top = 3
+    Left = 632
+    Top = 65520
   end
 end

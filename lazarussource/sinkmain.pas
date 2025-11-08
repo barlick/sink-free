@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, ImgList, Grids, Buttons,LazFileUtils,FileUtil;
+  ComCtrls, ImgList, Grids, Buttons, Spin,LazFileUtils,FileUtil;
 
 const
  runmodecopyfiles : integer = 0;
@@ -33,18 +33,32 @@ type
   { Tsinkmainform }
 
   Tsinkmainform = class(TForm)
+   AllowDeletefilesCheckBox: TCheckBox;
+   AllowDeleteFoldersCheckBox: TCheckBox;
+   AllowDiskFreeChecksCheckBox: TCheckBox;
+   FileSetDateSleepTimeSpinEdit: TSpinEdit;
+   Label4: TLabel;
+   Label5: TLabel;
+   PreferencesApplyChangesBitBtn: TBitBtn;
+   PreferencesDiscardChangesBitBtn: TBitBtn;
+   Label3: TLabel;
     PageControl1: TPageControl;
     DocumentationTabSheet: TTabSheet;
     Memo1: TMemo;
     HomeTabSheet: TTabSheet;
     ConfigurationTabSheet: TTabSheet;
     ImageList1: TImageList;
+    Panel4: TPanel;
+    PreferencesPanel: TPanel;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     SourceAndTargetFoldersStringGrid: TStringGrid;
     Panel3: TPanel;
     NewBitBtn: TBitBtn;
     DeleteBitBtn: TBitBtn;
     SourceFolderEdit: TEdit;
+    PreferencesTabSheet: TTabSheet;
+    MinFreeDiskSpacePercentSpinEdit: TSpinEdit;
+    FileSetDateMaxPassesSpinEdit: TSpinEdit;
     TargetFolderEdit: TEdit;
     SourceFolderLabel: TLabel;
     TargetFolderLabel: TLabel;
@@ -67,6 +81,9 @@ type
     Label2: TLabel;
     DeleteFilesCheckBox: TCheckBox;
     setfilestampsbutton: TBitBtn;
+    procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
+    procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
+    procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SourceAndTargetFoldersStringGridClick(Sender: TObject);
@@ -85,6 +102,7 @@ type
     procedure setfilestampsbuttonClick(Sender: TObject);
   private
     { Private declarations }
+    factive : boolean;
     preference_switch_allow_deletefiles : boolean;
     preference_switch_allow_deletefolders : boolean;
     preference_switch_allow_diskfree_checks : boolean;
@@ -117,6 +135,8 @@ type
     procedure load_ini_settings;
     procedure save_ini_settings;
     procedure fill_in_SourceAndTargetFoldersStringGrid;
+    procedure set_preferences_controls;
+    procedure transfer_preferences_controls_to_preferences;
     function fn_SourceAndTargetFoldersStringGrid_has_changed : boolean;
     procedure run_process(runmode : integer);
     procedure sIncProgress(numw : int64);
@@ -1526,6 +1546,29 @@ begin
  closefile(f); if ioresult = 0 then;
 end;
 
+
+procedure Tsinkmainform.set_preferences_controls;
+begin
+ AllowDeleteFilesCheckbox.Checked := preference_switch_allow_deletefiles;
+ AllowDeleteFoldersCheckbox.Checked := preference_switch_allow_deletefolders;
+ AllowDiskFreeChecksCheckbox.Checked := preference_switch_allow_diskfree_checks;
+ MinFreeDiskSpacePercentSpinEdit.Value := preference_switch_min_freediskspace_percent;
+ FileSetDateMaxPassesSpinEdit.Value := preference_switch_FileSetDateMaxPasses;
+ FileSetDateSleepTimeSpinEdit.Value := preference_switch_FileSetDateSleepTime;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
+end;
+
+procedure Tsinkmainform.transfer_preferences_controls_to_preferences;
+begin
+ preference_switch_allow_deletefiles := AllowDeleteFilesCheckbox.Checked;
+ preference_switch_allow_deletefolders := AllowDeleteFoldersCheckbox.Checked;
+ preference_switch_allow_diskfree_checks := AllowDiskFreeChecksCheckbox.Checked;
+ preference_switch_min_freediskspace_percent := MinFreeDiskSpacePercentSpinEdit.Value;
+ preference_switch_FileSetDateMaxPasses := FileSetDateMaxPassesSpinEdit.Value;
+ preference_switch_FileSetDateSleepTime := FileSetDateSleepTimeSpinEdit.Value;
+end;
+
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
 var
  ct,ct1 : integer;
@@ -1707,45 +1750,76 @@ begin
 end;
 
 begin
- SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
- SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
- PageControl1.ActivePageIndex := 0;
- pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
- ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 8-11-2025. Waiting to start.');
- ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
- filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
- LabelTimeElapsed.Caption := 'Time Elapsed: ......';
- LabelTimeRemaining.Caption := 'Time Remaining: ......';
+ factive := false;
+ try
+  SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
+  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
+  PageControl1.ActivePageIndex := 0;
+  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
+  ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 8-11-2025. Waiting to start.');
+  ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
+  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
+  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+  LabelTimeRemaining.Caption := 'Time Remaining: ......';
 
- // Set default preference switch values:
- preference_switch_allow_deletefiles := true; // Are we allowed to delete files from target folders?
- preference_switch_allow_deletefolders := true; // Are we alowed to delete folders from target folders?
- preference_switch_allow_diskfree_checks := true; // Are we allowed to run disk free checks on the target drives?
- preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
- preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
- preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
+  // Set default preference switch values:
+  preference_switch_allow_deletefiles := true; // Are we allowed to delete files from target folders?
+  preference_switch_allow_deletefolders := true; // Are we alowed to delete folders from target folders?
+  preference_switch_allow_diskfree_checks := true; // Are we allowed to run disk free checks on the target drives?
+  preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
+  preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
+  preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
 
- if not fn_determine_usersettingsdir then
-  begin
-   application.Terminate;
-  end
-  else
-  begin
-   load_ini_settings;
-   fill_in_SourceAndTargetFoldersStringGrid;
-  end;
+  if not fn_determine_usersettingsdir then
+   begin
+    application.Terminate;
+   end
+   else
+   begin
+    load_ini_settings;
+    fill_in_SourceAndTargetFoldersStringGrid;
+    set_preferences_controls;
+   end;
+ finally
+  factive := true;
+ end;
 end;
 
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
- startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+ startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
  abort := false;
  try
   run_process(runmodecopyfiles);
  finally
-  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
+  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
  end;
+end;
+
+procedure Tsinkmainform.AllowDeletefilesCheckBoxChange(Sender: TObject);
+begin
+ if factive then
+  begin
+   PreferencesApplyChangesBitBtn.enabled := true;
+   PreferencesDiscardChangesBitBtn.Enabled := true;
+  end;
+end;
+
+procedure Tsinkmainform.PreferencesApplyChangesBitBtnClick(Sender: TObject);
+begin
+ transfer_preferences_controls_to_preferences;
+ save_ini_settings;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
+end;
+
+procedure Tsinkmainform.PreferencesDiscardChangesBitBtnClick(Sender: TObject);
+begin
+ set_preferences_controls;
+ save_ini_settings;
+ PreferencesApplyChangesBitBtn.enabled := false;
+ PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
 
 procedure Tsinkmainform.StopbuttonClick(Sender: TObject);
@@ -1779,11 +1853,11 @@ begin
         'Click "OK" to proceed or "Cancel" to quit.';
  if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
   begin
-   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false;
+   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
    try
     run_process(runmodesetfilestamps);
    finally
-    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true;
+    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
    end;
   end;
 end;
