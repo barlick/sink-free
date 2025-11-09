@@ -37,8 +37,10 @@ type
    AllowDeleteFoldersCheckBox: TCheckBox;
    AllowDiskFreeChecksCheckBox: TCheckBox;
    FileSetDateSleepTimeSpinEdit: TSpinEdit;
+   deletelogfilesolderthandaysSpinEdit: TSpinEdit;
    Label4: TLabel;
    Label5: TLabel;
+   Label6: TLabel;
    OpenDialog1: TOpenDialog;
    SaveDialog1: TSaveDialog;
    ToolsPanel: TPanel;
@@ -120,6 +122,7 @@ type
     preference_switch_min_freediskspace_percent : int64;
     preference_switch_FileSetDateMaxPasses : int64;
     preference_switch_FileSetDateSleepTime : int64;
+    preference_switch_delete_log_files_older_than_days : int64;
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     stats_filesize : int64;
@@ -145,6 +148,8 @@ type
     { Public declarations }
     procedure load_ini_settings;
     procedure save_ini_settings;
+    procedure Save_ActivityLogMemo_to_Log_File;
+    procedure purge_old_Log_Files;
     procedure fill_in_SourceAndTargetFoldersStringGrid;
     procedure set_preferences_controls;
     procedure transfer_preferences_controls_to_preferences;
@@ -156,6 +161,7 @@ type
 var
   sinkmainform: Tsinkmainform;
   mynode,mynode1,mynode2,mynode3 : TTreenode;
+  mynode4,mynode5 : TTreenode;
 
 implementation
 
@@ -951,6 +957,9 @@ begin
  filesinsourcealsointargetstringlist_bytesadded := 0;
  ok_to_use_filesinsourcealsointargetstringlist := true;
  filesinsourcealsointargetstringlist_lastfilenameadded := '';
+
+ purge_old_Log_Files; // Kill any old log files.
+
  ActivityLogMemo.Clear;
  ActivityLogMemo.Lines.Add(' ');
  ActivityLogMemo.Lines.Add('Started jobs running '+datetimetostr(now));
@@ -1096,8 +1105,6 @@ begin
    end;
   statsstringlist.Add('Total overall time taken (for the scan, copy and delete files processes): '+ FormatDateTime('hh:mm.ss',(now - processstarttime)));
 
-  //filesinsourcealsointargetstringlist.SaveToFile('C:\Users\Danny\Desktop\filesinsourcealsointargetstringlist.txt');
-
   if abort then
    begin
     pathlabel.caption := 'Process was stopped.';
@@ -1130,6 +1137,7 @@ begin
    end;
   filenamelabel.caption := '';
  finally
+  Save_ActivityLogMemo_to_Log_File;
   progressbarbr.visible := false;
   LabelTimeElapsed.Caption := 'Time Elapsed: ......';
   LabelTimeRemaining.Caption := 'Time Remaining: ......';
@@ -1428,6 +1436,13 @@ begin
        s := strip(stripfront(uppercase(s)));
        preference_switch_FileSetDateSleepTime := strtoint(s);
       end;
+     if pos('<PREFERENCE_SWITCH_DELETE_LOG_FILES_OLDER_THAN_DAYS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       preference_switch_delete_log_files_older_than_days := strtoint(s);
+      end;
      if pos('<START_DEFINITION>',uppercase(s)) > 0 then
       begin
        sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
@@ -1490,6 +1505,101 @@ begin
  closefile(f); if ioresult = 0 then;
 end;
 
+procedure Tsinkmainform.purge_old_Log_Files;
+var
+ mysearchrec : TSearchRec;
+ ReturnValue : integer;
+ failed : boolean;
+ thisfiledatetime : TDateTime;
+ oldestalloweddate : TDateTime;
+begin
+ failed := false;
+ if preference_switch_delete_log_files_older_than_days <= 0 then
+  begin
+   oldestalloweddate := now - 1;
+  end
+  else
+  begin
+   oldestalloweddate := now - preference_switch_delete_log_files_older_than_days;
+  end;
+ ReturnValue:=FindFirst(usersettingsdir+'sinklogfile*.txt',faAnyFile,mysearchrec);
+ While (ReturnValue=0) and not failed do
+  begin
+   if (mySearchRec.Attr and faDirectory = 0) then
+    begin
+     thisfiledatetime := mysearchrec.TimeStamp;
+     if thisfiledatetime < oldestalloweddate then
+      begin
+       if deletefile(usersettingsdir+mysearchrec.name) then
+        begin
+        end
+        else failed := true;
+      end;
+    end;
+   ReturnValue:=FindNext(mySearchRec);
+  end;
+ findclose(mysearchrec); // Release the memory claimed by using this instance of searchrec.
+end;
+
+procedure Tsinkmainform.Save_ActivityLogMemo_to_Log_File;
+var
+ todaystr,s : string;
+ y,m,d : word;
+ f,f1 : textfile;
+ failed : boolean;
+begin
+ {$I-}
+ // Do we have a log file for today?
+ decodedate(now,y,m,d);
+ todaystr := inttostr(y)+'-'+inttostr(m)+'-'+inttostr(d);
+ if fileexists(usersettingsdir+'sinklogfile_'+todaystr+'.txt') then
+  begin
+   failed := false;
+   ActivityLogMemo.Lines.SaveToFile(usersettingsdir+'sinklogfile_temp.txt');
+   if fileexists(usersettingsdir+'sinklogfile_temp.txt') then
+    begin
+     assignfile(f,usersettingsdir+'sinklogfile_'+todaystr+'.txt');
+     if ioresult = 0 then
+      begin
+       append(f);
+       if ioresult = 0 then
+        begin
+         assignfile(f1,usersettingsdir+'sinklogfile_temp.txt');
+         reset(f1);
+         if ioresult = 0 then
+          begin
+           while not eof(f1) and not failed do
+            begin
+             readln(f1,s); if ioresult <> 0 then failed := true;
+             writeln(f,s); if ioresult <> 0 then failed := true;
+            end;
+           closefile(f); if ioresult <> 0 then failed := true;
+           closefile(f1); if ioresult <> 0 then failed := true;
+           if deletefile(usersettingsdir+'sinklogfile_temp.txt') then begin end;
+           if ioresult <> 0 then failed := true;
+          end
+          else failed := true;
+        end
+        else failed := true;
+      end
+      else failed := true;
+    end;
+   if failed then
+    begin
+     // OK? delete todays file and replace it:
+     if deletefile(usersettingsdir+'sinklogfile_'+todaystr+'.txt') then
+      begin
+       ActivityLogMemo.Lines.SaveToFile(usersettingsdir+'sinklogfile_'+todaystr+'.txt');
+      end;
+    end;
+  end
+  else
+  begin
+   // No, so create a new one with the contents of ActivityLogMemo:
+   ActivityLogMemo.Lines.SaveToFile(usersettingsdir+'sinklogfile_'+todaystr+'.txt');
+  end;
+end;
+
 procedure Tsinkmainform.save_ini_settings;
 var
  sourcefolder,targetfolder : string;
@@ -1532,6 +1642,9 @@ begin
      writeln(f,'# Sleep time in milliseconds (1000 = 1 second) between retries in the set file date+time stamp process (preference_switch_FileSetDateSleepTime).');
      writeln(f,'<preference_switch_FileSetDateSleepTime>='+inttostr(trunc(preference_switch_FileSetDateSleepTime)));
 
+     writeln(f,'# Delete Sink log files older than x days (preference_switch_delete_log_files_older_than_days).');
+     writeln(f,'<preference_switch_delete_log_files_older_than_days>='+inttostr(trunc(preference_switch_delete_log_files_older_than_days)));
+
      writeln(f,'# Start of source and target folder jobs definitions:');
      ct := 0;
      while ct < source_and_target_array_count do
@@ -1570,6 +1683,7 @@ begin
  MinFreeDiskSpacePercentSpinEdit.Value := preference_switch_min_freediskspace_percent;
  FileSetDateMaxPassesSpinEdit.Value := preference_switch_FileSetDateMaxPasses;
  FileSetDateSleepTimeSpinEdit.Value := preference_switch_FileSetDateSleepTime;
+ deletelogfilesolderthandaysSpinEdit.Value := preference_switch_delete_log_files_older_than_days;
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
@@ -1582,6 +1696,7 @@ begin
  preference_switch_min_freediskspace_percent := MinFreeDiskSpacePercentSpinEdit.Value;
  preference_switch_FileSetDateMaxPasses := FileSetDateMaxPassesSpinEdit.Value;
  preference_switch_FileSetDateSleepTime := FileSetDateSleepTimeSpinEdit.Value;
+ preference_switch_delete_log_files_older_than_days := deletelogfilesolderthandaysSpinEdit.Value;
 end;
 
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
@@ -1784,18 +1899,23 @@ begin
   preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
   preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
   preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
+  preference_switch_delete_log_files_older_than_days := 30; // Delete Sink log files older than 30 days by default.
 
   // Set up the "Tools" options:
   TreeView1.items.clear;
   TreeView1.ShowButtons := false;
   TreeView1.ShowRoot := false;
   mynode := nil;
-  mynode1 := TreeView1.items.AddFirst(mynode,'Sink Configuration');  mynode1.ImageIndex := 5;  mynode1.SelectedIndex := 5;
 
+  mynode4 := TreeView1.items.AddFirst(mynode,'Sink Log Files');  mynode4.ImageIndex := 5;  mynode4.SelectedIndex := 5;
+  mynode5 := TreeView1.items.AddChild(mynode4,'Browse/open Sink log files'); mynode5.ImageIndex := 4; mynode5.SelectedIndex := 4;
+
+  mynode1 := TreeView1.items.AddFirst(mynode,'Sink Configuration');  mynode1.ImageIndex := 5;  mynode1.SelectedIndex := 5;
   mynode2 := TreeView1.items.AddChild(mynode1,'Export a current Sink configuration file'); mynode2.ImageIndex := 4; mynode2.SelectedIndex := 4;
   mynode3 := TreeView1.items.AddChild(mynode1,'Import a saved Sink configuration file'); mynode3.ImageIndex := 4; mynode3.SelectedIndex := 4;
 
   mynode1.Expanded := true;
+  mynode4.Expanded := true;
 
   if not fn_determine_usersettingsdir then
    begin
@@ -1985,6 +2105,29 @@ begin
          // Couldn't verify the selected file so report an error:
          messagedlg('Error: Unable to verify the selected file:'+#13+#10+'"'+OpenDialog1.FileName+'"'+#13+#10+'as a valid Sink configuration file.'+#13+#10+'The Sink configuration has not been changed.',mterror,[mbok],0);
         end;
+      end;
+    end;
+  end
+  else if TreeView1.selected = mynode5 then // Browse/open Sink log files:
+  begin
+   OpenDialog1.DefaultExt := 'sinklogfile*.txt';
+   OpenDialog1.Filter := 'Sink log files|sinklogfile*.txt';
+   OpenDialog1.FilterIndex := 1;
+   OpenDialog1.FileName := '';
+   OpenDialog1.InitialDir := usersettingsdir;
+   OpenDialog1.Title := 'Open a Sink log file';
+   if OpenDialog1.Execute then
+    begin
+     if fileexists(OpenDialog1.FileName) then
+      begin
+       try
+        if not OpenDocument(OpenDialog1.FileName) then
+         begin
+          messagedlg('Error: Unable to open the selected Sink log file:'+#13+#10+'"'+OpenDialog1.FileName+'"',mterror,[mbok],0);
+         end;
+       except
+        messagedlg('Error: Unable to open the selected Sink log file:'+#13+#10+'"'+OpenDialog1.FileName+'"',mterror,[mbok],0);
+       end;
       end;
     end;
   end;

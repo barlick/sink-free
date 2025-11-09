@@ -19,10 +19,10 @@ object sinkmainform: Tsinkmainform
     Height = 578
     Top = 0
     Width = 867
-    ActivePage = ToolsTabSheet
+    ActivePage = PreferencesTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 3
+    TabIndex = 2
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
@@ -638,6 +638,7 @@ object sinkmainform: Tsinkmainform
           Height = 21
           Top = 123
           Width = 56
+          MaxValue = 50
           TabOrder = 4
           OnChange = AllowDeletefilesCheckBoxChange
         end
@@ -653,8 +654,25 @@ object sinkmainform: Tsinkmainform
           Height = 21
           Top = 150
           Width = 56
+          MaxValue = 60000
           TabOrder = 5
           OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object deletelogfilesolderthandaysSpinEdit: TSpinEdit
+          Left = 16
+          Height = 21
+          Top = 178
+          Width = 56
+          MaxValue = 365
+          TabOrder = 6
+          OnChange = AllowDeletefilesCheckBoxChange
+        end
+        object Label6: TLabel
+          Left = 79
+          Height = 13
+          Top = 181
+          Width = 223
+          Caption = 'Delete Sink log files older than this many days.'
         end
       end
       object Panel4: TPanel
@@ -741,6 +759,7 @@ object sinkmainform: Tsinkmainform
             0B0B0A0A0A282828656565C5C5C5F5F5F5F5F5F5F5F5F5F5F5F5
           }
           TabOrder = 1
+          OnClick = PreferencesDiscardChangesBitBtnClick
         end
       end
     end
