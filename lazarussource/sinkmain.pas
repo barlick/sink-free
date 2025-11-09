@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, ImgList, Grids, Buttons, Spin,LazFileUtils,FileUtil;
+  ComCtrls, ImgList, Grids, Buttons, Spin, Menus,LazFileUtils,FileUtil;
 
 const
  runmodecopyfiles : integer = 0;
@@ -39,6 +39,9 @@ type
    FileSetDateSleepTimeSpinEdit: TSpinEdit;
    Label4: TLabel;
    Label5: TLabel;
+   OpenDialog1: TOpenDialog;
+   SaveDialog1: TSaveDialog;
+   ToolsPanel: TPanel;
    PreferencesApplyChangesBitBtn: TBitBtn;
    PreferencesDiscardChangesBitBtn: TBitBtn;
    Label3: TLabel;
@@ -59,6 +62,7 @@ type
     PreferencesTabSheet: TTabSheet;
     MinFreeDiskSpacePercentSpinEdit: TSpinEdit;
     FileSetDateMaxPassesSpinEdit: TSpinEdit;
+    ToolsTabSheet: TTabSheet;
     TargetFolderEdit: TEdit;
     SourceFolderLabel: TLabel;
     TargetFolderLabel: TLabel;
@@ -81,9 +85,12 @@ type
     Label2: TLabel;
     DeleteFilesCheckBox: TCheckBox;
     setfilestampsbutton: TBitBtn;
+    TreeView1: TTreeView;
     procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
+    procedure ConfigurationTabSheetExit(Sender: TObject);
     procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
     procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
+    procedure PreferencesTabSheetExit(Sender: TObject);
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SourceAndTargetFoldersStringGridClick(Sender: TObject);
@@ -100,6 +107,10 @@ type
     procedure copymodeComboBoxChange(Sender: TObject);
     procedure DeleteFilesCheckBoxClick(Sender: TObject);
     procedure setfilestampsbuttonClick(Sender: TObject);
+    procedure TreeView1DblClick(Sender: TObject);
+    //procedure TreeView1KeyDown(Sender: TObject; var Key: Word;
+    // Shift: TShiftState);
+    procedure TreeView1KeyDown(Sender: TObject; var Key: Word);
   private
     { Private declarations }
     factive : boolean;
@@ -144,6 +155,7 @@ type
 
 var
   sinkmainform: Tsinkmainform;
+  mynode,mynode1,mynode2,mynode3 : TTreenode;
 
 implementation
 
@@ -940,6 +952,9 @@ begin
  ok_to_use_filesinsourcealsointargetstringlist := true;
  filesinsourcealsointargetstringlist_lastfilenameadded := '';
  ActivityLogMemo.Clear;
+ ActivityLogMemo.Lines.Add(' ');
+ ActivityLogMemo.Lines.Add('Started jobs running '+datetimetostr(now));
+ ActivityLogMemo.Lines.Add(' ');
  progressbarbr.visible := false;
  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
  LabelTimeRemaining.Caption := 'Time Remaining: ......';
@@ -1770,6 +1785,18 @@ begin
   preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
   preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
 
+  // Set up the "Tools" options:
+  TreeView1.items.clear;
+  TreeView1.ShowButtons := false;
+  TreeView1.ShowRoot := false;
+  mynode := nil;
+  mynode1 := TreeView1.items.AddFirst(mynode,'Sink Configuration');  mynode1.ImageIndex := 5;  mynode1.SelectedIndex := 5;
+
+  mynode2 := TreeView1.items.AddChild(mynode1,'Export a current Sink configuration file'); mynode2.ImageIndex := 4; mynode2.SelectedIndex := 4;
+  mynode3 := TreeView1.items.AddChild(mynode1,'Import a saved Sink configuration file'); mynode3.ImageIndex := 4; mynode3.SelectedIndex := 4;
+
+  mynode1.Expanded := true;
+
   if not fn_determine_usersettingsdir then
    begin
     application.Terminate;
@@ -1806,6 +1833,15 @@ begin
   end;
 end;
 
+procedure Tsinkmainform.ConfigurationTabSheetExit(Sender: TObject);
+begin
+ // Trow away any unsaved "Configuration" tab changes:
+ if DiscardChangesBitBtn.Enabled then
+  begin
+   DiscardChangesBitBtnClick(Sender);
+  end;
+end;
+
 procedure Tsinkmainform.PreferencesApplyChangesBitBtnClick(Sender: TObject);
 begin
  transfer_preferences_controls_to_preferences;
@@ -1820,6 +1856,15 @@ begin
  save_ini_settings;
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
+end;
+
+procedure Tsinkmainform.PreferencesTabSheetExit(Sender: TObject);
+begin
+ // Trow away any unsaved "Preferences" tab changes:
+ if PreferencesDiscardChangesBitBtn.Enabled then
+  begin
+   PreferencesDiscardChangesBitBtnClick(Sender);
+  end;
 end;
 
 procedure Tsinkmainform.StopbuttonClick(Sender: TObject);
@@ -1859,6 +1904,97 @@ begin
    finally
     stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
    end;
+  end;
+end;
+
+procedure Tsinkmainform.TreeView1DblClick(Sender: TObject);
+var
+ err,failed,fileisok : boolean;
+ f : textfile;
+ s : string;
+begin
+ if TreeView1.selected = mynode2 then // Export a current Sink configuration file
+  begin
+   savedialog1.FileName := 'sinkini.txt';
+   SaveDialog1.Title := 'Save a current Sink configuration file';
+   if savedialog1.Execute then
+    begin
+     err := false;
+     if copyfile(usersettingsdir + 'sinkini.txt',savedialog1.FileName,[],err) then
+      begin
+       if fileexists(savedialog1.FileName) then
+        begin
+         messagedlg('Sink configuration file saved to: '+savedialog1.FileName,mtinformation,[mbok],0);
+        end;
+      end;
+    end;
+  end
+  else if TreeView1.selected = mynode3 then // Import a saved Sink configuration file
+  begin
+   OpenDialog1.DefaultExt := '*.txt';
+   OpenDialog1.Filter := 'Text files|*.txt';
+   OpenDialog1.FilterIndex := 1;
+   OpenDialog1.FileName := 'sinkini.txt';
+   OpenDialog1.Title := 'Open a saved Sink configuration file';
+   if OpenDialog1.Execute then
+    begin
+     if fileexists(OpenDialog1.FileName) then
+      begin
+       // Check it...
+       try
+        try
+         failed := false; fileisok := false;
+         assignfile(f,OpenDialog1.FileName);
+         reset(f);
+         if ioresult = 0 then
+          begin
+           while not eof(f) and not failed and not fileisok do
+            begin
+             readln(f,s);
+             if pos('SINK.EXE CONFIGURATION FILE',uppercase(s)) > 0 then
+              begin
+               fileisok := true;
+              end;
+            end;
+          end
+          else failed := true;
+        except
+         failed := true; fileisok := false;
+        end;
+       finally
+        closefile(f); if ioresult = 0 then begin end;
+       end;
+       if fileisok then
+        begin
+         // Looks like a valis sinkini.txt file has been selected.
+         if copyfile(OpenDialog1.FileName,usersettingsdir + 'sinkini.txt',[cffOverWriteFile],err) then
+          begin
+           // OK: load it and reinitialise the configuration and preferences controls:
+           load_ini_settings;
+           fill_in_SourceAndTargetFoldersStringGrid;
+           set_preferences_controls;
+           messagedlg('The Sink configuration has been updated.',mtinformation,[mbok],0);
+          end
+          else
+          begin
+           messagedlg('Error: Unable to copy the selecteed Sink configuration file:'+#13+#10+'"'+OpenDialog1.FileName+'"'+#13+#10+'to:'+#13+#10+'"'+usersettingsdir+'sinkini.txt"'+#13+#10+'The Sink configuration has not been changed.',mterror,[mbok],0);
+          end;
+        end
+        else
+        begin
+         // Couldn't verify the selected file so report an error:
+         messagedlg('Error: Unable to verify the selected file:'+#13+#10+'"'+OpenDialog1.FileName+'"'+#13+#10+'as a valid Sink configuration file.'+#13+#10+'The Sink configuration has not been changed.',mterror,[mbok],0);
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure Tsinkmainform.TreeView1KeyDown(Sender: TObject; var Key: Word);
+begin
+ if key = vk_return then
+  begin
+   TreeView1DblClick(sender);
   end;
 end;
 

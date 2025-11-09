@@ -9,7 +9,7 @@
         <Filename Value="sink.lpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos Y="15"/>
-        <UsageCount Value="69"/>
+        <UsageCount Value="77"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -20,12 +20,12 @@
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="1788"/>
-        <CursorPos X="54" Y="1798"/>
-        <UsageCount Value="69"/>
+        <TopLine Value="930"/>
+        <CursorPos Y="960"/>
+        <UsageCount Value="77"/>
         <Bookmarks Count="2">
-          <Item0 Y="859" Left="1" Top="824" ID="2"/>
-          <Item1 X="2" Y="1819" Left="1" Top="1796" ID="1"/>
+          <Item0 X="20" Y="158" Left="1" Top="119" ID="2"/>
+          <Item1 X="15" Y="1969" Left="1" Top="1922" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -34,7 +34,7 @@
         <Filename Value="PBFolderDialog.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="69"/>
+        <UsageCount Value="77"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -85,121 +85,122 @@
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1547" TopLine="1516"/>
+        <Caret Line="1964" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1546" TopLine="1512"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="135" Column="25" TopLine="97"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1561" Column="49" TopLine="1496"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1724" Column="49" TopLine="1708"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1790" Column="50" TopLine="1765"/>
+        <Caret Line="1963" Column="15" TopLine="1916"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="46" Column="28"/>
+        <Caret Line="15" Column="13"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="73" Column="18" TopLine="9"/>
+        <Caret Line="51" Column="15" TopLine="34"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="107" Column="28" TopLine="43"/>
+        <Caret Line="84" Column="9" TopLine="34"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1172" Column="17" TopLine="1108"/>
+        <Caret Line="115" Column="19" TopLine="51"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1180" Column="17" TopLine="1118"/>
+        <Caret Line="134" Column="9" TopLine="74"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1196" Column="17" TopLine="1134"/>
+        <Caret Line="397" Column="42" TopLine="352"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1207" Column="17" TopLine="1144"/>
+        <Caret Line="1951" Column="32" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1219" Column="17" TopLine="1158"/>
+        <Caret Line="1960" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1229" Column="17" TopLine="1168"/>
+        <Caret Line="1961" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1268" TopLine="1210"/>
+        <Caret Line="1964" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1561" Column="50" TopLine="1529"/>
+        <Caret Line="1965" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1551" Column="2" TopLine="1551"/>
+        <Caret Line="1952" Column="46" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="137" Column="16" TopLine="99"/>
+        <Caret Line="1960" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1561" Column="69" TopLine="1507"/>
+        <Caret Line="1961" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1811" Column="2" TopLine="1777"/>
+        <Caret Line="1964" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
+        <Caret Line="1976" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="135" Column="19" TopLine="78"/>
+        <Caret Line="1909" TopLine="1876"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1478" Column="42" TopLine="1419"/>
+        <Caret Line="1981" TopLine="1919"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1657" TopLine="1599"/>
+        <Caret Line="1803" TopLine="1788"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1809" TopLine="1778"/>
+        <Caret Line="1944" Column="57" TopLine="1921"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1353" Column="2" TopLine="1333"/>
+        <Caret Line="1992" TopLine="1934"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1823" Column="2" TopLine="1796"/>
+        <Caret Line="1985" TopLine="1934"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="1865" Column="5" TopLine="1800"/>
+        <Caret Line="144" Column="63" TopLine="80"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="1931" Column="48" TopLine="1903"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="1924" Column="42" TopLine="1903"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="1779" Column="62" TopLine="1748"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="129" Column="69" TopLine="89"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -214,35 +215,35 @@
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="sinkmain.pas"/>
-        <Line Value="740"/>
+        <Line Value="752"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="sinkmain.pas"/>
-        <Line Value="848"/>
+        <Line Value="860"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="sinkmain.pas"/>
-        <Line Value="712"/>
+        <Line Value="724"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="sinkmain.pas"/>
-        <Line Value="725"/>
+        <Line Value="737"/>
       </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="sinkmain.pas"/>
-        <Line Value="900"/>
+        <Line Value="912"/>
       </Item>
     </BreakPoints>
   </Debugging>

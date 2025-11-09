@@ -11,7 +11,7 @@ object sinkmainform: Tsinkmainform
   Font.Height = -11
   Font.Name = 'Tahoma'
   Position = poDesktopCenter
-  LCLVersion = '4.0.0.4'
+  LCLVersion = '4.2.0.0'
   OnResize = FormResize
   OnShow = FormShow
   object PageControl1: TPageControl
@@ -19,66 +19,66 @@ object sinkmainform: Tsinkmainform
     Height = 578
     Top = 0
     Width = 867
-    ActivePage = PreferencesTabSheet
+    ActivePage = ConfigurationTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 2
+    TabIndex = 1
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
-      ClientHeight = 550
-      ClientWidth = 857
+      ClientHeight = 551
+      ClientWidth = 859
       ImageIndex = 0
       object Panel2: TPanel
         Left = 0
         Height = 109
-        Top = 406
-        Width = 857
+        Top = 407
+        Width = 859
         Align = alBottom
         ClientHeight = 109
-        ClientWidth = 857
+        ClientWidth = 859
         ParentBackground = False
         TabOrder = 0
         object pathLabel: TLabel
           Left = 9
-          Height = 16
+          Height = 13
           Top = 28
-          Width = 52
+          Width = 47
           Caption = 'pathLabel'
         end
         object filenameLabel: TLabel
           Left = 9
-          Height = 16
+          Height = 13
           Top = 47
-          Width = 52
+          Width = 47
           Caption = 'pathLabel'
         end
         object Label1: TLabel
           Left = 9
-          Height = 16
+          Height = 13
           Top = 8
           Width = 35
           Caption = 'Status:'
         end
         object LabelTimeElapsed: TLabel
           Left = 9
-          Height = 16
+          Height = 13
           Top = 87
-          Width = 68
+          Width = 62
           Caption = 'Time Elapsed'
         end
         object LabelTimeRemaining: TLabel
           Left = 151
-          Height = 16
+          Height = 13
           Top = 87
-          Width = 84
+          Width = 74
           Caption = 'Time Remaining'
         end
         object ProgressBarBR: TProgressBar
           Left = 9
           Height = 17
           Top = 66
-          Width = 839
+          Width = 841
           Anchors = [akTop, akLeft, akRight]
           Color = clBtnFace
           ParentColor = False
@@ -89,11 +89,11 @@ object sinkmainform: Tsinkmainform
       object Panel1: TPanel
         Left = 0
         Height = 35
-        Top = 515
-        Width = 857
+        Top = 516
+        Width = 859
         Align = alBottom
         ClientHeight = 35
-        ClientWidth = 857
+        ClientWidth = 859
         ParentBackground = False
         TabOrder = 1
         object StartButton: TBitBtn
@@ -171,7 +171,7 @@ object sinkmainform: Tsinkmainform
           OnClick = StopbuttonClick
         end
         object setfilestampsbutton: TBitBtn
-          Left = 664
+          Left = 666
           Height = 29
           Top = 2
           Width = 184
@@ -211,9 +211,9 @@ object sinkmainform: Tsinkmainform
       end
       object ActivityLogMemo: TMemo
         Left = 0
-        Height = 406
+        Height = 407
         Top = 0
-        Width = 857
+        Width = 859
         Align = alClient
         Lines.Strings = (
           'ActivityLogMemo'
@@ -225,14 +225,14 @@ object sinkmainform: Tsinkmainform
     end
     object ConfigurationTabSheet: TTabSheet
       Caption = 'Jobs Configuration'
-      ClientHeight = 550
-      ClientWidth = 857
+      ClientHeight = 551
+      ClientWidth = 859
       ImageIndex = 1
       object SourceAndTargetFoldersStringGrid: TStringGrid
         Left = 0
-        Height = 400
+        Height = 401
         Top = 0
-        Width = 857
+        Width = 859
         Align = alClient
         ColCount = 4
         Columns = <        
@@ -266,32 +266,32 @@ object sinkmainform: Tsinkmainform
       object Panel3: TPanel
         Left = 0
         Height = 150
-        Top = 400
-        Width = 857
+        Top = 401
+        Width = 859
         Align = alBottom
         ClientHeight = 150
-        ClientWidth = 857
+        ClientWidth = 859
         ParentBackground = False
         TabOrder = 1
         object SourceFolderLabel: TLabel
           Left = 88
-          Height = 16
+          Height = 13
           Top = 11
-          Width = 72
+          Width = 66
           Caption = 'Source Folder'
         end
         object TargetFolderLabel: TLabel
           Left = 88
-          Height = 16
+          Height = 13
           Top = 41
-          Width = 69
+          Width = 65
           Caption = 'Target Folder'
         end
         object Label2: TLabel
           Left = 88
-          Height = 16
+          Height = 13
           Top = 72
-          Width = 30
+          Width = 26
           Caption = 'Mode'
         end
         object NewBitBtn: TBitBtn
@@ -370,9 +370,9 @@ object sinkmainform: Tsinkmainform
         end
         object SourceFolderEdit: TEdit
           Left = 160
-          Height = 28
+          Height = 21
           Top = 6
-          Width = 662
+          Width = 664
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 2
           Text = 'SourceFolderEdit'
@@ -380,16 +380,16 @@ object sinkmainform: Tsinkmainform
         end
         object TargetFolderEdit: TEdit
           Left = 160
-          Height = 28
+          Height = 21
           Top = 36
-          Width = 662
+          Width = 664
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 4
           Text = 'Edit1'
           OnChange = TargetFolderEditChange
         end
         object SourceFolderBrowseBitBtn: TBitBtn
-          Left = 826
+          Left = 828
           Height = 29
           Top = 6
           Width = 25
@@ -426,7 +426,7 @@ object sinkmainform: Tsinkmainform
           OnClick = SourceFolderBrowseBitBtnClick
         end
         object TargetFolderBrowseBitBtn: TBitBtn
-          Left = 826
+          Left = 828
           Height = 29
           Top = 36
           Width = 25
@@ -540,11 +540,11 @@ object sinkmainform: Tsinkmainform
         end
         object copymodeComboBox: TComboBox
           Left = 159
-          Height = 28
+          Height = 21
           Top = 66
-          Width = 692
+          Width = 694
           Anchors = [akTop, akLeft, akRight]
-          ItemHeight = 0
+          ItemHeight = 13
           ItemIndex = 0
           Items.Strings = (
             'Copy files from the Source folder that are not present in the Target folder.'
@@ -556,10 +556,9 @@ object sinkmainform: Tsinkmainform
         end
         object DeleteFilesCheckBox: TCheckBox
           Left = 88
-          Height = 21
+          Height = 17
           Top = 95
-          Width = 759
-          Alignment = taLeftJustify
+          Width = 761
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?'
           TabOrder = 7
@@ -568,57 +567,57 @@ object sinkmainform: Tsinkmainform
       end
     end
     object PreferencesTabSheet: TTabSheet
-      Caption = 'Preferences'
-      ClientHeight = 550
-      ClientWidth = 857
+      Caption = ' Preferences'
+      ClientHeight = 551
+      ClientWidth = 859
       ImageIndex = 3
       object PreferencesPanel: TPanel
         Left = 0
-        Height = 514
+        Height = 515
         Top = 0
-        Width = 857
+        Width = 859
         Align = alClient
-        ClientHeight = 514
-        ClientWidth = 857
+        ClientHeight = 515
+        ClientWidth = 859
         ParentBackground = False
         TabOrder = 0
         object AllowDeletefilesCheckBox: TCheckBox
           Left = 16
-          Height = 21
+          Height = 17
           Top = 16
-          Width = 257
+          Width = 232
           Caption = 'Allow Sink to delete files from target folders?'
           TabOrder = 0
           OnChange = AllowDeletefilesCheckBoxChange
         end
         object AllowDeleteFoldersCheckBox: TCheckBox
           Left = 16
-          Height = 21
+          Height = 17
           Top = 44
-          Width = 367
+          Width = 332
           Caption = 'Allow Sink to delete redundant folders from target drives/folders?'
           TabOrder = 1
           OnChange = AllowDeletefilesCheckBoxChange
         end
         object AllowDiskFreeChecksCheckBox: TCheckBox
           Left = 16
-          Height = 21
+          Height = 17
           Top = 72
-          Width = 361
+          Width = 329
           Caption = 'Allow Sink to run disk free space checks on target drives/folders?'
           TabOrder = 2
           OnChange = AllowDeletefilesCheckBoxChange
         end
         object Label3: TLabel
           Left = 79
-          Height = 16
+          Height = 13
           Top = 99
-          Width = 756
+          Width = 693
           Caption = 'Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation.'
         end
         object MinFreeDiskSpacePercentSpinEdit: TSpinEdit
           Left = 16
-          Height = 26
+          Height = 21
           Top = 96
           Width = 56
           MaxValue = 100
@@ -627,14 +626,14 @@ object sinkmainform: Tsinkmainform
         end
         object Label4: TLabel
           Left = 79
-          Height = 16
+          Height = 13
           Top = 126
-          Width = 461
+          Width = 428
           Caption = 'Maximum No. of retries allowed within the "set target file date + time file stamp" process.'
         end
         object FileSetDateMaxPassesSpinEdit: TSpinEdit
           Left = 16
-          Height = 26
+          Height = 21
           Top = 123
           Width = 56
           TabOrder = 4
@@ -642,14 +641,14 @@ object sinkmainform: Tsinkmainform
         end
         object Label5: TLabel
           Left = 79
-          Height = 16
+          Height = 13
           Top = 153
-          Width = 591
+          Width = 556
           Caption = 'Sleep time (milliseconds 1000 = 1 second) between retries within the "set target file date + time file stamp" process.'
         end
         object FileSetDateSleepTimeSpinEdit: TSpinEdit
           Left = 16
-          Height = 26
+          Height = 21
           Top = 150
           Width = 56
           TabOrder = 5
@@ -659,11 +658,11 @@ object sinkmainform: Tsinkmainform
       object Panel4: TPanel
         Left = 0
         Height = 36
-        Top = 514
-        Width = 857
+        Top = 515
+        Width = 859
         Align = alBottom
         ClientHeight = 36
-        ClientWidth = 857
+        ClientWidth = 859
         ParentBackground = False
         TabOrder = 1
         object PreferencesApplyChangesBitBtn: TBitBtn
@@ -746,14 +745,14 @@ object sinkmainform: Tsinkmainform
     end
     object DocumentationTabSheet: TTabSheet
       Caption = 'Documentation'
-      ClientHeight = 550
-      ClientWidth = 857
+      ClientHeight = 551
+      ClientWidth = 859
       ImageIndex = 2
       object Memo1: TMemo
         Left = 0
-        Height = 550
+        Height = 551
         Top = 0
-        Width = 857
+        Width = 859
         Align = alClient
         Lines.Strings = (
           'Sink.exe: A free very simple folder syncing application.'
