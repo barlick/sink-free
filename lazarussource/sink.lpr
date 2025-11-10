@@ -3,7 +3,7 @@ program sink;
 {$MODE Delphi}
 
 uses
-  Forms, Interfaces,
+  Forms, datetimectrls, Interfaces,
   sinkmain in 'sinkmain.pas' {sinkmainform};
 
 {$R *.res}

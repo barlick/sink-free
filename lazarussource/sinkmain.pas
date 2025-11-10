@@ -6,8 +6,8 @@ interface
 
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, ImgList, Grids, Buttons, Spin, Menus,LazFileUtils,FileUtil;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, ImgList, Grids, Buttons, Spin, Menus,
+  LazFileUtils, FileUtil, DateTimePicker;
 
 const
  runmodecopyfiles : integer = 0;
@@ -33,20 +33,42 @@ type
   { Tsinkmainform }
 
   Tsinkmainform = class(TForm)
-   AllowDeletefilesCheckBox: TCheckBox;
-   AllowDeleteFoldersCheckBox: TCheckBox;
-   AllowDiskFreeChecksCheckBox: TCheckBox;
-   FileSetDateSleepTimeSpinEdit: TSpinEdit;
-   deletelogfilesolderthandaysSpinEdit: TSpinEdit;
-   Label4: TLabel;
-   Label5: TLabel;
-   Label6: TLabel;
-   OpenDialog1: TOpenDialog;
-   SaveDialog1: TSaveDialog;
-   ToolsPanel: TPanel;
-   PreferencesApplyChangesBitBtn: TBitBtn;
-   PreferencesDiscardChangesBitBtn: TBitBtn;
-   Label3: TLabel;
+    AllowDeletefilesCheckBox: TCheckBox;
+    AllowDeleteFoldersCheckBox: TCheckBox;
+    AllowDiskFreeChecksCheckBox: TCheckBox;
+    PreferencesSchedulerRunTime1DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime2DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime3DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime4DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime5DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime6DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime7DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTime8DateTimePicker: TDateTimePicker;
+    PreferencesSchedulerRunTimesGroupBox: TGroupBox;
+    Label7: TLabel;
+    PreferencesSchedulerRunJobsAfterSinkStartupCheckBox: TCheckBox;
+    PreferencesSchedulerDaysOfTheWeekCheckGroup: TCheckGroup;
+    PreferencesSchedulerStartMinimizedIfUsingShedulerCheckBox: TCheckBox;
+    PreferencesSchedulerUseSchedulerCheckBox: TCheckBox;
+    deletelogfilesolderthandaysSpinEdit: TSpinEdit;
+    FileSetDateMaxPassesSpinEdit: TSpinEdit;
+    FileSetDateSleepTimeSpinEdit: TSpinEdit;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    MinFreeDiskSpacePercentSpinEdit: TSpinEdit;
+    OpenDialog1: TOpenDialog;
+    PreferencesSchedulerPanel: TPanel;
+    PreferencesPageControl: TPageControl;
+    PreferencesPanel: TPanel;
+    SaveDialog1: TSaveDialog;
+    PreferencesGeneralSettingsTabSheet: TTabSheet;
+    PreferencesSchedulerTabSheet: TTabSheet;
+    PreferencesSchedulerDelayMinutesForStartupRunSpinEdit: TSpinEdit;
+    ToolsPanel: TPanel;
+    PreferencesApplyChangesBitBtn: TBitBtn;
+    PreferencesDiscardChangesBitBtn: TBitBtn;
     PageControl1: TPageControl;
     DocumentationTabSheet: TTabSheet;
     Memo1: TMemo;
@@ -54,7 +76,6 @@ type
     ConfigurationTabSheet: TTabSheet;
     ImageList1: TImageList;
     Panel4: TPanel;
-    PreferencesPanel: TPanel;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
     SourceAndTargetFoldersStringGrid: TStringGrid;
     Panel3: TPanel;
@@ -62,8 +83,6 @@ type
     DeleteBitBtn: TBitBtn;
     SourceFolderEdit: TEdit;
     PreferencesTabSheet: TTabSheet;
-    MinFreeDiskSpacePercentSpinEdit: TSpinEdit;
-    FileSetDateMaxPassesSpinEdit: TSpinEdit;
     ToolsTabSheet: TTabSheet;
     TargetFolderEdit: TEdit;
     SourceFolderLabel: TLabel;
@@ -86,12 +105,13 @@ type
     ProgressBarBR: TProgressBar;
     Label2: TLabel;
     DeleteFilesCheckBox: TCheckBox;
-    setfilestampsbutton: TBitBtn;
     TreeView1: TTreeView;
     procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
     procedure ConfigurationTabSheetExit(Sender: TObject);
     procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
     procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
+    procedure PreferencesSchedulerDaysOfTheWeekCheckGroupItemClick(
+     Sender: TObject; Index: integer);
     procedure PreferencesTabSheetExit(Sender: TObject);
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -108,7 +128,6 @@ type
     procedure StopbuttonClick(Sender: TObject);
     procedure copymodeComboBoxChange(Sender: TObject);
     procedure DeleteFilesCheckBoxClick(Sender: TObject);
-    procedure setfilestampsbuttonClick(Sender: TObject);
     procedure TreeView1DblClick(Sender: TObject);
     //procedure TreeView1KeyDown(Sender: TObject; var Key: Word;
     // Shift: TShiftState);
@@ -123,6 +142,19 @@ type
     preference_switch_FileSetDateMaxPasses : int64;
     preference_switch_FileSetDateSleepTime : int64;
     preference_switch_delete_log_files_older_than_days : int64;
+    PreferencesSchedulerUseScheduler : boolean;
+    PreferencesSchedulerStartMinimizedIfUsingSheduler : boolean;
+    PreferencesSchedulerRunJobsAfterSinkStartup : boolean;
+    PreferencesSchedulerDelayMinutesForStartupRun : Int64;
+    PreferencesSchedulerDaysOfTheWeek : string; // PreferencesSchedulerDaysOfTheWeekCheckGroup.Checked[0..6] e.g. "YNNYNYN".
+    PreferencesSchedulerRunTime1 : TDateTime;
+    PreferencesSchedulerRunTime2 : TDateTime;
+    PreferencesSchedulerRunTime3 : TDateTime;
+    PreferencesSchedulerRunTime4 : TDateTime;
+    PreferencesSchedulerRunTime5 : TDateTime;
+    PreferencesSchedulerRunTime6 : TDateTime;
+    PreferencesSchedulerRunTime7 : TDateTime;
+    PreferencesSchedulerRunTime8 : TDateTime;
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     stats_filesize : int64;
@@ -146,6 +178,8 @@ type
     ok_to_use_filesinsourcealsointargetstringlist : boolean;
   public
     { Public declarations }
+    procedure set_default_preference_switch_values; // Set default preference switch values:
+    procedure setup_tools_options; // Set up the "Tools" options:
     procedure load_ini_settings;
     procedure save_ini_settings;
     procedure Save_ActivityLogMemo_to_Log_File;
@@ -162,6 +196,7 @@ var
   sinkmainform: Tsinkmainform;
   mynode,mynode1,mynode2,mynode3 : TTreenode;
   mynode4,mynode5 : TTreenode;
+  mynode6,mynode7 : TTreenode;
 
 implementation
 
@@ -1443,6 +1478,97 @@ begin
        s := strip(stripfront(uppercase(s)));
        preference_switch_delete_log_files_older_than_days := strtoint(s);
       end;
+     if pos('<PREFERENCESSCHEDULERUSESCHEDULER>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerUseScheduler := s = 'Y';
+      end;
+     if pos('<PREFERENCESSCHEDULERSTARTMINIMIZEDIFUSINGSHEDULER>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerStartMinimizedIfUsingSheduler := s = 'Y';
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNJOBSAFTERSINKSTARTUP>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunJobsAfterSinkStartup := s = 'Y';
+      end;
+     if pos('<PREFERENCESSCHEDULERDELAYMINUTESFORSTARTUPRUN>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerDelayMinutesForStartupRun := strtoint(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERDAYSOFTHEWEEK>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerDaysOfTheWeek := s;
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME1>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime1 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME2>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime2 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME3>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime3 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME4>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime4 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME5>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime5 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME6>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime6 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME7>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime7 := strtotime(s);
+      end;
+     if pos('<PREFERENCESSCHEDULERRUNTIME8>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       PreferencesSchedulerRunTime8 := strtotime(s);
+      end;
      if pos('<START_DEFINITION>',uppercase(s)) > 0 then
       begin
        sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
@@ -1645,6 +1771,36 @@ begin
      writeln(f,'# Delete Sink log files older than x days (preference_switch_delete_log_files_older_than_days).');
      writeln(f,'<preference_switch_delete_log_files_older_than_days>='+inttostr(trunc(preference_switch_delete_log_files_older_than_days)));
 
+     writeln(f,'# Start of Scheduler settings:');
+
+     if PreferencesSchedulerUseScheduler then
+      writeln(f,'<PreferencesSchedulerUseScheduler>=Y')
+     else
+      writeln(f,'<PreferencesSchedulerUseScheduler>=N');
+
+     if PreferencesSchedulerStartMinimizedIfUsingSheduler then
+      writeln(f,'<PreferencesSchedulerStartMinimizedIfUsingSheduler>=Y')
+     else
+     writeln(f,'<PreferencesSchedulerStartMinimizedIfUsingSheduler>=N');
+
+     if PreferencesSchedulerRunJobsAfterSinkStartup then
+      writeln(f,'<PreferencesSchedulerRunJobsAfterSinkStartup>=Y')
+     else
+      writeln(f,'<PreferencesSchedulerRunJobsAfterSinkStartup>=N');
+
+     writeln(f,'<PreferencesSchedulerDelayMinutesForStartupRun>='+inttostr(PreferencesSchedulerDelayMinutesForStartupRun));
+
+     writeln(f,'<PreferencesSchedulerDaysOfTheWeek>='+PreferencesSchedulerDaysOfTheWeek);
+
+     writeln(f,'<PreferencesSchedulerRunTime1>='+timetostr(PreferencesSchedulerRunTime1));
+     writeln(f,'<PreferencesSchedulerRunTime2>='+timetostr(PreferencesSchedulerRunTime2));
+     writeln(f,'<PreferencesSchedulerRunTime3>='+timetostr(PreferencesSchedulerRunTime3));
+     writeln(f,'<PreferencesSchedulerRunTime4>='+timetostr(PreferencesSchedulerRunTime4));
+     writeln(f,'<PreferencesSchedulerRunTime5>='+timetostr(PreferencesSchedulerRunTime5));
+     writeln(f,'<PreferencesSchedulerRunTime6>='+timetostr(PreferencesSchedulerRunTime6));
+     writeln(f,'<PreferencesSchedulerRunTime7>='+timetostr(PreferencesSchedulerRunTime7));
+     writeln(f,'<PreferencesSchedulerRunTime8>='+timetostr(PreferencesSchedulerRunTime8));
+
      writeln(f,'# Start of source and target folder jobs definitions:');
      ct := 0;
      while ct < source_and_target_array_count do
@@ -1676,6 +1832,8 @@ end;
 
 
 procedure Tsinkmainform.set_preferences_controls;
+var
+ ct : integer;
 begin
  AllowDeleteFilesCheckbox.Checked := preference_switch_allow_deletefiles;
  AllowDeleteFoldersCheckbox.Checked := preference_switch_allow_deletefolders;
@@ -1684,11 +1842,37 @@ begin
  FileSetDateMaxPassesSpinEdit.Value := preference_switch_FileSetDateMaxPasses;
  FileSetDateSleepTimeSpinEdit.Value := preference_switch_FileSetDateSleepTime;
  deletelogfilesolderthandaysSpinEdit.Value := preference_switch_delete_log_files_older_than_days;
+
+ PreferencesSchedulerUseSchedulerCheckBox.Checked := PreferencesSchedulerUseScheduler;
+ PreferencesSchedulerStartMinimizedIfUsingShedulerCheckBox.Checked := PreferencesSchedulerStartMinimizedIfUsingSheduler;
+ PreferencesSchedulerRunJobsAfterSinkStartupCheckBox.Checked := PreferencesSchedulerRunJobsAfterSinkStartup;
+ PreferencesSchedulerDelayMinutesForStartupRunSpinEdit.Value := PreferencesSchedulerDelayMinutesForStartupRun;
+ ct := 0; while ct <= 6 do begin PreferencesSchedulerDaysOfTheWeekCheckGroup.Checked[ct] := false; inc(ct); end;
+ if PreferencesSchedulerDaysOfTheWeek <> '' then
+  begin
+   ct := 1;
+   while ct <= length(PreferencesSchedulerDaysOfTheWeek) do
+    begin
+     if PreferencesSchedulerDaysOfTheWeek[ct] = 'Y' then PreferencesSchedulerDaysOfTheWeekCheckGroup.Checked[ct-1] := true;
+     inc(ct);
+    end;
+  end;
+ PreferencesSchedulerRunTime1DateTimePicker.DateTime := PreferencesSchedulerRunTime1;
+ PreferencesSchedulerRunTime2DateTimePicker.DateTime := PreferencesSchedulerRunTime2;
+ PreferencesSchedulerRunTime3DateTimePicker.DateTime := PreferencesSchedulerRunTime3;
+ PreferencesSchedulerRunTime4DateTimePicker.DateTime := PreferencesSchedulerRunTime4;
+ PreferencesSchedulerRunTime5DateTimePicker.DateTime := PreferencesSchedulerRunTime5;
+ PreferencesSchedulerRunTime6DateTimePicker.DateTime := PreferencesSchedulerRunTime6;
+ PreferencesSchedulerRunTime7DateTimePicker.DateTime := PreferencesSchedulerRunTime7;
+ PreferencesSchedulerRunTime8DateTimePicker.DateTime := PreferencesSchedulerRunTime8;
+
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
 
 procedure Tsinkmainform.transfer_preferences_controls_to_preferences;
+var
+ ct : integer;
 begin
  preference_switch_allow_deletefiles := AllowDeleteFilesCheckbox.Checked;
  preference_switch_allow_deletefolders := AllowDeleteFoldersCheckbox.Checked;
@@ -1697,6 +1881,26 @@ begin
  preference_switch_FileSetDateMaxPasses := FileSetDateMaxPassesSpinEdit.Value;
  preference_switch_FileSetDateSleepTime := FileSetDateSleepTimeSpinEdit.Value;
  preference_switch_delete_log_files_older_than_days := deletelogfilesolderthandaysSpinEdit.Value;
+
+ PreferencesSchedulerUseScheduler := PreferencesSchedulerUseSchedulerCheckBox.Checked;
+ PreferencesSchedulerStartMinimizedIfUsingSheduler := PreferencesSchedulerStartMinimizedIfUsingShedulerCheckBox.Checked;
+ PreferencesSchedulerRunJobsAfterSinkStartup := PreferencesSchedulerRunJobsAfterSinkStartupCheckBox.Checked;
+ PreferencesSchedulerDelayMinutesForStartupRun := PreferencesSchedulerDelayMinutesForStartupRunSpinEdit.Value;
+ PreferencesSchedulerDaysOfTheWeek := '';
+ ct := 0;
+ while ct <= 6 do
+  begin
+   if PreferencesSchedulerDaysOfTheWeekCheckGroup.Checked[ct] then PreferencesSchedulerDaysOfTheWeek := PreferencesSchedulerDaysOfTheWeek + 'Y' else PreferencesSchedulerDaysOfTheWeek := PreferencesSchedulerDaysOfTheWeek + 'N';
+   inc(ct);
+  end;
+ PreferencesSchedulerRunTime1 := PreferencesSchedulerRunTime1DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime2 := PreferencesSchedulerRunTime2DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime3 := PreferencesSchedulerRunTime3DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime4 := PreferencesSchedulerRunTime4DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime5 := PreferencesSchedulerRunTime5DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime6 := PreferencesSchedulerRunTime6DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime7 := PreferencesSchedulerRunTime7DateTimePicker.DateTime;
+ PreferencesSchedulerRunTime8 := PreferencesSchedulerRunTime8DateTimePicker.DateTime;
 end;
 
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
@@ -1850,97 +2054,15 @@ begin
  SourceAndTargetFoldersStringGrid.ColWidths[1] := newcolwidth;
 end;
 
-procedure Tsinkmainform.FormShow(Sender: TObject);
-
-function fn_determine_usersettingsdir : boolean;
-begin
- result := false;
- sinkmainform.usersettingsdir := GetAppConfigDir(false);
- if sinkmainform.usersettingsdir = '' then
-  begin
-   sinkmainform.usersettingsdir := GetAppConfigDir(true);
-   if sinkmainform.usersettingsdir = '' then
-    begin
-     sinkmainform.usersettingsdir := GetUserDir;
-    end;
-  end;
- if sinkmainform.usersettingsdir <> '' then
-  begin
-   try
-    result := true;
-    sinkmainform.usersettingsdir := DelimitPath(sinkmainform.usersettingsdir);
-    CreateDir(sinkmainform.usersettingsdir);
-   except
-   end;
-  end
-  else
-  begin
-   showmessage('Error: Unable to determine Application Configuration folder.');
-  end;
-end;
-
-begin
- factive := false;
- try
-  SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
-  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
-  PageControl1.ActivePageIndex := 0;
-  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
-  ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 8-11-2025. Waiting to start.');
-  ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
-  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
-  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
-  LabelTimeRemaining.Caption := 'Time Remaining: ......';
-
-  // Set default preference switch values:
-  preference_switch_allow_deletefiles := true; // Are we allowed to delete files from target folders?
-  preference_switch_allow_deletefolders := true; // Are we alowed to delete folders from target folders?
-  preference_switch_allow_diskfree_checks := true; // Are we allowed to run disk free checks on the target drives?
-  preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
-  preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
-  preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
-  preference_switch_delete_log_files_older_than_days := 30; // Delete Sink log files older than 30 days by default.
-
-  // Set up the "Tools" options:
-  TreeView1.items.clear;
-  TreeView1.ShowButtons := false;
-  TreeView1.ShowRoot := false;
-  mynode := nil;
-
-  mynode4 := TreeView1.items.AddFirst(mynode,'Sink Log Files');  mynode4.ImageIndex := 5;  mynode4.SelectedIndex := 5;
-  mynode5 := TreeView1.items.AddChild(mynode4,'Browse/open Sink log files'); mynode5.ImageIndex := 4; mynode5.SelectedIndex := 4;
-
-  mynode1 := TreeView1.items.AddFirst(mynode,'Sink Configuration');  mynode1.ImageIndex := 5;  mynode1.SelectedIndex := 5;
-  mynode2 := TreeView1.items.AddChild(mynode1,'Export a current Sink configuration file'); mynode2.ImageIndex := 4; mynode2.SelectedIndex := 4;
-  mynode3 := TreeView1.items.AddChild(mynode1,'Import a saved Sink configuration file'); mynode3.ImageIndex := 4; mynode3.SelectedIndex := 4;
-
-  mynode1.Expanded := true;
-  mynode4.Expanded := true;
-
-  if not fn_determine_usersettingsdir then
-   begin
-    application.Terminate;
-   end
-   else
-   begin
-    load_ini_settings;
-    fill_in_SourceAndTargetFoldersStringGrid;
-    set_preferences_controls;
-   end;
- finally
-  factive := true;
- end;
-end;
-
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
- startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
+ startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
  abort := false;
  try
   run_process(runmodecopyfiles);
  finally
-  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
+  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
  end;
 end;
 
@@ -1952,7 +2074,6 @@ begin
    PreferencesDiscardChangesBitBtn.Enabled := true;
   end;
 end;
-
 procedure Tsinkmainform.ConfigurationTabSheetExit(Sender: TObject);
 begin
  // Trow away any unsaved "Configuration" tab changes:
@@ -1978,6 +2099,19 @@ begin
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
 
+procedure Tsinkmainform.PreferencesSchedulerDaysOfTheWeekCheckGroupItemClick(
+ Sender: TObject; Index: integer);
+begin
+ if factive then
+  begin
+   if index > -1 then
+    begin
+     PreferencesApplyChangesBitBtn.enabled := true;
+     PreferencesDiscardChangesBitBtn.Enabled := true;
+    end;
+  end;
+end;
+
 procedure Tsinkmainform.PreferencesTabSheetExit(Sender: TObject);
 begin
  // Trow away any unsaved "Preferences" tab changes:
@@ -1992,46 +2126,11 @@ begin
  abort := true;
 end;
 
-procedure Tsinkmainform.setfilestampsbuttonClick(Sender: TObject);
-var
- mes : string;
-begin
- // OK: Go:
- mes := 'This option will search through all of the files in all of your defined Source folders and look for matching filenames in the corresponding Target folders.'+#13+
-        'For any files that are found in a Target folder that have the same filenames as those in the corresponding Source folder it will set the date+time file'+#13+
-        'stamp on the Target file to match the date+time file stamp of the Source file.'+#13+
-        ''+#13+
-        'This ensures that the copy process will see the same date+time file stamps on both the Source and Target files and will therefore not force a re-copy'+#13+
-        'of the Target files based on non matching date+time file stamps if the relevant Source and Target folder definition uses the'+#13+
-        '"Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder" Copy Mode.'+#13+
-        ''+#13+
-        'Note the "Copy files from the Source folder that are not present in the Target folder" Copy Mode'+#13+
-        'doesn''t look at date+time file stamps so you don''t need to run this process if you only use that Copy Mode.'+#13+
-        ''+#13+
-        'Syncing the Target folder date+time stamps should help to avoid the unnecessary re-copying of files that already exist in the Target folder just because of'+#13+
-        'mismatched date+time file stamps and is especially relevant if you have (say) a large number of video files in a Target folder which you don''t want to re-copy'+#13+
-        'on the initial Sink.exe copy process.'+#13+
-        ''+#13+
-        'The Sink.exe copy process will set the Target date+time file stamps to match the Source date+time file stamps after successfully copying files from'+#13+
-        'Source to Target so hence this "Sync Date+Time File Stamps" process only needs to be run once or if you edit your Source and Target folder definitions.'+#13+
-        ''+#13+
-        'Click "OK" to proceed or "Cancel" to quit.';
- if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
-  begin
-   startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; setfilestampsbutton.Enabled := false; preferencestabsheet.Enabled := false;
-   try
-    run_process(runmodesetfilestamps);
-   finally
-    stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; setfilestampsbutton.Enabled := true; preferencestabsheet.Enabled := true;
-   end;
-  end;
-end;
-
 procedure Tsinkmainform.TreeView1DblClick(Sender: TObject);
 var
  err,failed,fileisok : boolean;
  f : textfile;
- s : string;
+ s,mes : string;
 begin
  if TreeView1.selected = mynode2 then // Export a current Sink configuration file
   begin
@@ -2130,6 +2229,41 @@ begin
        end;
       end;
     end;
+  end
+  else if TreeView1.selected = mynode7 then // Sync Date+Time File Stamps
+  begin
+   // OK: Go:
+   mes := 'This option will search through all of the files in all of your defined jobs Source folders and look for matching filenames in the corresponding Target folders.'+#13+
+          'For any files that are found in a Target folder that have the same filenames as those in the corresponding Source folder it will set the date+time file'+#13+
+          'stamp on the Target file to match the date+time file stamp of the Source file.'+#13+
+          ''+#13+
+          'This ensures that the jobs copy process will see the same date+time file stamps on both the Source and Target files and will therefore not force a re-copy'+#13+
+          'of the Target files based on non matching date+time file stamps if the relevant Source and Target folder definition uses the'+#13+
+          '"Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder" Copy Mode.'+#13+
+          ''+#13+
+          'Note the "Copy files from the Source folder that are not present in the Target folder" Copy Mode'+#13+
+          'doesn''t look at date+time file stamps so you don''t need to run this process if you only use that Copy Mode.'+#13+
+          ''+#13+
+          'Syncing the Target folder date+time stamps should help to avoid the unnecessary re-copying of files that already exist in the Target folder just because of'+#13+
+          'mismatched date+time file stamps and is especially relevant if you have (say) a large number of video files in a Target folder which you don''t want to re-copy'+#13+
+          'on the initial Sink.exe copy process.'+#13+
+          ''+#13+
+          'The Sink.exe copy process will set the Target date+time file stamps to match the Source date+time file stamps after successfully copying files from'+#13+
+          'Source to Target so hence this "Sync Date+Time File Stamps" process only needs to be run once or if you edit your Source and Target folder definitions.'+#13+
+          ''+#13+
+          'Note: This process will switch to the "Home" tab to show you the progress of the "Sync Date+Time File Stamps" process.'+#13+
+          ''+#13+
+          'Click "OK" to proceed or "Cancel" to quit.';
+   if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
+    begin
+     pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
+     startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+     try
+      run_process(runmodesetfilestamps);
+     finally
+      stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
+     end;
+    end;
   end;
 end;
 
@@ -2139,6 +2273,112 @@ begin
   begin
    TreeView1DblClick(sender);
   end;
+end;
+
+procedure Tsinkmainform.set_default_preference_switch_values; // Set default preference switch values:
+begin
+ preference_switch_allow_deletefiles := false; // Are we allowed to delete files from target folders? - FALSE by default.
+ preference_switch_allow_deletefolders := false; // Are we alowed to delete folders from target folders? - FALSE by default.
+ preference_switch_allow_diskfree_checks := true; // Are we allowed to run disk free checks on the target drives?
+ preference_switch_min_freediskspace_percent := 5; // Default to 5% minimum disk free space remaining on target drive(s) after file copy process.
+ preference_switch_FileSetDateMaxPasses := 10; // Default to 10 retries in the filesetdate function.
+ preference_switch_FileSetDateSleepTime := 1000; // Default to 1 second sleep time between retries in the filesetdate function.
+ preference_switch_delete_log_files_older_than_days := 30; // Delete Sink log files older than 30 days by default.
+
+ PreferencesSchedulerUseScheduler := false;
+ PreferencesSchedulerStartMinimizedIfUsingSheduler := false;
+ PreferencesSchedulerRunJobsAfterSinkStartup := false;
+ PreferencesSchedulerDelayMinutesForStartupRun := 5;
+ PreferencesSchedulerDaysOfTheWeek := 'NNNNNNN';
+ PreferencesSchedulerRunTime1 := 0;
+ PreferencesSchedulerRunTime2 := 0;
+ PreferencesSchedulerRunTime3 := 0;
+ PreferencesSchedulerRunTime4 := 0;
+ PreferencesSchedulerRunTime5 := 0;
+ PreferencesSchedulerRunTime6 := 0;
+ PreferencesSchedulerRunTime7 := 0;
+ PreferencesSchedulerRunTime8 := 0;
+end;
+
+procedure Tsinkmainform.setup_tools_options; // Set up the "Tools" options:
+begin
+ TreeView1.items.clear;
+ TreeView1.ShowButtons := false;
+ TreeView1.ShowRoot := false;
+ mynode := nil;
+
+ mynode6 := TreeView1.items.AddFirst(mynode,'Utilities');  mynode6.ImageIndex := 5;  mynode6.SelectedIndex := 5;
+ mynode7 := TreeView1.items.AddChild(mynode6,'Sync Date+Time File Stamps'); mynode7.ImageIndex := 4; mynode7.SelectedIndex := 4;
+
+ mynode4 := TreeView1.items.AddFirst(mynode,'Sink Log Files');  mynode4.ImageIndex := 5;  mynode4.SelectedIndex := 5;
+ mynode5 := TreeView1.items.AddChild(mynode4,'Browse/open Sink log files'); mynode5.ImageIndex := 4; mynode5.SelectedIndex := 4;
+
+ mynode1 := TreeView1.items.AddFirst(mynode,'Sink Configuration');  mynode1.ImageIndex := 5;  mynode1.SelectedIndex := 5;
+ mynode2 := TreeView1.items.AddChild(mynode1,'Export a current Sink configuration file'); mynode2.ImageIndex := 4; mynode2.SelectedIndex := 4;
+ mynode3 := TreeView1.items.AddChild(mynode1,'Import a saved Sink configuration file'); mynode3.ImageIndex := 4; mynode3.SelectedIndex := 4;
+
+ mynode1.Expanded := true;
+ mynode4.Expanded := true;
+ mynode6.Expanded := true;
+end;
+
+procedure Tsinkmainform.FormShow(Sender: TObject);
+
+function fn_determine_usersettingsdir : boolean;
+begin
+ result := false;
+ sinkmainform.usersettingsdir := GetAppConfigDir(false);
+ if sinkmainform.usersettingsdir = '' then
+  begin
+   sinkmainform.usersettingsdir := GetAppConfigDir(true);
+   if sinkmainform.usersettingsdir = '' then
+    begin
+     sinkmainform.usersettingsdir := GetUserDir;
+    end;
+  end;
+ if sinkmainform.usersettingsdir <> '' then
+  begin
+   try
+    result := true;
+    sinkmainform.usersettingsdir := DelimitPath(sinkmainform.usersettingsdir);
+    CreateDir(sinkmainform.usersettingsdir);
+   except
+   end;
+  end
+  else
+  begin
+   showmessage('Error: Unable to determine Application Configuration folder.');
+  end;
+end;
+
+begin
+ factive := false;
+ try
+  pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
+  PreferencesPageControl.ActivePage := PreferencesGeneralSettingsTabSheet; // Set the Preferences page control to the "General Settings" tab.
+  SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
+  SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
+  pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
+  ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 10-11-2025. Waiting to start.');
+  ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
+  filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
+  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
+  LabelTimeRemaining.Caption := 'Time Remaining: ......';
+  set_default_preference_switch_values; // Set default preference switch values:
+  setup_tools_options; // Set up the "Tools" options:
+  if fn_determine_usersettingsdir then
+   begin
+    load_ini_settings;
+    fill_in_SourceAndTargetFoldersStringGrid;
+    set_preferences_controls;
+   end
+   else
+   begin
+    application.Terminate;
+   end;
+ finally
+  factive := true;
+ end;
 end;
 
 end.
