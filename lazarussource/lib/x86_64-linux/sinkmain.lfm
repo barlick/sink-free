@@ -1,11 +1,11 @@
 object sinkmainform: Tsinkmainform
-  Left = 936
-  Height = 578
-  Top = 383
-  Width = 867
+  Left = 846
+  Height = 668
+  Top = 331
+  Width = 960
   Caption = 'Sink'
-  ClientHeight = 578
-  ClientWidth = 867
+  ClientHeight = 668
+  ClientWidth = 960
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
@@ -16,27 +16,27 @@ object sinkmainform: Tsinkmainform
   OnShow = FormShow
   object PageControl1: TPageControl
     Left = 0
-    Height = 578
+    Height = 668
     Top = 0
-    Width = 867
-    ActivePage = PreferencesTabSheet
+    Width = 960
+    ActivePage = ConfigurationTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 2
+    TabIndex = 1
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 641
+      ClientWidth = 952
       ImageIndex = 0
       object Panel2: TPanel
         Left = 0
         Height = 109
-        Top = 407
-        Width = 859
+        Top = 497
+        Width = 952
         Align = alBottom
         ClientHeight = 109
-        ClientWidth = 859
+        ClientWidth = 952
         ParentBackground = False
         TabOrder = 0
         object pathLabel: TLabel
@@ -53,7 +53,7 @@ object sinkmainform: Tsinkmainform
           Width = 47
           Caption = 'pathLabel'
         end
-        object Label1: TLabel
+        object StatusLabel: TLabel
           Left = 9
           Height = 13
           Top = 8
@@ -78,7 +78,7 @@ object sinkmainform: Tsinkmainform
           Left = 9
           Height = 17
           Top = 66
-          Width = 841
+          Width = 934
           Anchors = [akTop, akLeft, akRight]
           Color = clBtnFace
           ParentColor = False
@@ -89,12 +89,14 @@ object sinkmainform: Tsinkmainform
       object Panel1: TPanel
         Left = 0
         Height = 35
-        Top = 516
-        Width = 859
+        Top = 606
+        Width = 952
         Align = alBottom
         ClientHeight = 35
-        ClientWidth = 859
+        ClientWidth = 952
+        Color = clBtnFace
         ParentBackground = False
+        ParentColor = False
         TabOrder = 1
         object StartButton: TBitBtn
           Left = 9
@@ -170,12 +172,88 @@ object sinkmainform: Tsinkmainform
           TabOrder = 1
           OnClick = StopbuttonClick
         end
+        object CancelScheduledJobsbutton: TBitBtn
+          Left = 9
+          Height = 29
+          Top = 2
+          Width = 183
+          Caption = '  Cancel Scheduled Jobs Run'
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000030000C30E0000C30E00000000000000000000F5F5F5F5F5F5
+            F5F5F5F1F1F1989898393939050505010101010101070707414141A4A4A4F4F4
+            F4F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5D3D4D43232320101011515155C5C5C7F
+            7F7F7D7E7E5656561010100101013F4040DEDEDEF5F5F5F5F5F5F5F5F5D3D3D3
+            181919070707858585EEEEEEF5F5F5F5F5F5F5F5F5F5F5F5E9E9E97575750303
+            03242525DFDFDFF5F5F5F0F0F0303030080808B3B3B3F5F5F5F5F5F5F5F5F5F5
+            F5F5F5F5F5F5F5F5F5F5F5F5F5F5A0A0A0030303454545F5F5F5969696010101
+            858585F5F5F5E9E9E98F8F8F8E8E8E8E8E8E8E8E8E8E8E8E919191F1F1F1F5F5
+            F56D6D6D010101AEAEAE373838161616EEEEEEF5F5F5C9C9C901010101010101
+            0101010101010101010202E2E2E2F5F5F5E2E2E20909094F4F4F0404045B5B5B
+            F5F5F5F5F5F5C9C9C9010101010101010101010101010101010202E2E2E2F5F5
+            F5F5F5F54343431212120101017D7E7EF5F5F5F5F5F5C9C9C901010101010101
+            0101010101010101010202E2E2E2F5F5F5F5F5F56666660102020101017A7A7A
+            F5F5F5F5F5F5C9C9C9010101010101010101010101010101020202E2E2E2F5F5
+            F5F5F5F5636363020202090909505050F5F5F5F5F5F5C9C9C901010101010101
+            0101010101010101010101E2E2E2F5F5F5F5F5F53838381B1B1B4747470D0D0D
+            E5E5E5F5F5F5CACACA010101010101010101010101010101020202E3E3E3F5F5
+            F5D4D4D40404045E5E5EACACAC010101676767F5F5F5F3F3F3D3D3D3D2D2D2D2
+            D2D2D2D2D2D2D2D2D5D5D5F5F5F5F5F5F54F4F4F030303C3C3C3F4F4F44B4C4C
+            0202028B8B8BF5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F4F4F47474
+            74010101636363F5F5F5F5F5F5E5E5E5323232020202565656D3D3D3F5F5F5F5
+            F5F5F5F5F5F5F5F5C9C9C9484848010101424242EEEEEEF5F5F5F5F5F5F5F5F5
+            E8E8E85C5C5C0202020303032D2D2D5050504F4F4F2727270202020404046C6C
+            6CEFEFEFF5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56868682B2B2B0E
+            0E0E101010303030707070CFCFCFF5F5F5F5F5F5F5F5F5F5F5F5
+          }
+          TabOrder = 2
+          Visible = False
+          OnClick = CancelScheduledJobsbuttonClick
+        end
+        object ResumeScheduledJobsbutton: TBitBtn
+          Left = 118
+          Height = 29
+          Top = 2
+          Width = 183
+          Caption = '  Resume Scheduled Jobs Run'
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000000000C30E0000C30E00000000000000000000DDDDDDDDDDDD
+            DDDDDDDDDDDDCECECE565453242221110F0E1311102A28279D9C9CDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD7A7A7A13121108070613111029
+            2827292827131110141211302F2F949494DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+            4B4949201E1D2C2B2B8D8D8DD8D8D8DDDDDDDDDDDDD4D4D47978781311101412
+            11646362DDDDDDDDDDDDDDDDDD5A5A5A1F1D1D555454DDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDD6D6D51C1A191412117F7E7EDDDDDDAEAEAE141211
+            303030DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD5D5
+            D5131110141212C6C6C622201F0907069D9D9CDDDDDDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD7472720806064040400A080712100F
+            D9D9D9DDDDDDDDDDDDDDDDDDDDDDDDA3A3A3B6B6B6DDDDDDDDDDDDDDDDDDDDDD
+            DDBBBABA0706061616160A08072B2928DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD29
+            28272B2B2BDDDDDDDDDDDDDDDDDDDDDDDDC4C4C40806061010100E0C0B12100F
+            D0D0D0DDDDDDDDDDDDDDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDDDDDDDDDDDD
+            DDA9A8A80705052D2D2D838383121010656464DDDDDDDDDDDDDDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDDDDDDDDDDDDDD434141121110AAAAAADDDDDD2C2B2B
+            131111BBBBBBDDDDDDDDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDDDDDDDD9B9A
+            9A12100F363434DDDDDDDDDDDDB0B0B0121111131111B5B5B5DDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDD8F8F8F111111121211CDCDCDDDDDDDDDDDDDDDDDDD
+            ADADAD2B29297A7A7ADDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDD4D4D4D2B2B
+            2BC7C7C7DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2927262B2A29DDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD65
+            6565818181DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+          }
+          TabOrder = 3
+          Visible = False
+          OnClick = ResumeScheduledJobsbuttonClick
+        end
       end
       object ActivityLogMemo: TMemo
         Left = 0
-        Height = 407
+        Height = 497
         Top = 0
-        Width = 859
+        Width = 952
         Align = alClient
         Lines.Strings = (
           'ActivityLogMemo'
@@ -187,15 +265,16 @@ object sinkmainform: Tsinkmainform
     end
     object ConfigurationTabSheet: TTabSheet
       Caption = 'Jobs Configuration'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 641
+      ClientWidth = 952
       ImageIndex = 1
+      OnEnter = ConfigurationTabSheetEnter
       OnExit = ConfigurationTabSheetExit
       object SourceAndTargetFoldersStringGrid: TStringGrid
         Left = 0
-        Height = 401
+        Height = 491
         Top = 0
-        Width = 859
+        Width = 952
         Align = alClient
         ColCount = 4
         Columns = <        
@@ -229,11 +308,11 @@ object sinkmainform: Tsinkmainform
       object Panel3: TPanel
         Left = 0
         Height = 150
-        Top = 401
-        Width = 859
+        Top = 491
+        Width = 952
         Align = alBottom
         ClientHeight = 150
-        ClientWidth = 859
+        ClientWidth = 952
         ParentBackground = False
         TabOrder = 1
         object SourceFolderLabel: TLabel
@@ -335,7 +414,7 @@ object sinkmainform: Tsinkmainform
           Left = 160
           Height = 21
           Top = 6
-          Width = 664
+          Width = 757
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 2
           Text = 'SourceFolderEdit'
@@ -345,14 +424,14 @@ object sinkmainform: Tsinkmainform
           Left = 160
           Height = 21
           Top = 36
-          Width = 664
+          Width = 757
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 4
           Text = 'Edit1'
           OnChange = TargetFolderEditChange
         end
         object SourceFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 921
           Height = 29
           Top = 6
           Width = 25
@@ -389,7 +468,7 @@ object sinkmainform: Tsinkmainform
           OnClick = SourceFolderBrowseBitBtnClick
         end
         object TargetFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 921
           Height = 29
           Top = 36
           Width = 25
@@ -505,7 +584,7 @@ object sinkmainform: Tsinkmainform
           Left = 159
           Height = 21
           Top = 66
-          Width = 694
+          Width = 787
           Anchors = [akTop, akLeft, akRight]
           ItemHeight = 13
           ItemIndex = 0
@@ -521,7 +600,7 @@ object sinkmainform: Tsinkmainform
           Left = 88
           Height = 17
           Top = 95
-          Width = 761
+          Width = 854
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?'
           TabOrder = 7
@@ -531,18 +610,18 @@ object sinkmainform: Tsinkmainform
     end
     object PreferencesTabSheet: TTabSheet
       Caption = 'Preferences'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 641
+      ClientWidth = 952
       ImageIndex = 2
       OnExit = PreferencesTabSheetExit
       object Panel4: TPanel
         Left = 0
         Height = 36
-        Top = 515
-        Width = 859
+        Top = 605
+        Width = 952
         Align = alBottom
         ClientHeight = 36
-        ClientWidth = 859
+        ClientWidth = 952
         ParentBackground = False
         TabOrder = 0
         object PreferencesApplyChangesBitBtn: TBitBtn
@@ -624,25 +703,25 @@ object sinkmainform: Tsinkmainform
       end
       object PreferencesPageControl: TPageControl
         Left = 0
-        Height = 515
+        Height = 605
         Top = 0
-        Width = 859
-        ActivePage = PreferencesSchedulerTabSheet
+        Width = 952
+        ActivePage = PreferencesGeneralSettingsTabSheet
         Align = alClient
-        TabIndex = 1
+        TabIndex = 0
         TabOrder = 1
         object PreferencesGeneralSettingsTabSheet: TTabSheet
           Caption = 'General Settings'
-          ClientHeight = 489
-          ClientWidth = 851
+          ClientHeight = 579
+          ClientWidth = 944
           object PreferencesPanel: TPanel
             Left = 0
-            Height = 489
+            Height = 579
             Top = 0
-            Width = 851
+            Width = 944
             Align = alClient
-            ClientHeight = 489
-            ClientWidth = 851
+            ClientHeight = 579
+            ClientWidth = 944
             ParentBackground = False
             TabOrder = 0
             object AllowDeletefilesCheckBox: TCheckBox
@@ -740,16 +819,16 @@ object sinkmainform: Tsinkmainform
         end
         object PreferencesSchedulerTabSheet: TTabSheet
           Caption = 'Scheduler'
-          ClientHeight = 489
-          ClientWidth = 851
+          ClientHeight = 579
+          ClientWidth = 944
           object PreferencesSchedulerPanel: TPanel
             Left = 0
-            Height = 489
+            Height = 579
             Top = 0
-            Width = 851
+            Width = 944
             Align = alClient
-            ClientHeight = 489
-            ClientWidth = 851
+            ClientHeight = 579
+            ClientWidth = 944
             ParentBackground = False
             TabOrder = 0
             object PreferencesSchedulerUseSchedulerCheckBox: TCheckBox
@@ -858,6 +937,7 @@ object sinkmainform: Tsinkmainform
                 TimeDisplay = tdHMS
                 DateMode = dmComboBox
                 Date = 45971
+                Time = 0.56165496527683
                 UseDefaultSeparators = True
                 HideDateTimeParts = [dtpSecond, dtpMiliSec]
                 MonthNames = 'Long'
@@ -1031,24 +1111,24 @@ object sinkmainform: Tsinkmainform
     end
     object ToolsTabSheet: TTabSheet
       Caption = 'Tools'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 641
+      ClientWidth = 952
       ImageIndex = 4
       object ToolsPanel: TPanel
         Left = 0
-        Height = 551
+        Height = 641
         Top = 0
-        Width = 859
+        Width = 952
         Align = alClient
-        ClientHeight = 551
-        ClientWidth = 859
+        ClientHeight = 641
+        ClientWidth = 952
         ParentBackground = False
         TabOrder = 0
         object TreeView1: TTreeView
           Left = 1
-          Height = 549
+          Height = 639
           Top = 1
-          Width = 857
+          Width = 950
           Align = alClient
           ExpandSignType = tvestPlusMinus
           Images = ImageList1
@@ -1062,14 +1142,14 @@ object sinkmainform: Tsinkmainform
     end
     object DocumentationTabSheet: TTabSheet
       Caption = 'Documentation'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 641
+      ClientWidth = 952
       ImageIndex = 3
       object Memo1: TMemo
         Left = 0
-        Height = 551
+        Height = 641
         Top = 0
-        Width = 859
+        Width = 952
         Align = alClient
         Lines.Strings = (
           'Sink.exe: A free very simple folder syncing application.'
@@ -1154,5 +1234,12 @@ object sinkmainform: Tsinkmainform
     FilterIndex = 0
     Left = 727
     Top = 199
+  end
+  object SchedulerTimer: TTimer
+    Enabled = False
+    Interval = 4000
+    OnTimer = SchedulerTimerTimer
+    Left = 852
+    Top = 108
   end
 end

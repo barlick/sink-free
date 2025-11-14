@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, ImgList, Grids, Buttons, Spin, Menus,
-  LazFileUtils, FileUtil, DateTimePicker;
+  LazFileUtils, FileUtil, DateTimePicker,DateUtils;
 
 const
  runmodecopyfiles : integer = 0;
@@ -28,6 +28,7 @@ type
    copymode : integer;
    deletefiles : boolean;
    scan_filesize : int64; // Number of bytes that will be copied for this "source_and_target_rec" detected during scanmode_scanonly.
+   job_failed : boolean;
   end;
 
   { Tsinkmainform }
@@ -36,6 +37,7 @@ type
     AllowDeletefilesCheckBox: TCheckBox;
     AllowDeleteFoldersCheckBox: TCheckBox;
     AllowDiskFreeChecksCheckBox: TCheckBox;
+    ResumeScheduledJobsbutton: TBitBtn;
     PreferencesSchedulerRunTime1DateTimePicker: TDateTimePicker;
     PreferencesSchedulerRunTime2DateTimePicker: TDateTimePicker;
     PreferencesSchedulerRunTime3DateTimePicker: TDateTimePicker;
@@ -66,6 +68,8 @@ type
     PreferencesGeneralSettingsTabSheet: TTabSheet;
     PreferencesSchedulerTabSheet: TTabSheet;
     PreferencesSchedulerDelayMinutesForStartupRunSpinEdit: TSpinEdit;
+    SchedulerTimer: TTimer;
+    CancelScheduledJobsbutton: TBitBtn;
     ToolsPanel: TPanel;
     PreferencesApplyChangesBitBtn: TBitBtn;
     PreferencesDiscardChangesBitBtn: TBitBtn;
@@ -94,7 +98,7 @@ type
     Panel2: TPanel;
     pathLabel: TLabel;
     filenameLabel: TLabel;
-    Label1: TLabel;
+    StatusLabel: TLabel;
     Panel1: TPanel;
     StartButton: TBitBtn;
     ActivityLogMemo: TMemo;
@@ -107,12 +111,16 @@ type
     DeleteFilesCheckBox: TCheckBox;
     TreeView1: TTreeView;
     procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
+    procedure CancelScheduledJobsbuttonClick(Sender: TObject);
+    procedure ConfigurationTabSheetEnter(Sender: TObject);
     procedure ConfigurationTabSheetExit(Sender: TObject);
     procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
     procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
     procedure PreferencesSchedulerDaysOfTheWeekCheckGroupItemClick(
      Sender: TObject; Index: integer);
     procedure PreferencesTabSheetExit(Sender: TObject);
+    procedure ResumeScheduledJobsbuttonClick(Sender: TObject);
+    procedure SchedulerTimerTimer(Sender: TObject);
     procedure StartButtonClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure SourceAndTargetFoldersStringGridClick(Sender: TObject);
@@ -176,8 +184,14 @@ type
     filesinsourcealsointargetstringlist_bytesadded : int64;
     filesinsourcealsointargetstringlist_lastfilenameadded : string;
     ok_to_use_filesinsourcealsointargetstringlist : boolean;
+    status_app_startup_datetime : TDateTime;
+    status_next_sheduled_run_datetime : TDateTime;
+    status_done_app_startup_run : boolean;
   public
     { Public declarations }
+    procedure enable_tab_controls;
+    procedure disable_tab_controls;
+    procedure set_sink_run_status;
     procedure set_default_preference_switch_values; // Set default preference switch values:
     procedure setup_tools_options; // Set up the "Tools" options:
     procedure load_ini_settings;
@@ -305,6 +319,16 @@ begin
  end;
 end;
 
+procedure Tsinkmainform.enable_tab_controls;
+begin
+ configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
+end;
+
+procedure Tsinkmainform.disable_tab_controls;
+begin
+ configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+end;
+
 procedure Tsinkmainform.sIncProgress(numw : int64);
 var
  timenow,T : TDateTime;
@@ -370,7 +394,7 @@ var
  statsstringlist : TStringList;
  copymode : integer;
  deletefiles : boolean;
- pass,ct,ct1 : integer;
+ pass,ct,ct1,num_jobs_failed : integer;
 
 function fn_make_and_test_folder(foldername : string) : boolean; {returns false if no go} // Danny 1-10-2014 FB 10604.
 var
@@ -410,6 +434,9 @@ var
  psave : ^ppsave;
  propertofile,origfileext : string;
  ct : integer;
+ err : boolean;
+ thisFileDateTime : TDateTime;
+ thisFileSize : int64;
 begin
  {$I-}
  // Note the intended target file's file extension and then copy it as .tmp:
@@ -431,9 +458,37 @@ begin
  assignfile(f,fromfile);  reset(f,1);
  if ioresult <> 0 then
   begin
+   // That didn't work, so try OS "copyfile" instead:
    closefile(f); if ioresult = 0 then begin end;
-   ActivityLogMemo.Lines.Add('Error: Unable to read from "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
-   inc(stats_numerrors);
+   err := false;
+   if copyfile(fromfile,tofile,[cffOverWriteFile],err) then
+    begin
+     thisFileDateTime := 0; thisFileSize := 0;
+     if GetFileDetails(tofile,thisFileDateTime,thisFileSize) then
+      begin
+       sIncProgress(thisFileSize);
+      end;
+     propertofile := ChangeFileExt(tofile,origfileext);
+     deletefile(propertofile); // In case the target file exists we need to delete it just in case.
+     if ioresult = 0 then begin end;
+     if NOT renamefile(tofile,propertofile) then
+      begin
+       result := false;
+       ActivityLogMemo.Lines.Add('Error: Unable to rename "'+tofile+' to "'+propertofile+'.');
+       inc(stats_numerrors);
+      end
+      else
+      begin
+       result := true; // OK, it worked using OS "copyfile"...
+      end;
+     if ioresult = 0 then begin end;
+     //ActivityLogMemo.Lines.Add('Used OS file copy to copy "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" to "'+extractfilepath(tofile)+'".');
+    end
+    else // No go...
+    begin
+     ActivityLogMemo.Lines.Add('Error: Unable to read from "'+extractfilename(fromfile)+'" from "'+extractfilepath(fromfile)+'" check file access permissions.');
+     inc(stats_numerrors);
+    end;
   end
   else
   begin
@@ -495,7 +550,7 @@ begin
  {$I+}
 end;
 
-function fn_my_FileSetDate(filename : string; requiredfiledatetime : TDateTime) : boolean;
+function fn_my_FileSetDate(source_and_target_array_slot : integer; filename : string; requiredfiledatetime : TDateTime) : boolean;
 var
  newFileDateTime,differencedt : TDateTime;
  newFileSize : int64;
@@ -562,7 +617,7 @@ begin
        begin
         ActivityLogMemo.Lines.Add('Error: Failed inside "fn_my_FileSetDate". Possible network connection issue?');
         inc(stats_numerrors);
-        abort := true;
+        source_and_target_array[source_and_target_array_slot].job_failed := true;
        end;
      end
      else
@@ -571,6 +626,7 @@ begin
      end;
    except
     result := false;
+    source_and_target_array[source_and_target_array_slot].job_failed := true;
    end;
    inc(FileSetDatepass);
   end;
@@ -620,9 +676,9 @@ begin
    begin
     ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
     inc(stats_numerrors);
-    abort := true;
+    source_and_target_array[source_and_target_array_slot].job_failed := true;
    end;
-  While (ReturnValue=0) and not abort do
+  While (ReturnValue=0) and not abort and NOT source_and_target_array[source_and_target_array_slot].job_failed do
    begin
     application.processmessages;
     // This is a directory, so add the folder name to "startpath" and then recursively call the "scanforfiles" routine to go and scan it i.e. the function calls itself.
@@ -693,7 +749,7 @@ begin
            begin
             ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
             inc(stats_numerrors);
-            abort := true;
+            source_and_target_array[source_and_target_array_slot].job_failed := true;
             doit := false;
            end;
          except
@@ -711,7 +767,7 @@ begin
          except
           ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
           inc(stats_numerrors);
-          abort := true;
+          source_and_target_array[source_and_target_array_slot].job_failed := true;
           doit := false;
          end;
         end;
@@ -740,7 +796,7 @@ begin
            begin
             ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
             inc(stats_numerrors);
-            abort := true;
+            source_and_target_array[source_and_target_array_slot].job_failed := true;
             doit := false;
            end;
          except
@@ -786,13 +842,13 @@ begin
            begin
             ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
             inc(stats_numerrors);
-            abort := true;
+            source_and_target_array[source_and_target_array_slot].job_failed := true;
             doit := false;
            end;
          except
           ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
           inc(stats_numerrors);
-          abort := true;
+          source_and_target_array[source_and_target_array_slot].job_failed := true;
           doit := false;
          end;
         end;
@@ -816,7 +872,7 @@ begin
          if scanmode = scanmode_setfilestamps then // 3 = setfilestamps mode.
           begin
            try
-            if fn_my_FileSetDate(s,sourcefiledatetime) then
+            if fn_my_FileSetDate(source_and_target_array_slot,s,sourcefiledatetime) then
              begin
               ActivityLogMemo.Lines.Add('Set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
              end
@@ -828,7 +884,7 @@ begin
            except
             ActivityLogMemo.Lines.Add('Error: Exception: Failed to set file date+time for "'+mysearchrec.name+'" in "'+targetfolder+'".');
             inc(stats_numerrors);
-            abort := true;
+            source_and_target_array[source_and_target_array_slot].job_failed := true;
            end;
           end
           else if scanmode = scanmode_scanonly then // Scan only...
@@ -862,7 +918,7 @@ begin
                      ActivityLogMemo.Lines.Add('Copied "'+mysearchrec.name+'"');
                      // OK: Set the date time stamp on the "new" target file (s) to match the date time stamp on the source file:
                      try
-                      if NOT fn_my_FileSetDate(s,sourcefiledatetime) then
+                      if NOT fn_my_FileSetDate(source_and_target_array_slot,s,sourcefiledatetime) then
                        begin
                         ActivityLogMemo.Lines.Add('Error: Failed to set file date+time for "'+s+'".');
                         inc(stats_numerrors);
@@ -886,6 +942,7 @@ begin
               begin
                ActivityLogMemo.Lines.Add('Error: Failed to create/access Target folder "'+extractfilepath(s)+'".');
                inc(stats_numerrors);
+               source_and_target_array[source_and_target_array_slot].job_failed := true;
               end;
             end;
           end;
@@ -900,7 +957,7 @@ begin
    begin
     ActivityLogMemo.Lines.Add('Error: Failed inside "scanforfiles". Possible network connection issue?');
     inc(stats_numerrors);
-    abort := true;
+    source_and_target_array[source_and_target_array_slot].job_failed := true;
    end;
  end;
 end;
@@ -1009,6 +1066,17 @@ begin
   filesinsourcealsointargetstringlist.Sorted := true;
   statsstringlist.clear;
   stats_filesize := 0; stats_bytes_written := 0; stats_numfiles_scanned := 0; stats_numfiles_copied := 0; stats_filesize_scanned := 0; stats_numfiles_deleted := 0; stats_numerrors := 0;
+  // Mark all jobs (source_and_target_array records) as "job failed = false".
+  if source_and_target_array_count > 0 then
+   begin
+    ct := 0;
+    while ct < source_and_target_array_count do
+     begin
+      source_and_target_array[ct].job_failed := false;
+      inc(ct);
+     end;
+   end;
+  // OK, start working through the jobs in source_and_target_array:
   if source_and_target_array_count > 0 then
    begin
     if runmode = runmodecopyfiles then
@@ -1037,27 +1105,35 @@ begin
            begin
             ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
             ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'".');
-           end;
-          if pass = scanmode_scanonly then
-           begin
-            source_and_target_array[ct].scan_filesize := 0; // Zero the scan_filesize (bytes) for this source_and_target_rec:
-            sync_folders(scanmode_scanonly,ct,sourcefolder,copymode,deletefiles);
-           end
-           else if pass = scanmode_copyfiles then
-           begin
-            if preference_switch_allow_diskfree_checks then // Are we allowed to run disk free checks on the target drives?
+            if NOT fn_make_and_test_folder(extractfilepath(targetfolder)) then
              begin
-              if fn_disk_free_check(ct) then
+              source_and_target_array[ct].job_failed := true; // Can't access the target folder so we can't continue with this job.
+              ActivityLogMemo.Lines.Add('Error: Unabled to access target folder "'+targetfolder+'" so unable to run this job.');
+             end;
+           end;
+          if NOT source_and_target_array[ct].job_failed then
+           begin
+            if pass = scanmode_scanonly then
+             begin
+              source_and_target_array[ct].scan_filesize := 0; // Zero the scan_filesize (bytes) for this source_and_target_rec:
+              sync_folders(scanmode_scanonly,ct,sourcefolder,copymode,deletefiles);
+             end
+             else if pass = scanmode_copyfiles then
+             begin
+              if preference_switch_allow_diskfree_checks then // Are we allowed to run disk free checks on the target drives?
+               begin
+                if fn_disk_free_check(ct) then
+                 begin
+                  sync_folders(scanmode_copyfiles,ct,sourcefolder,copymode,deletefiles);
+                 end;
+               end
+               else
                begin
                 sync_folders(scanmode_copyfiles,ct,sourcefolder,copymode,deletefiles);
                end;
-             end
-             else
-             begin
-              sync_folders(scanmode_copyfiles,ct,sourcefolder,copymode,deletefiles);
              end;
            end;
-          inc(ct);
+          inc(ct); // On to the next job.
          end;
         inc(pass);
        end;
@@ -1068,38 +1144,41 @@ begin
       ct := 0;
       while (ct < source_and_target_array_count) and not abort and preference_switch_allow_deletefiles do
        begin
-        if source_and_target_array[ct].deletefiles then
+        if NOT source_and_target_array[ct].job_failed then // DO NOT RUN "DELETE FILES" FOR JOBS THAT FAILED.
          begin
-          sourcefolder := source_and_target_array[ct].sourcefolder;
-          targetfolder := source_and_target_array[ct].targetfolder;
-          copymode := source_and_target_array[ct].copymode;
-          deletefiles := source_and_target_array[ct].deletefiles;
-          ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
-          ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'" to locate any files that need to be deleted.');
-          targetfolderfoldersstringlist.clear;
-          sync_folders(scanmode_deletefiles,ct,targetfolder,copymode,deletefiles); // Pass "2" = delete files.
-          // NB: We can only delete redundant folders from the target folder if the "preference_switch_allow_deletefolders" is enabled.
-          if (targetfolderfoldersstringlist.Count > 0) and preference_switch_allow_deletefolders then
+          if source_and_target_array[ct].deletefiles then
            begin
-            ct1 := 0;
-            while (ct1 < targetfolderfoldersstringlist.count) and not abort do
+            sourcefolder := source_and_target_array[ct].sourcefolder;
+            targetfolder := source_and_target_array[ct].targetfolder;
+            copymode := source_and_target_array[ct].copymode;
+            deletefiles := source_and_target_array[ct].deletefiles;
+            ActivityLogMemo.Lines.Add('Scanning source folder "'+sourcefolder+'".');
+            ActivityLogMemo.Lines.Add('Comparing with target folder "'+targetfolder+'" to locate any files that need to be deleted.');
+            targetfolderfoldersstringlist.clear;
+            sync_folders(scanmode_deletefiles,ct,targetfolder,copymode,deletefiles); // Pass "2" = delete files.
+            // NB: We can only delete redundant folders from the target folder if the "preference_switch_allow_deletefolders" is enabled.
+            if (targetfolderfoldersstringlist.Count > 0) and preference_switch_allow_deletefolders then
              begin
-              //ActivityLogMemo.Lines.Add('scanmode_deletefiles saw this folder in target: '+targetfolderfoldersstringlist[ct1]);
-              s1 := stringreplace(targetfolderfoldersstringlist[ct1],targetfolder,sourcefolder,[rfreplaceall,rfignorecase]);
-              //ActivityLogMemo.Lines.Add('So on source that would be: '+s1);
-              if not DirectoryExists(s1) then
+              ct1 := 0;
+              while (ct1 < targetfolderfoldersstringlist.count) and not abort do
                begin
-                if DeleteDirectory(targetfolderfoldersstringlist[ct1],false) then
+                //ActivityLogMemo.Lines.Add('scanmode_deletefiles saw this folder in target: '+targetfolderfoldersstringlist[ct1]);
+                s1 := stringreplace(targetfolderfoldersstringlist[ct1],targetfolder,sourcefolder,[rfreplaceall,rfignorecase]);
+                //ActivityLogMemo.Lines.Add('So on source that would be: '+s1);
+                if not DirectoryExists(s1) then
                  begin
-                  ActivityLogMemo.Lines.Add('This folder does not exist on the source so has been deleted from the target: '+targetfolderfoldersstringlist[ct1]);
-                 end
-                 else
-                 begin
-                  ActivityLogMemo.Lines.Add('Error: This folder does not exist on the source but could not be deleted from the target: '+targetfolderfoldersstringlist[ct1]);
-                  inc(stats_numerrors);
+                  if DeleteDirectory(targetfolderfoldersstringlist[ct1],false) then
+                   begin
+                    ActivityLogMemo.Lines.Add('This folder does not exist on the source so has been deleted from the target: '+targetfolderfoldersstringlist[ct1]);
+                   end
+                   else
+                   begin
+                    ActivityLogMemo.Lines.Add('Error: This folder does not exist on the source but could not be deleted from the target: '+targetfolderfoldersstringlist[ct1]);
+                    inc(stats_numerrors);
+                   end;
                  end;
+                inc(ct1);
                end;
-              inc(ct1);
              end;
            end;
          end;
@@ -1115,7 +1194,15 @@ begin
         targetfolder := source_and_target_array[ct].targetfolder;
         copymode := source_and_target_array[ct].copymode;
         deletefiles := source_and_target_array[ct].deletefiles;
-        sync_folders(scanmode_setfilestamps,ct,sourcefolder,copymode,deletefiles); // Pass "3" = set filestamps on target folder files.
+        if NOT fn_make_and_test_folder(extractfilepath(targetfolder)) then
+         begin
+          source_and_target_array[ct].job_failed := true; // Can't access the target folder so we can't continue with this job.
+          ActivityLogMemo.Lines.Add('Error: Unabled to access target folder "'+targetfolder+'" so unable to set file stamps for this job.');
+         end;
+        if NOT source_and_target_array[ct].job_failed then // Can't access the target folder so we can't continue with this job.
+         begin
+          sync_folders(scanmode_setfilestamps,ct,sourcefolder,copymode,deletefiles); // Pass "3" = set filestamps on target folder files.
+         end;
         inc(ct);
        end;
      end;
@@ -1124,6 +1211,17 @@ begin
   statsstringlist.clear;
   statsstringlist.Add(' ');
   statsstringlist.Add('Stats:');
+  statsstringlist.Add('Total number of jobs run: '+inttostr(source_and_target_array_count));
+  ct := 0; num_jobs_failed := 0;
+  if source_and_target_array_count > 0 then
+   begin
+    while ct < source_and_target_array_count do
+     begin
+      if source_and_target_array[ct].job_failed then inc(num_jobs_failed);
+      inc(ct);
+     end;
+   end;
+  statsstringlist.Add('Number of jobs that failed: '+inttostr(num_jobs_failed));
   statsstringlist.Add('Number of files scanned: '+inttostr(stats_numfiles_scanned));
   statsstringlist.Add('Total size of files scanned: '+HumanReadableNumbytes(stats_filesize_scanned));
   statsstringlist.Add('Number of files copied from Source to Target folders: '+inttostr(stats_numfiles_copied));
@@ -1183,6 +1281,7 @@ begin
   statsstringlist.clear;
   statsstringlist.free;
   abort := false; // Ready for next run...
+  set_sink_run_status; // Resent the jobs schedule timer.
  end;
 end;
 
@@ -1410,6 +1509,7 @@ procedure Tsinkmainform.DiscardChangesBitBtnClick(Sender: TObject);
 begin
  load_ini_settings;
  fill_in_SourceAndTargetFoldersStringGrid;
+ //set_sink_run_status;
 end;
 
 procedure Tsinkmainform.load_ini_settings;
@@ -1989,6 +2089,7 @@ begin
  if not bad then
   begin
    save_ini_settings;
+   set_sink_run_status;
   end;
  fill_in_SourceAndTargetFoldersStringGrid;
 end;
@@ -2057,12 +2158,15 @@ end;
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
- startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+ startbutton.Visible := false; stopbutton.visible := true;
+ disable_tab_controls;
  abort := false;
  try
+  ResumeScheduledJobsbutton.visible := false;
   run_process(runmodecopyfiles);
  finally
-  stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
+  stopbutton.visible := false; startbutton.Visible := true;
+  enable_tab_controls;
  end;
 end;
 
@@ -2074,6 +2178,19 @@ begin
    PreferencesDiscardChangesBitBtn.Enabled := true;
   end;
 end;
+
+procedure Tsinkmainform.ConfigurationTabSheetEnter(Sender: TObject);
+begin
+ if preference_switch_allow_deletefiles then
+  begin
+   DeleteFilesCheckBox.visible := true;
+  end
+  else
+  begin
+   DeleteFilesCheckBox.visible := false;
+  end;
+end;
+
 procedure Tsinkmainform.ConfigurationTabSheetExit(Sender: TObject);
 begin
  // Trow away any unsaved "Configuration" tab changes:
@@ -2087,6 +2204,7 @@ procedure Tsinkmainform.PreferencesApplyChangesBitBtnClick(Sender: TObject);
 begin
  transfer_preferences_controls_to_preferences;
  save_ini_settings;
+ set_sink_run_status;
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
@@ -2095,6 +2213,7 @@ procedure Tsinkmainform.PreferencesDiscardChangesBitBtnClick(Sender: TObject);
 begin
  set_preferences_controls;
  save_ini_settings;
+ //set_sink_run_status;
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
@@ -2257,11 +2376,13 @@ begin
    if Dialogs.MessageDlg(mes,mtwarning,[mbok,mbcancel],0) = mrok then
     begin
      pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
-     startbutton.Visible := false; stopbutton.visible := true; configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+     startbutton.Visible := false; stopbutton.visible := true;
+     disable_tab_controls;
      try
       run_process(runmodesetfilestamps);
      finally
-      stopbutton.visible := false; startbutton.Visible := true; configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
+      stopbutton.visible := false; startbutton.Visible := true;
+      enable_tab_controls;
      end;
     end;
   end;
@@ -2354,13 +2475,15 @@ end;
 begin
  factive := false;
  try
+  SchedulerTimer.Enabled := false;
+  status_app_startup_datetime := now;
+  status_done_app_startup_run := false;
+
   pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
   PreferencesPageControl.ActivePage := PreferencesGeneralSettingsTabSheet; // Set the Preferences page control to the "General Settings" tab.
   SourceAndTargetFoldersStringGrid.ColWidths[2] := 0;
   SourceAndTargetFoldersStringGrid.ColWidths[3] := 0;
   pathlabel.caption := ''; filenamelabel.caption := ''; progressbarbr.visible := false; ActivityLogMemo.Clear; stopbutton.visible := false; startbutton.Visible := true;
-  ActivityLogMemo.Lines.Add('Sink v1.2 Compiled 10-11-2025. Waiting to start.');
-  ActivityLogMemo.Lines.Add('OS type is '+fn_Osversion);
   filesinsourcealsointargetstringlist_maxsize := (1024 * 1024) * 100; // Allow 100Mb max for "filesinsourcealsointargetstringlist".
   LabelTimeElapsed.Caption := 'Time Elapsed: ......';
   LabelTimeRemaining.Caption := 'Time Remaining: ......';
@@ -2371,6 +2494,11 @@ begin
     load_ini_settings;
     fill_in_SourceAndTargetFoldersStringGrid;
     set_preferences_controls;
+    set_sink_run_status;
+    if SchedulerTimer.Enabled and PreferencesSchedulerStartMinimizedIfUsingSheduler then
+     begin
+      application.Minimize;
+     end;
    end
    else
    begin
@@ -2379,6 +2507,276 @@ begin
  finally
   factive := true;
  end;
+end;
+
+procedure Tsinkmainform.set_sink_run_status;
+const
+ max_SchedulerRunTimes : integer = 8;
+var
+ today_day_of_week,this_day_of_week,ct : integer;
+ startuprundatetime,dt,closestdiff,curdate,relevanttime : TDateTime;
+ s,startupinfo : string;
+ can_run_at_startup,found,startfromtoday : boolean;
+ SchedulerRunTimes : array of TDateTime;
+ SchedulerRunTimes_count : integer;
+ dayofweekarray : array[1..7] of string;
+begin
+ try
+  SchedulerTimer.Enabled := false;
+  CancelScheduledJobsbutton.visible := false;
+  ResumeScheduledJobsbutton.visible := false;
+  StatusLabel.Caption:= 'Status:'; pathlabel.caption := '';
+  status_next_sheduled_run_datetime := 0; // Inactive.
+
+  dayofweekarray[1] := 'Monday'; dayofweekarray[2] := 'Tuesday'; dayofweekarray[3] := 'Wednesday'; dayofweekarray[4] := 'Thursday'; dayofweekarray[5] := 'Friday'; dayofweekarray[6] := 'Saturday'; dayofweekarray[7] := 'Sunday';
+  if source_and_target_array_count = 0 then
+   begin
+    StatusLabel.Caption:= 'Status: No Jobs have been configured so there is nothing to do.';
+   end
+   else
+   begin
+    if PreferencesSchedulerUseScheduler then
+     begin
+      // OK, we are using the scheduler. What's the next run time?
+      // Are any "job sheduler run days" defined?
+      if pos('Y',uppercase(PreferencesSchedulerDaysOfTheWeek)) = 0 then
+       begin
+        // No so report nothing to do:
+        StatusLabel.Caption:= 'Status: No Jobs Scheduler "run on days of the week" are set so there are no possible sheduled run times. Waiting for you to click "Start" to run the Jobs manually.';
+       end
+       else
+       begin
+        // OK, we are allowed to run on at least one day of the week...
+        // What's the day of the week for today?
+        can_run_at_startup := false;
+        startupinfo := '';
+        today_day_of_week := DayOfTheWeek(status_app_startup_datetime); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+        StatusLabel.Caption:= 'Status: No Jobs Scheduler run times have been detected so waiting for you to click "Start" to run the Jobs manually.';
+        if copy(PreferencesSchedulerDaysOfTheWeek,today_day_of_week,1) = 'Y' then
+         begin
+          // OK, I am allowed to run scheduled jobs today.
+          // Am I allowed to run at startup + x minutes?
+          if PreferencesSchedulerRunJobsAfterSinkStartup and NOT status_done_app_startup_run then
+           begin
+            if PreferencesSchedulerDelayMinutesForStartupRun <= 0 then PreferencesSchedulerDelayMinutesForStartupRun := 1; // Min is start up time + 1 minutes.
+            startuprundatetime := status_app_startup_datetime + encodetime(0,PreferencesSchedulerDelayMinutesForStartupRun,0,0);
+            if now < startuprundatetime then
+             begin
+              // OK: Can run at startuprundatetime.
+              can_run_at_startup := true; status_next_sheduled_run_datetime := startuprundatetime;
+              status_done_app_startup_run := true; // OK: Don't run this again until next startup.
+              s := ''; if PreferencesSchedulerDelayMinutesForStartupRun > 1 then s := 's';
+              StatusLabel.Caption:= 'Status: Job Scheduler indicates that we need to run at Sink start up time + '+inttostr(PreferencesSchedulerDelayMinutesForStartupRun)+ ' minute'+s+' so will next run all Jobs automatically Today at '+datetimetostr(startuprundatetime)+'.';
+              pathlabel.caption := 'Note: You can click "Cancel Scheduled Jobs Run" to cancel the scheduler and switch to manual mode.';
+              disable_tab_controls; // Disable all tabs to prevent users changing settings when the schedule timer is running.
+              SchedulerTimer.Enabled := true;
+              CancelScheduledJobsbutton.visible := true;
+              ResumeScheduledJobsbutton.visible := false;
+             end
+             else if PreferencesSchedulerRunJobsAfterSinkStartup then
+             begin
+              // OK, we are set to run at atartup but not today, so what's the next day I CAN run at startup.
+              curdate := trunc(status_app_startup_datetime) + 1;
+              found := false;
+              while (curdate < curdate + 8) and not found do
+               begin
+                this_day_of_week := DayOfTheWeek(curdate); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+                if copy(PreferencesSchedulerDaysOfTheWeek,this_day_of_week,1) = 'Y' then
+                 begin
+                  found := true;
+                  StatusLabel.Caption:= 'Status: Job Scheduler indicates that we will next run when Sink start up on '+dayofweekarray[this_day_of_week]+' ' + datetostr(curdate)+'.';
+                  startupinfo := ' Or when Sink is restarted on that date.';
+                 end;
+                curdate := curdate + 1;
+               end;
+             end;
+           end
+           else if PreferencesSchedulerRunJobsAfterSinkStartup then
+           begin
+            // OK, we are set to run at atartup but not today, so what's the next day I CAN run at startup.
+            curdate := trunc(status_app_startup_datetime) + 1;
+            found := false;
+            while (curdate < curdate + 8) and not found do
+             begin
+              this_day_of_week := DayOfTheWeek(curdate); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+              if copy(PreferencesSchedulerDaysOfTheWeek,this_day_of_week,1) = 'Y' then
+               begin
+                found := true;
+                StatusLabel.Caption:= 'Status: Job Scheduler indicates that we will next run when Sink start up on '+dayofweekarray[this_day_of_week]+' ' + datetostr(curdate)+'.';
+                startupinfo := ' Or when Sink is restarted on that date.';
+               end;
+              curdate := curdate + 1;
+             end;
+           end;
+         end
+         else // Say when we CAN next run at startup.
+         begin
+          if PreferencesSchedulerRunJobsAfterSinkStartup then
+           begin
+            // OK, we are set to run at atartup but not today, so what's the next day I CAN run at startup.
+            curdate := trunc(status_app_startup_datetime) + 1;
+            found := false;
+            while (curdate < curdate + 8) and not found do
+             begin
+              this_day_of_week := DayOfTheWeek(curdate); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+              if copy(PreferencesSchedulerDaysOfTheWeek,this_day_of_week,1) = 'Y' then
+               begin
+                found := true;
+                StatusLabel.Caption:= 'Status: Job Scheduler indicates that we will next run when Sink start up on '+dayofweekarray[this_day_of_week]+' ' + datetostr(curdate)+'.';
+                startupinfo := ' Or when Sink is restarted on that date.';
+               end;
+              curdate := curdate + 1;
+             end;
+           end;
+         end;
+        if not can_run_at_startup then
+         begin
+          // OK, can't do the run at start up thing (today) so we now need to see if any sheduler run times are defined.
+          SchedulerRunTimes := nil;
+          setlength(SchedulerRunTimes,0); SchedulerRunTimes_count := 0;
+          ct := 1;
+          while ct <= max_SchedulerRunTimes do
+           begin
+            case ct of
+             1 : dt := PreferencesSchedulerRunTime1;
+             2 : dt := PreferencesSchedulerRunTime2;
+             3 : dt := PreferencesSchedulerRunTime3;
+             4 : dt := PreferencesSchedulerRunTime4;
+             5 : dt := PreferencesSchedulerRunTime5;
+             6 : dt := PreferencesSchedulerRunTime6;
+             7 : dt := PreferencesSchedulerRunTime7;
+             8 : dt := PreferencesSchedulerRunTime8;
+             else dt := 0;
+            end;
+            if dt <> 0 then
+             begin
+              inc(SchedulerRunTimes_count);
+              setlength(SchedulerRunTimes,SchedulerRunTimes_count);
+              SchedulerRunTimes[SchedulerRunTimes_count-1] := dt;
+             end;
+            inc(ct);
+           end;
+          if SchedulerRunTimes_count > 0 then
+           begin
+            // OK we have scheduled run times so given the time now, what's the earliest run time that > now?
+            if copy(PreferencesSchedulerDaysOfTheWeek,today_day_of_week,1) = 'Y' then // If we can run today then we need to compare the run times against the current time.
+             begin
+              relevanttime := frac(now);
+             end
+             else // Otherwise, check the run times against midnight on days after tomorrow.
+             begin
+              relevanttime := 0;
+             end;
+            closestdiff := -1;
+            ct := 0;
+            while (ct < SchedulerRunTimes_count) do
+             begin
+              if SchedulerRunTimes[ct] > relevanttime then
+               begin
+                if (SchedulerRunTimes[ct] - relevanttime < closestdiff) or (closestdiff = -1) then
+                 begin
+                  closestdiff := SchedulerRunTimes[ct] - relevanttime;
+                  status_next_sheduled_run_datetime := SchedulerRunTimes[ct];
+                 end;
+               end;
+              inc(ct);
+             end;
+            startfromtoday := true;
+            if status_next_sheduled_run_datetime = 0 then
+             begin
+              // OK, can't do any more scheduled runs today because the time now has exceeded the last defined run time so we need to re-calculate the status_next_sheduled_run_datetime based on midnight and disallow the code
+              // below to use curdate = today.
+              relevanttime := 0;
+              closestdiff := -1;
+              ct := 0;
+              while (ct < SchedulerRunTimes_count) do
+               begin
+                if SchedulerRunTimes[ct] > relevanttime then
+                 begin
+                  if (SchedulerRunTimes[ct] - relevanttime < closestdiff) or (closestdiff = -1) then
+                   begin
+                    closestdiff := SchedulerRunTimes[ct] - relevanttime;
+                    status_next_sheduled_run_datetime := SchedulerRunTimes[ct];
+                   end;
+                 end;
+                inc(ct);
+               end;
+              startfromtoday := false;
+             end;
+            if status_next_sheduled_run_datetime > 0 then // e.g. 14:00
+             begin
+              // OK: So what's the next run day I can use?
+              curdate := trunc(now);
+              if startfromtoday = false then curdate := curdate + 1; // Move to tomorrow then.
+              found := false;
+              while (curdate < curdate + 8) and not found do
+               begin
+                this_day_of_week := DayOfTheWeek(curdate); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+                if copy(PreferencesSchedulerDaysOfTheWeek,this_day_of_week,1) = 'Y' then
+                 begin
+                  found := true;
+                  status_next_sheduled_run_datetime := curdate + status_next_sheduled_run_datetime;
+                  if curdate = trunc(now) then
+                   begin
+                    StatusLabel.Caption:= 'Status: Next scheduled Jobs run time is Today ' + datetimetostr(status_next_sheduled_run_datetime) + '.';
+                   end
+                   else
+                   begin
+                    StatusLabel.Caption:= 'Status: Next scheduled Jobs run time is ' + dayofweekarray[this_day_of_week] + ' ' + datetimetostr(status_next_sheduled_run_datetime) + '.' + startupinfo;
+                   end;
+                  pathlabel.caption := 'Note: You can click "Cancel Scheduled Jobs Run" to cancel the scheduler and switch to manual mode.';
+                  disable_tab_controls; // Disable all tabs to prevent users changing settings when the schedule timer is running.
+                  SchedulerTimer.Enabled := true;
+                  CancelScheduledJobsbutton.visible := true;
+                  ResumeScheduledJobsbutton.visible := false;
+                 end;
+                curdate := curdate + 1;
+               end;
+             end;
+           end
+           else
+           begin
+            if pos('we will next run',StatusLabel.Caption) = 0 then
+             begin
+              StatusLabel.Caption:= 'Status: No Jobs Scheduler run times have been defined so waiting for you to click "Start" to run the Jobs manually.';
+             end;
+           end;
+         end;
+       end;
+     end
+     else
+     begin
+      StatusLabel.Caption:= 'Status: No Jobs Scheduler run times are defined so waiting for you to click "Start" to run the Jobs manually.';
+     end;
+   end;
+ finally
+  setlength(SchedulerRunTimes,0);
+ end;
+end;
+
+procedure Tsinkmainform.SchedulerTimerTimer(Sender: TObject);
+begin
+ if now > status_next_sheduled_run_datetime then
+  begin
+   SchedulerTimer.Enabled := false;
+   pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
+   StartButtonClick(Sender);
+  end;
+end;
+
+procedure Tsinkmainform.CancelScheduledJobsbuttonClick(Sender: TObject);
+begin
+ SchedulerTimer.Enabled := false;
+ StatusLabel.Caption:= 'Status: The Jobs Scheduler has been cancelled. Click "Resume Scheduled Jobs Run" to re-start it or click "Start" to run Jobs manually.';
+ pathlabel.caption := '';
+ CancelScheduledJobsbutton.visible := false;
+ ResumeScheduledJobsbutton.visible := true;
+ enable_tab_controls;
+end;
+
+procedure Tsinkmainform.ResumeScheduledJobsbuttonClick(Sender: TObject);
+begin
+ set_sink_run_status;
 end;
 
 end.

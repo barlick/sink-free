@@ -1,84 +1,84 @@
 object sinkmainform: Tsinkmainform
-  Left = 940
-  Height = 578
-  Top = 375
-  Width = 867
+  Left = 799
+  Height = 668
+  Top = 349
+  Width = 960
   Caption = 'Sink'
-  ClientHeight = 578
-  ClientWidth = 867
+  ClientHeight = 668
+  ClientWidth = 960
   Color = clBtnFace
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Position = poDesktopCenter
-  LCLVersion = '4.2.0.0'
+  LCLVersion = '4.0.0.4'
   OnResize = FormResize
   OnShow = FormShow
   object PageControl1: TPageControl
     Left = 0
-    Height = 578
+    Height = 668
     Top = 0
-    Width = 867
-    ActivePage = ConfigurationTabSheet
+    Width = 960
+    ActivePage = HomeTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 640
+      ClientWidth = 950
       ImageIndex = 0
       object Panel2: TPanel
         Left = 0
         Height = 109
-        Top = 407
-        Width = 859
+        Top = 496
+        Width = 950
         Align = alBottom
         ClientHeight = 109
-        ClientWidth = 859
+        ClientWidth = 950
         ParentBackground = False
         TabOrder = 0
         object pathLabel: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 28
-          Width = 47
+          Width = 52
           Caption = 'pathLabel'
         end
         object filenameLabel: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 47
-          Width = 47
+          Width = 52
           Caption = 'pathLabel'
         end
-        object Label1: TLabel
+        object StatusLabel: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 8
           Width = 35
           Caption = 'Status:'
         end
         object LabelTimeElapsed: TLabel
           Left = 9
-          Height = 13
+          Height = 16
           Top = 87
-          Width = 62
+          Width = 68
           Caption = 'Time Elapsed'
         end
         object LabelTimeRemaining: TLabel
           Left = 151
-          Height = 13
+          Height = 16
           Top = 87
-          Width = 74
+          Width = 84
           Caption = 'Time Remaining'
         end
         object ProgressBarBR: TProgressBar
           Left = 9
           Height = 17
           Top = 66
-          Width = 841
+          Width = 932
           Anchors = [akTop, akLeft, akRight]
           Color = clBtnFace
           ParentColor = False
@@ -89,12 +89,14 @@ object sinkmainform: Tsinkmainform
       object Panel1: TPanel
         Left = 0
         Height = 35
-        Top = 516
-        Width = 859
+        Top = 605
+        Width = 950
         Align = alBottom
         ClientHeight = 35
-        ClientWidth = 859
+        ClientWidth = 950
+        Color = clBtnFace
         ParentBackground = False
+        ParentColor = False
         TabOrder = 1
         object StartButton: TBitBtn
           Left = 9
@@ -170,50 +172,88 @@ object sinkmainform: Tsinkmainform
           TabOrder = 1
           OnClick = StopbuttonClick
         end
-        object setfilestampsbutton: TBitBtn
-          Left = 666
+        object CancelScheduledJobsbutton: TBitBtn
+          Left = 9
           Height = 29
           Top = 2
-          Width = 184
-          Anchors = [akTop, akRight]
-          Caption = ' Sync Date+Time File Stamps'
+          Width = 183
+          Caption = '  Cancel Scheduled Jobs Run'
           Glyph.Data = {
             36030000424D3603000000000000360000002800000010000000100000000100
             18000000000000030000C30E0000C30E00000000000000000000F5F5F5F5F5F5
-            F5F5F5F2F2F29B9B9B3B3B3B0707070303030303030707073B3B3B9C9C9CF2F2
-            F2F4F4F4F5F5F5F5F5F5F5F5F5F4F4F4D8D8D8383838030303030303030303FF
-            FFFF030303030303030303030303383838D8D8D8F4F4F4F5F5F5F5F5F5D9D9D9
-            202020030303030303030303030303FFFFFF0303030303030303030303030303
-            03202020DADADAF5F5F5F3F3F33D3D3D030303030303040404030303030303FF
-            FFFF0303030303030303030303030303030303033E3E3EF3F3F3A7A7A7030303
-            030303030303000000000000030303FFFFFF0303030303030000000000000303
-            03030303030303A7A7A7494949030303030303030303000000000000000000FF
-            FFFF030303000000000000000000030303030303030303494949101010030303
-            0303030303030303030000000000007676760000000000000000000303030303
-            03030303030303101010030303030303030303030303030303030303000000F1
-            F1F1F0F0F0000000030303030303030303030303030303020202040404030303
-            030303030303030303030303000000EFEFEFEFEFEF0000000303030303030303
-            0303030303030303030317171703030303030303030303030300000000000000
-            0000000000EFEFEF000000030303030303030303030303171717575757030303
-            030303030303000000000000000000030303030303000000FFFFFF0000000303
-            03030303030303575757BABABA03030303030303030300000000000003030303
-            0303030303030303000000FFFFFF030303030303040404BBBBBBF5F5F5585858
-            030303030303030303030303030303030303030303030303030303030303FFFF
-            FF030303595959F5F5F5F5F5F5E8E8E838383803030303030303030303030303
-            0303030303030303030303030303030303393939E9E9E9F5F5F5F5F5F5F4F4F4
-            E9E9E95F5F5F0404040303030303030303030303030303030303030404045F5F
-            5FE9E9E9F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56565652828280B
-            0B0B0A0A0A282828656565C5C5C5F5F5F5F5F5F5F5F5F5F5F5F5
+            F5F5F5F1F1F1989898393939050505010101010101070707414141A4A4A4F4F4
+            F4F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5D3D4D43232320101011515155C5C5C7F
+            7F7F7D7E7E5656561010100101013F4040DEDEDEF5F5F5F5F5F5F5F5F5D3D3D3
+            181919070707858585EEEEEEF5F5F5F5F5F5F5F5F5F5F5F5E9E9E97575750303
+            03242525DFDFDFF5F5F5F0F0F0303030080808B3B3B3F5F5F5F5F5F5F5F5F5F5
+            F5F5F5F5F5F5F5F5F5F5F5F5F5F5A0A0A0030303454545F5F5F5969696010101
+            858585F5F5F5E9E9E98F8F8F8E8E8E8E8E8E8E8E8E8E8E8E919191F1F1F1F5F5
+            F56D6D6D010101AEAEAE373838161616EEEEEEF5F5F5C9C9C901010101010101
+            0101010101010101010202E2E2E2F5F5F5E2E2E20909094F4F4F0404045B5B5B
+            F5F5F5F5F5F5C9C9C9010101010101010101010101010101010202E2E2E2F5F5
+            F5F5F5F54343431212120101017D7E7EF5F5F5F5F5F5C9C9C901010101010101
+            0101010101010101010202E2E2E2F5F5F5F5F5F56666660102020101017A7A7A
+            F5F5F5F5F5F5C9C9C9010101010101010101010101010101020202E2E2E2F5F5
+            F5F5F5F5636363020202090909505050F5F5F5F5F5F5C9C9C901010101010101
+            0101010101010101010101E2E2E2F5F5F5F5F5F53838381B1B1B4747470D0D0D
+            E5E5E5F5F5F5CACACA010101010101010101010101010101020202E3E3E3F5F5
+            F5D4D4D40404045E5E5EACACAC010101676767F5F5F5F3F3F3D3D3D3D2D2D2D2
+            D2D2D2D2D2D2D2D2D5D5D5F5F5F5F5F5F54F4F4F030303C3C3C3F4F4F44B4C4C
+            0202028B8B8BF5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F4F4F47474
+            74010101636363F5F5F5F5F5F5E5E5E5323232020202565656D3D3D3F5F5F5F5
+            F5F5F5F5F5F5F5F5C9C9C9484848010101424242EEEEEEF5F5F5F5F5F5F5F5F5
+            E8E8E85C5C5C0202020303032D2D2D5050504F4F4F2727270202020404046C6C
+            6CEFEFEFF5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5F5C5C5C56868682B2B2B0E
+            0E0E101010303030707070CFCFCFF5F5F5F5F5F5F5F5F5F5F5F5
           }
           TabOrder = 2
-          OnClick = setfilestampsbuttonClick
+          Visible = False
+          OnClick = CancelScheduledJobsbuttonClick
+        end
+        object ResumeScheduledJobsbutton: TBitBtn
+          Left = 118
+          Height = 29
+          Top = 2
+          Width = 183
+          Caption = '  Resume Scheduled Jobs Run'
+          Glyph.Data = {
+            36030000424D3603000000000000360000002800000010000000100000000100
+            18000000000000000000C30E0000C30E00000000000000000000DDDDDDDDDDDD
+            DDDDDDDDDDDDCECECE565453242221110F0E1311102A28279D9C9CDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD7A7A7A13121108070613111029
+            2827292827131110141211302F2F949494DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+            4B4949201E1D2C2B2B8D8D8DD8D8D8DDDDDDDDDDDDD4D4D47978781311101412
+            11646362DDDDDDDDDDDDDDDDDD5A5A5A1F1D1D555454DDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDD6D6D51C1A191412117F7E7EDDDDDDAEAEAE141211
+            303030DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD5D5
+            D5131110141212C6C6C622201F0907069D9D9CDDDDDDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD7472720806064040400A080712100F
+            D9D9D9DDDDDDDDDDDDDDDDDDDDDDDDA3A3A3B6B6B6DDDDDDDDDDDDDDDDDDDDDD
+            DDBBBABA0706061616160A08072B2928DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD29
+            28272B2B2BDDDDDDDDDDDDDDDDDDDDDDDDC4C4C40806061010100E0C0B12100F
+            D0D0D0DDDDDDDDDDDDDDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDDDDDDDDDDDD
+            DDA9A8A80705052D2D2D838383121010656464DDDDDDDDDDDDDDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDDDDDDDDDDDDDD434141121110AAAAAADDDDDD2C2B2B
+            131111BBBBBBDDDDDDDDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDDDDDDDD9B9A
+            9A12100F363434DDDDDDDDDDDDB0B0B0121111131111B5B5B5DDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDD8F8F8F111111121211CDCDCDDDDDDDDDDDDDDDDDDD
+            ADADAD2B29297A7A7ADDDDDDDDDDDD2B29282B2B2BDDDDDDDDDDDD4D4D4D2B2B
+            2BC7C7C7DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2B
+            29282B2B2BDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2927262B2A29DDDDDDDDDDDDDDDDDDDDDD
+            DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD65
+            6565818181DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+          }
+          TabOrder = 3
+          Visible = False
+          OnClick = ResumeScheduledJobsbuttonClick
         end
       end
       object ActivityLogMemo: TMemo
         Left = 0
-        Height = 407
+        Height = 496
         Top = 0
-        Width = 859
+        Width = 950
         Align = alClient
         Lines.Strings = (
           'ActivityLogMemo'
@@ -225,14 +265,16 @@ object sinkmainform: Tsinkmainform
     end
     object ConfigurationTabSheet: TTabSheet
       Caption = 'Jobs Configuration'
-      ClientHeight = 551
-      ClientWidth = 859
+      ClientHeight = 640
+      ClientWidth = 950
       ImageIndex = 1
+      OnEnter = ConfigurationTabSheetEnter
+      OnExit = ConfigurationTabSheetExit
       object SourceAndTargetFoldersStringGrid: TStringGrid
         Left = 0
-        Height = 401
+        Height = 490
         Top = 0
-        Width = 859
+        Width = 950
         Align = alClient
         ColCount = 4
         Columns = <        
@@ -266,32 +308,32 @@ object sinkmainform: Tsinkmainform
       object Panel3: TPanel
         Left = 0
         Height = 150
-        Top = 401
-        Width = 859
+        Top = 490
+        Width = 950
         Align = alBottom
         ClientHeight = 150
-        ClientWidth = 859
+        ClientWidth = 950
         ParentBackground = False
         TabOrder = 1
         object SourceFolderLabel: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 11
-          Width = 66
+          Width = 72
           Caption = 'Source Folder'
         end
         object TargetFolderLabel: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 41
-          Width = 65
+          Width = 69
           Caption = 'Target Folder'
         end
         object Label2: TLabel
           Left = 88
-          Height = 13
+          Height = 16
           Top = 72
-          Width = 26
+          Width = 30
           Caption = 'Mode'
         end
         object NewBitBtn: TBitBtn
@@ -370,9 +412,9 @@ object sinkmainform: Tsinkmainform
         end
         object SourceFolderEdit: TEdit
           Left = 160
-          Height = 21
+          Height = 28
           Top = 6
-          Width = 664
+          Width = 755
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 2
           Text = 'SourceFolderEdit'
@@ -380,16 +422,16 @@ object sinkmainform: Tsinkmainform
         end
         object TargetFolderEdit: TEdit
           Left = 160
-          Height = 21
+          Height = 28
           Top = 36
-          Width = 664
+          Width = 755
           Anchors = [akTop, akLeft, akRight]
           TabOrder = 4
           Text = 'Edit1'
           OnChange = TargetFolderEditChange
         end
         object SourceFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 919
           Height = 29
           Top = 6
           Width = 25
@@ -426,7 +468,7 @@ object sinkmainform: Tsinkmainform
           OnClick = SourceFolderBrowseBitBtnClick
         end
         object TargetFolderBrowseBitBtn: TBitBtn
-          Left = 828
+          Left = 919
           Height = 29
           Top = 36
           Width = 25
@@ -540,11 +582,11 @@ object sinkmainform: Tsinkmainform
         end
         object copymodeComboBox: TComboBox
           Left = 159
-          Height = 21
+          Height = 28
           Top = 66
-          Width = 694
+          Width = 785
           Anchors = [akTop, akLeft, akRight]
-          ItemHeight = 13
+          ItemHeight = 0
           ItemIndex = 0
           Items.Strings = (
             'Copy files from the Source folder that are not present in the Target folder.'
@@ -556,9 +598,9 @@ object sinkmainform: Tsinkmainform
         end
         object DeleteFilesCheckBox: TCheckBox
           Left = 88
-          Height = 17
+          Height = 21
           Top = 95
-          Width = 761
+          Width = 852
           Anchors = [akTop, akLeft, akRight]
           Caption = 'Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?'
           TabOrder = 7
@@ -567,104 +609,21 @@ object sinkmainform: Tsinkmainform
       end
     end
     object PreferencesTabSheet: TTabSheet
-      Caption = ' Preferences'
-      ClientHeight = 551
-      ClientWidth = 859
-      ImageIndex = 3
-      object PreferencesPanel: TPanel
-        Left = 0
-        Height = 515
-        Top = 0
-        Width = 859
-        Align = alClient
-        ClientHeight = 515
-        ClientWidth = 859
-        ParentBackground = False
-        TabOrder = 0
-        object AllowDeletefilesCheckBox: TCheckBox
-          Left = 16
-          Height = 17
-          Top = 16
-          Width = 232
-          Caption = 'Allow Sink to delete files from target folders?'
-          TabOrder = 0
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-        object AllowDeleteFoldersCheckBox: TCheckBox
-          Left = 16
-          Height = 17
-          Top = 44
-          Width = 332
-          Caption = 'Allow Sink to delete redundant folders from target drives/folders?'
-          TabOrder = 1
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-        object AllowDiskFreeChecksCheckBox: TCheckBox
-          Left = 16
-          Height = 17
-          Top = 72
-          Width = 329
-          Caption = 'Allow Sink to run disk free space checks on target drives/folders?'
-          TabOrder = 2
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-        object Label3: TLabel
-          Left = 79
-          Height = 13
-          Top = 99
-          Width = 693
-          Caption = 'Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation.'
-        end
-        object MinFreeDiskSpacePercentSpinEdit: TSpinEdit
-          Left = 16
-          Height = 21
-          Top = 96
-          Width = 56
-          MaxValue = 100
-          TabOrder = 3
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-        object Label4: TLabel
-          Left = 79
-          Height = 13
-          Top = 126
-          Width = 428
-          Caption = 'Maximum No. of retries allowed within the "set target file date + time file stamp" process.'
-        end
-        object FileSetDateMaxPassesSpinEdit: TSpinEdit
-          Left = 16
-          Height = 21
-          Top = 123
-          Width = 56
-          TabOrder = 4
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-        object Label5: TLabel
-          Left = 79
-          Height = 13
-          Top = 153
-          Width = 556
-          Caption = 'Sleep time (milliseconds 1000 = 1 second) between retries within the "set target file date + time file stamp" process.'
-        end
-        object FileSetDateSleepTimeSpinEdit: TSpinEdit
-          Left = 16
-          Height = 21
-          Top = 150
-          Width = 56
-          TabOrder = 5
-          OnChange = AllowDeletefilesCheckBoxChange
-        end
-      end
+      Caption = 'Preferences'
+      ClientHeight = 640
+      ClientWidth = 950
+      ImageIndex = 2
+      OnExit = PreferencesTabSheetExit
       object Panel4: TPanel
         Left = 0
         Height = 36
-        Top = 515
-        Width = 859
+        Top = 604
+        Width = 950
         Align = alBottom
         ClientHeight = 36
-        ClientWidth = 859
+        ClientWidth = 950
         ParentBackground = False
-        TabOrder = 1
+        TabOrder = 0
         object PreferencesApplyChangesBitBtn: TBitBtn
           Left = 5
           Height = 29
@@ -742,17 +701,455 @@ object sinkmainform: Tsinkmainform
           OnClick = PreferencesDiscardChangesBitBtnClick
         end
       end
+      object PreferencesPageControl: TPageControl
+        Left = 0
+        Height = 604
+        Top = 0
+        Width = 950
+        ActivePage = PreferencesGeneralSettingsTabSheet
+        Align = alClient
+        TabIndex = 0
+        TabOrder = 1
+        object PreferencesGeneralSettingsTabSheet: TTabSheet
+          Caption = 'General Settings'
+          ClientHeight = 576
+          ClientWidth = 940
+          object PreferencesPanel: TPanel
+            Left = 0
+            Height = 576
+            Top = 0
+            Width = 940
+            Align = alClient
+            ClientHeight = 576
+            ClientWidth = 940
+            ParentBackground = False
+            TabOrder = 0
+            object AllowDeletefilesCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 16
+              Width = 257
+              Caption = 'Allow Sink to delete files from target folders?'
+              TabOrder = 0
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object AllowDeleteFoldersCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 44
+              Width = 367
+              Caption = 'Allow Sink to delete redundant folders from target drives/folders?'
+              TabOrder = 1
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object AllowDiskFreeChecksCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 72
+              Width = 361
+              Caption = 'Allow Sink to run disk free space checks on target drives/folders?'
+              TabOrder = 2
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object Label3: TLabel
+              Left = 79
+              Height = 16
+              Top = 99
+              Width = 756
+              Caption = 'Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation.'
+            end
+            object MinFreeDiskSpacePercentSpinEdit: TSpinEdit
+              Left = 16
+              Height = 26
+              Top = 96
+              Width = 56
+              MaxValue = 100
+              TabOrder = 3
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object Label4: TLabel
+              Left = 79
+              Height = 16
+              Top = 126
+              Width = 461
+              Caption = 'Maximum No. of retries allowed within the "set target file date + time file stamp" process.'
+            end
+            object FileSetDateMaxPassesSpinEdit: TSpinEdit
+              Left = 16
+              Height = 26
+              Top = 123
+              Width = 56
+              MaxValue = 50
+              TabOrder = 4
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object Label5: TLabel
+              Left = 79
+              Height = 16
+              Top = 153
+              Width = 591
+              Caption = 'Sleep time (milliseconds 1000 = 1 second) between retries within the "set target file date + time file stamp" process.'
+            end
+            object FileSetDateSleepTimeSpinEdit: TSpinEdit
+              Left = 16
+              Height = 26
+              Top = 150
+              Width = 56
+              MaxValue = 60000
+              TabOrder = 5
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object deletelogfilesolderthandaysSpinEdit: TSpinEdit
+              Left = 16
+              Height = 26
+              Top = 178
+              Width = 56
+              MaxValue = 365
+              TabOrder = 6
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object Label6: TLabel
+              Left = 79
+              Height = 16
+              Top = 181
+              Width = 244
+              Caption = 'Delete Sink log files older than this many days.'
+            end
+          end
+        end
+        object PreferencesSchedulerTabSheet: TTabSheet
+          Caption = 'Scheduler'
+          ClientHeight = 576
+          ClientWidth = 940
+          object PreferencesSchedulerPanel: TPanel
+            Left = 0
+            Height = 576
+            Top = 0
+            Width = 940
+            Align = alClient
+            ClientHeight = 576
+            ClientWidth = 940
+            ParentBackground = False
+            TabOrder = 0
+            object PreferencesSchedulerUseSchedulerCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 16
+              Width = 472
+              Caption = 'Run all jobs automatically using the jobs sheduler settings defined below?'
+              TabOrder = 0
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object PreferencesSchedulerStartMinimizedIfUsingShedulerCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 44
+              Width = 463
+              Caption = 'Start the Sink application in Minimized mode if using the jobs scheduler?'
+              TabOrder = 1
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object PreferencesSchedulerDaysOfTheWeekCheckGroup: TCheckGroup
+              Left = 8
+              Height = 49
+              Top = 72
+              Width = 577
+              AutoFill = True
+              Caption = 'Run the jobs scheduler on these days:'
+              ChildSizing.LeftRightSpacing = 6
+              ChildSizing.TopBottomSpacing = 6
+              ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+              ChildSizing.EnlargeVertical = crsHomogenousChildResize
+              ChildSizing.ShrinkHorizontal = crsScaleChilds
+              ChildSizing.ShrinkVertical = crsScaleChilds
+              ChildSizing.Layout = cclLeftToRightThenTopToBottom
+              ChildSizing.ControlsPerLine = 7
+              ClientHeight = 29
+              ClientWidth = 575
+              Columns = 7
+              Items.Strings = (
+                'Monday'
+                'Tuesday'
+                'Wednesday'
+                'Thursday'
+                'Friday'
+                'Saturday'
+                'Sunday'
+              )
+              ParentBackground = False
+              TabOrder = 2
+              OnItemClick = PreferencesSchedulerDaysOfTheWeekCheckGroupItemClick
+              Data = {
+                0700000002020202020202
+              }
+            end
+            object PreferencesSchedulerRunJobsAfterSinkStartupCheckBox: TCheckBox
+              Left = 16
+              Height = 21
+              Top = 128
+              Width = 177
+              Caption = 'Run jobs on Sink startup?'
+              TabOrder = 3
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object PreferencesSchedulerDelayMinutesForStartupRunSpinEdit: TSpinEdit
+              Left = 193
+              Height = 26
+              Top = 128
+              Width = 50
+              MaxValue = 60
+              MinValue = 1
+              TabOrder = 4
+              Value = 1
+              OnChange = AllowDeletefilesCheckBoxChange
+            end
+            object Label7: TLabel
+              Left = 254
+              Height = 16
+              Top = 132
+              Width = 294
+              Caption = 'Delay (minutes) before running the jobs on Sink startup.'
+            end
+            object PreferencesSchedulerRunTimesGroupBox: TGroupBox
+              Left = 8
+              Height = 49
+              Top = 160
+              Width = 577
+              Caption = 'Scheduler run times (note: 00:00 means "not defined/enabled"):'
+              ClientHeight = 47
+              ClientWidth = 575
+              ParentBackground = False
+              TabOrder = 5
+              object PreferencesSchedulerRunTime1DateTimePicker: TDateTimePicker
+                Left = 8
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 0
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.56165496527683
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime2DateTimePicker: TDateTimePicker
+                Left = 80
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 1
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime3DateTimePicker: TDateTimePicker
+                Left = 152
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 2
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime4DateTimePicker: TDateTimePicker
+                Left = 224
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 3
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime5DateTimePicker: TDateTimePicker
+                Left = 296
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 4
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime6DateTimePicker: TDateTimePicker
+                Left = 368
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 5
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime7DateTimePicker: TDateTimePicker
+                Left = 440
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 6
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object PreferencesSchedulerRunTime8DateTimePicker: TDateTimePicker
+                Left = 512
+                Height = 22
+                Top = 2
+                Width = 48
+                CenturyFrom = 1941
+                MaxDate = 2958465
+                MinDate = -53780
+                TabOrder = 7
+                TrailingSeparator = False
+                TextForNullDate = 'NULL'
+                LeadingZeros = True
+                Kind = dtkTime
+                TimeFormat = tf24
+                TimeDisplay = tdHMS
+                DateMode = dmComboBox
+                Date = 45971
+                Time = 0.462980949072517
+                UseDefaultSeparators = True
+                HideDateTimeParts = [dtpSecond, dtpMiliSec]
+                MonthNames = 'Long'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+            end
+          end
+        end
+      end
+    end
+    object ToolsTabSheet: TTabSheet
+      Caption = 'Tools'
+      ClientHeight = 640
+      ClientWidth = 950
+      ImageIndex = 4
+      object ToolsPanel: TPanel
+        Left = 0
+        Height = 640
+        Top = 0
+        Width = 950
+        Align = alClient
+        ClientHeight = 640
+        ClientWidth = 950
+        ParentBackground = False
+        TabOrder = 0
+        object TreeView1: TTreeView
+          Left = 1
+          Height = 638
+          Top = 1
+          Width = 948
+          Align = alClient
+          ExpandSignType = tvestPlusMinus
+          Images = ImageList1
+          ReadOnly = True
+          TabOrder = 0
+          Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+          OnDblClick = TreeView1DblClick
+          OnKeyDown = TreeView1KeyDown
+        end
+      end
     end
     object DocumentationTabSheet: TTabSheet
       Caption = 'Documentation'
-      ClientHeight = 551
-      ClientWidth = 859
-      ImageIndex = 2
+      ClientHeight = 640
+      ClientWidth = 950
+      ImageIndex = 3
       object Memo1: TMemo
         Left = 0
-        Height = 551
+        Height = 640
         Top = 0
-        Width = 859
+        Width = 950
         Align = alClient
         Lines.Strings = (
           'Sink.exe: A free very simple folder syncing application.'
@@ -789,41 +1186,60 @@ object sinkmainform: Tsinkmainform
     end
   end
   object ImageList1: TImageList
-    Left = 544
-    Top = 65508
+    Left = 640
+    Top = 200
     Bitmap = {
-      4C7A040000001000000010000000680300000000000078DAED96CB2BB55114C6
-      91BB1422B74C1033120333A5F007484A99B8956B0612A18C8818B82532421830
-      104EC7FD324006CA7528E5122906AE891E3D3BEFFEDEF35ECE717C9FC157563D
-      9DF3EEBD7EFB5D7BEDB5F6392E2EE6363D3D8DB1B1313C3F3F83CF575757E8E9
-      E9417777372C160BCCB8878707949595715E283B3B1B777777585B5B93631919
-      19863CDFF13987C8C848C4C7C78BEF292929181F1FB7CB1F1D1D49FFE4E4646C
-      6F6F636B6B4BAEE7EDED6DCACFCFCF23303050C6BBBEBE8EA8A8280405056176
-      7616A5A5A592D5F27D7D7DF0F0F080ABAB2B1A1B1B45CE7C7D7DA5AFBBBB3BBA
-      BABA44EEE8C7B1D4D45491D78A8A0AF1ECE3E383E1E1613435358975D4EF5254
-      5C5C8C99991919674E4E8EF80C0F0F07E367DC469C5A696969626F717171E239
-      2929091B1B1BE2D311AB283A3A1AABABAB484F4FC7EDED2D0A0B0BBFCCAAF3C7
-      3A61FE0A0A0A74F3CC19CF8B527266967F239E79657EA9B6B6B66FF1CA7C7B7B
-      FB8FF24545454EF3595959727E7F7F1F1D1D1D365A5C5C94F3EC03EDFCE6E6A6
-      AE7F5E5F5F51535383D8D858CCCDCDC9F9959515C4C4C4A0A1A101EFEFEFA67D
-      7F727222E30B0909C1D0D01006070711161626C658D7171717A6FCD9D999DD9A
-      618F68DFFFF4F484F3F373DCDFDFEB7AD4489D9D9D787B7BC3E5E5A5A83F9E1D
-      E3727373933EACB7F2F272D1F754656525BCBCBCE43C6B924C7E7E3E2222226C
-      D6F7F4F4C4F2F2B26E8FEC31F5FD43F9FBFB8BF5992BA373D71ACF46F1E31D30
-      3939297C474747E538D733E3979696A41F6B40191F191991E3EA73D7DAE7BE84
-      F81BC031ABD56A137F555595295F575727FD424343B1B0B020EE78754E9867E6
-      4ACBEEECEC88F357FB060404A0A4A44477C6CC736D6D2D58B7547D7DBDCD7DAC
-      282F2F0F8F8F8FD8DBDB1375C9F374543FBCDF6F6E6EB0BBBB0BD69E3AC6C3C3
-      43BB2CE362ED99E5676262C2E67C7B7B7BD1DFDF8FE0E06031C61A65DD9AF1D7
-      D7D7C8CDCD859F9F1FA6A6A6A41F6B82B5C67BFAE5E545C7F31EAFAEAEB62BFA
-      242626EA588E71DE91B5B6B60A5EBB069F8F8F8F1DF203030332068AE60C4F6B
-      6E6EB6D94F4242029CE1D5767070206351F89696164319D9E9E9A98E77C67E82
-      378BDF683FBFF1FFE1D9F7CE1A1985FF4AFF688D8CD24B9999990EFB572B3264
-      D946DF15EF92BFE1BECB1BC9D9FF9FFFEABDBFF1FFC6FF3FEB036FDF6AA3
+      4C7A060000001000000010000000B20300000000000078DAED56C92BAE511847
+      662944A66C103B120B3BA5F007484AD998CA988544D82A62614AC90A61C14286
+      CCD3025928E352CA102916C644BF7B7FA7CEB9EFF77EDFFB8DDCDBBDD7A95FDF
+      F73ECFF33BE739CFF4BEAFAFAF6EAF06989A9AC2E8E8285E5E5EC0E7EBEB6BF4
+      F4F4A0BBBB1B73737330E23D3E3EA2A2A2026E6E6E02B9B9B9B8BFBFC7FAFABA
+      9265656559E4F30CEA68131D1D8DC4C444F13F2D2D0D63636356F9C7C7C7CA3E
+      3535153B3B3BD8DEDE56FBF9FAFA1AF2171616101C1CACFCDDD8D8404C4C0C42
+      424230333383F2F272C5D5F3FBFAFAE0E5E5057777773437378B98F9FBFB2B5B
+      4F4F4F74757589D8D18EB2F4F47411D7AAAA2AF1ECE7E787A1A121B4B4B4887D
+      B46749949696627A7A5AF9999797277E23232341FFE9B7259E16191919E26E09
+      0909E2392525059B9B9BE2D71657223636166B6B6BC8CCCCC4DDDD1D8A8B8BED
+      E66AE3C73A61FC8A8A8ACCF48C19F345C89819C5DF129F71657C89B6B636A7F8
+      52DFDEDEFEA5FC92921287F93939394A7F7070808E8E0E132C2D2D293DFB40AF
+      DFDADA127A000A6F6F6FA8ABAB437C7C3C66676721E5ABABAB888B8B43535313
+      3E3E3EA0E568717A7AAAFC0B0B0BC3E0E0200606061011112164ACEBCBCB4B43
+      FEF9F9B9D59A618FE8CF7F7E7EC6C5C5051E1E1ECC7AD4123A3B3BF1FEFE8EAB
+      AB2B517FCC1DFDF2F0F05036ACB7CACA4AD1F7447575357C7C7C949E35494E61
+      6121A2A2A24CF6F7F6F6C6CACA8AD91DD963DAF9430406068AFD192B6DDE8DE2
+      C3DC483BCE80898909613B3232A2E4DCCF88BFBCBCACEC5803523E3C3CACE4DA
+      BCEBC17B493BBE03289B9F9F37F1BFA6A6C690DFD0D0A0ECC2C3C3B1B8B82866
+      BC36268C3363A5E7EEEEEE8AFC6B6D838282505656669663C6B9BEBE1EAC5BA2
+      B1B1D1641E4B141414E0E9E909FBFBFBA22E994F5BF5C3F97E7B7B8BBDBD3DB0
+      F6B43E1E1D1D59E5D22FD69E517CC6C7C74DF2DBDBDB8BFEFE7E8486860A196B
+      94756BC4BFB9B9417E7E3E020202303939A9EC5813AC35CEE99F3D6FC2E70C70
+      74764B48AE334B7BAEB34BCFB7D76F23BEABE77FFBFFEDFFEFF6DFD5FE25F81D
+      575B5B6B15B4494E4E36FBE6A68C7A7B977E0F3E9F9C9C38746F72E40C7186CF
+      C5FB242525C159FEE1E1A1E06AF9ADADAD1661699D9D9D99F11D595FC137F2DF
+      D27DBEFDFFC5E77BDFD1458EE43BD23F7291237B293B3BDB66FFEA418EECC17F
+      E5FD6FCBD69EF96FED1CBDDE4866EF1E46FE1BED69CFF9B6388EC4CF566CBFEA
+      7C57EEEF4AFC3F23FFAED4DF9F7AFFFFABFDFFBFE95DFD7EFDECEFDFFF5DFF37
+      7CFFFF00565F1C20
     }
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog
     Left = 632
     Top = 65520
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 737
+    Top = 137
+  end
+  object OpenDialog1: TOpenDialog
+    FilterIndex = 0
+    Left = 727
+    Top = 199
+  end
+  object SchedulerTimer: TTimer
+    Enabled = False
+    Interval = 4000
+    OnTimer = SchedulerTimerTimer
+    Left = 852
+    Top = 108
   end
 end
