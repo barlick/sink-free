@@ -107,19 +107,6 @@ begin
      Mail.Smtp.Port := lEmailPort;
      Mail.Smtp.SSL := lEmailUseSSL;
      Mail.Smtp.TLS := lEmailUseTLS;
-     (*
-     Mail.Sender := 'sinkauthenticator@gmx.co.uk';
-     Mail.Receivers.Add('barlicktaylorst@gmail.com');
-     Mail.Subject := 'Test subject.';
-     Mail.Message.Add('Test message.');
-     // SMTP
-     Mail.Smtp.UserName := 'sinkauthenticator@gmx.co.uk';
-     Mail.Smtp.Password := 'sinkauthenticator';
-     Mail.Smtp.Host := 'mail.gmx.net'; // 'pop.gmx.com'; // 'imap.gmx.net'; // 'mail.gmx.net';
-     Mail.Smtp.Port := '587';
-     Mail.Smtp.SSL := false;
-     Mail.Smtp.TLS := true;
-     *)
      Mail.Send;
      result := 'E-mail sent successfully!';
     except

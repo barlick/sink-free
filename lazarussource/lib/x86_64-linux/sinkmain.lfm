@@ -1,7 +1,7 @@
 object sinkmainform: Tsinkmainform
-  Left = 771
+  Left = 829
   Height = 668
-  Top = 376
+  Top = 50
   Width = 959
   Caption = 'Sink'
   ClientHeight = 668
@@ -1124,7 +1124,7 @@ object sinkmainform: Tsinkmainform
             object EmailAllowSinktoSendEmailNotificationsCheckBox: TCheckBox
               Left = 16
               Height = 17
-              Top = 16
+              Top = 14
               Width = 199
               Caption = 'Allow Sink to Send Email Notifications?'
               TabOrder = 0
@@ -1180,14 +1180,14 @@ object sinkmainform: Tsinkmainform
               object Label10: TLabel
                 Left = 13
                 Height = 13
-                Top = 58
+                Top = 57
                 Width = 73
                 Caption = 'Email Password'
               end
               object EmailPasswordEdit: TEdit
                 Left = 128
                 Height = 21
-                Top = 56
+                Top = 55
                 Width = 273
                 TabOrder = 2
                 Text = 'EmailPasswordEdit'
@@ -1261,10 +1261,10 @@ object sinkmainform: Tsinkmainform
                 Caption = 'Email Subject Line for Successfully Completed Sink Jobs Runs'
               end
               object EmailSubjectForSuccessfulRunsEdit: TEdit
-                Left = 321
+                Left = 336
                 Height = 21
                 Top = 3
-                Width = 597
+                Width = 582
                 Anchors = [akTop, akLeft, akRight]
                 TabOrder = 0
                 Text = 'EmailSubjectForSuccessfulRunsEdit'
@@ -1278,10 +1278,10 @@ object sinkmainform: Tsinkmainform
                 Caption = 'Email Subject Line for Sink Jobs Runs With Errors Reported'
               end
               object EmailSubjectForErrorRunsEdit: TEdit
-                Left = 321
+                Left = 337
                 Height = 21
                 Top = 29
-                Width = 597
+                Width = 581
                 Anchors = [akTop, akLeft, akRight]
                 TabOrder = 1
                 Text = 'EmailSubjectForErrorRunsEdit'
