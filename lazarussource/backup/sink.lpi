@@ -21,9 +21,6 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="laz_synapse"/>
-      </Item>
-      <Item>
         <PackageName Value="DateTimeCtrlsDsgn"/>
       </Item>
       <Item>
@@ -44,10 +41,6 @@
         <ComponentName Value="sinkmainform"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit>
-      <Unit>
-        <Filename Value="PBFolderDialog.pas"/>
-        <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
   </ProjectOptions>

@@ -4,7 +4,7 @@ program sink;
 
 uses
   Forms, datetimectrls, Interfaces,
-  sinkmain in 'sinkmain.pas' {sinkmainform};
+  sinkmain in 'sinkmain.pas', sinkemail {sinkmainform};
 
 {$R *.res}
 

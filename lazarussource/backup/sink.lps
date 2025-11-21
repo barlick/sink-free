@@ -8,7 +8,7 @@
       <Unit>
         <Filename Value="sink.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="23"/>
+        <UsageCount Value="36"/>
       </Unit>
       <Unit>
         <Filename Value="sinkmain.pas"/>
@@ -16,141 +16,207 @@
         <ComponentName Value="sinkmainform"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="22"/>
-        <CursorPos X="29"/>
-        <UsageCount Value="23"/>
-        <Bookmarks Count="1">
-          <Item0 X="26" Y="2092" Left="1" Top="2063" ID="1"/>
+        <TopLine Value="3019"/>
+        <CursorPos X="21" Y="3024"/>
+        <UsageCount Value="36"/>
+        <Bookmarks Count="2">
+          <Item0 Y="219" Left="1" Top="173" ID="2"/>
+          <Item1 Y="2674" Left="1" Top="2645" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="PBFolderDialog.pas"/>
-        <IsPartOfProject Value="True"/>
+        <Filename Value="sinkemail.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="44"/>
+        <CursorPos X="28" Y="64"/>
         <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="PBFolderDialog.pas"/>
+        <UsageCount Value="23"/>
+      </Unit>
+      <Unit>
+        <Filename Value="xmailer.pas"/>
+        <UnitName Value="XMailer"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="534"/>
+        <CursorPos X="86" Y="577"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="ssl_openssl.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="66"/>
+        <CursorPos X="45" Y="87"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="blcksock.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="73"/>
+        <CursorPos X="51" Y="90"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="synsock.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="8"/>
+        <CursorPos X="42" Y="33"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="mimeinln.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="34"/>
+        <CursorPos X="37" Y="53"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="synachar.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="52"/>
+        <CursorPos X="50" Y="76"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+      <Unit>
+        <Filename Value="smtpsend.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="409"/>
+        <CursorPos X="30" Y="424"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
       <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2545" Column="9" TopLine="2545"/>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="107" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="108" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="75" Column="39" TopLine="59"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="52" Column="17" TopLine="19"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="47" TopLine="19"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="41" TopLine="19"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="79" TopLine="21"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="41" TopLine="21"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="79" TopLine="21"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="94" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="95" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="96" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="98" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="99" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="100" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="101" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="103" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="104" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="105" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="106" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="107" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="108" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="109" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="46" TopLine="13"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="111" Column="25" TopLine="72"/>
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="2702" Column="21" TopLine="2673"/>
+        <Caret Line="3024" Column="21" TopLine="3019"/>
       </Position>
       <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2703" Column="59" TopLine="2673"/>
+        <Filename Value="synsock.pas"/>
+        <Caret Line="33" Column="42" TopLine="8"/>
       </Position>
       <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2592" Column="21" TopLine="2579"/>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="35"/>
       </Position>
       <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2575" Column="23" TopLine="2541"/>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="55" Column="41" TopLine="29"/>
       </Position>
       <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2555" TopLine="2541"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2559" TopLine="2541"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2610" TopLine="2550"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2569" Column="19" TopLine="2546"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="78" Column="34" TopLine="17"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="99" Column="23" TopLine="40"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="120" Column="44" TopLine="61"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="136" Column="33" TopLine="78"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1328" Column="22" TopLine="1269"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1338" Column="22" TopLine="1279"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1354" Column="22" TopLine="1295"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1364" Column="22" TopLine="1305"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1378" Column="22" TopLine="1319"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1390" Column="22" TopLine="1329"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1430" Column="20" TopLine="1371"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1445" Column="22" TopLine="1386"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1467" Column="24" TopLine="1408"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1480" Column="24" TopLine="1421"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1505" Column="22" TopLine="1446"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1515" Column="4" TopLine="1450"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1971" Column="31" TopLine="1912"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2179" Column="33" TopLine="2120"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2197" Column="23" TopLine="2139"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="2199" Column="22" TopLine="2141"/>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Line="41" TopLine="6"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -158,4 +224,15 @@
       <Modes ActiveMode=""/>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints>
+      <Item>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="sinkemail.pas"/>
+        <Line Value="99"/>
+      </Item>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

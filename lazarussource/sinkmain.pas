@@ -7,7 +7,7 @@ interface
 uses
   LCLIntf, LCLType, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls, ComCtrls, ImgList, Grids, Buttons, Spin, Menus,
-  LazFileUtils, FileUtil, DateTimePicker,DateUtils;
+  LazFileUtils, FileUtil, DateTimePicker,DateUtils,sinkemail;
 
 const
  runmodecopyfiles : integer = 0;
@@ -37,6 +37,40 @@ type
     AllowDeletefilesCheckBox: TCheckBox;
     AllowDeleteFoldersCheckBox: TCheckBox;
     AllowDiskFreeChecksCheckBox: TCheckBox;
+    EmailAllowSinktoSendEmailNotificationsCheckBox: TCheckBox;
+    EmailSendTestEmailBitBtn: TBitBtn;
+    EmailSenderAddressEdit: TEdit;
+    EmailAttachLogfileForErrorRunsCheckBox: TCheckBox;
+    EmailAttachLogfileForSuccessfulRunsCheckBox: TCheckBox;
+    EmailHostServerEdit: TEdit;
+    EmailPasswordEdit: TEdit;
+    EmailPortSpinEdit: TSpinEdit;
+    EmailTestRecipientAddressEdit: TEdit;
+    EmailSendIfErrorDaysOfTheWeekCheckGroup: TCheckGroup;
+    EmailSendIfSuccessfulDaysOfTheWeekCheckGroup: TCheckGroup;
+    EmailSubjectForErrorRunsEdit: TEdit;
+    EmailSubjectForSuccessfulRunsEdit: TEdit;
+    EmailPanel: TPanel;
+    EmailTestMessageTextEdit: TEdit;
+    EmailTestSubjectLineEdit: TEdit;
+    EmailUserNameEdit: TEdit;
+    EmailUseSSLCheckBox: TCheckBox;
+    EmailUseTLSCheckBox: TCheckBox;
+    GroupBox1: TGroupBox;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    GroupBox4: TGroupBox;
+    Label1: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    EmailTestEmailResultsMemo: TMemo;
     ResumeScheduledJobsbutton: TBitBtn;
     PreferencesSchedulerRunTime1DateTimePicker: TDateTimePicker;
     PreferencesSchedulerRunTime2DateTimePicker: TDateTimePicker;
@@ -70,6 +104,7 @@ type
     PreferencesSchedulerDelayMinutesForStartupRunSpinEdit: TSpinEdit;
     SchedulerTimer: TTimer;
     CancelScheduledJobsbutton: TBitBtn;
+    EmailTabSheet: TTabSheet;
     ToolsPanel: TPanel;
     PreferencesApplyChangesBitBtn: TBitBtn;
     PreferencesDiscardChangesBitBtn: TBitBtn;
@@ -114,6 +149,7 @@ type
     procedure CancelScheduledJobsbuttonClick(Sender: TObject);
     procedure ConfigurationTabSheetEnter(Sender: TObject);
     procedure ConfigurationTabSheetExit(Sender: TObject);
+    procedure EmailSendTestEmailBitBtnClick(Sender: TObject);
     procedure PreferencesApplyChangesBitBtnClick(Sender: TObject);
     procedure PreferencesDiscardChangesBitBtnClick(Sender: TObject);
     procedure PreferencesSchedulerDaysOfTheWeekCheckGroupItemClick(
@@ -163,6 +199,23 @@ type
     PreferencesSchedulerRunTime6 : TDateTime;
     PreferencesSchedulerRunTime7 : TDateTime;
     PreferencesSchedulerRunTime8 : TDateTime;
+    EmailAllowSinktoSendEmailNotifications : boolean;
+    EmailHostServer : string;
+    EmailUserName : string;
+    EmailPassword : string;
+    EmailPort : Int64;
+    EmailUseSSL : boolean;
+    EmailUseTLS : boolean;
+    EmailSenderAddress : string;
+    EmailSubjectForSuccessfulRuns : string;
+    EmailSubjectForErrorRuns : string;
+    EmailAttachLogfileForSuccessfulRuns : boolean;
+    EmailAttachLogfileForErrorRuns : boolean;
+    EmailSendIfSuccessfulDaysOfTheWeek : string;
+    EmailSendIfErrorDaysOfTheWeek : string;
+    EmailTestSubjectLine : string;
+    EmailTestMessageText : string;
+    EmailTestRecipientAddress : string;
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     stats_filesize : int64;
@@ -1669,6 +1722,126 @@ begin
        s := strip(stripfront(uppercase(s)));
        PreferencesSchedulerRunTime8 := strtotime(s);
       end;
+
+     if pos('<EMAILALLOWSINKTOSENDEMAILNOTIFICATIONS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailAllowSinktoSendEmailNotifications := s = 'Y';
+      end;
+     if pos('<EMAILHOSTSERVER>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailHostServer := s;
+      end;
+     if pos('<EMAILUSERNAME>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailUserName := s;
+      end;
+     if pos('<EMAILPASSWORD>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailPassword := s;
+      end;
+     if pos('<EMAILPORT>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailPort := strtoint(s);
+      end;
+     if pos('<EMAILUSESSL>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailUseSSL := s = 'Y';
+      end;
+     if pos('<EMAILUSETLS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailUseTLS := s = 'Y';
+      end;
+     if pos('<EMAILSENDERADDRESS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailSenderAddress := s;
+      end;
+     if pos('<EMAILSUBJECTFORSUCCESSFULRUNS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailSubjectForSuccessfulRuns := s;
+      end;
+     if pos('<EMAILSUBJECTFORERRORRUNS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailSubjectForErrorRuns := s;
+      end;
+     if pos('<EMAILATTACHLOGFILEFORSUCCESSFULRUNS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailAttachLogfileForSuccessfulRuns := s = 'Y';
+      end;
+     if pos('<EMAILATTACHLOGFILEFORERRORRUNS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailAttachLogfileForErrorRuns := s = 'Y';
+      end;
+     if pos('<EMAILSENDIFSUCCESSFULDAYSOFTHEWEEK>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailSendIfSuccessfulDaysOfTheWeek := s;
+      end;
+     if pos('<EMAILSENDIFERRORDAYSOFTHEWEEK>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(uppercase(s)));
+       EmailSendIfErrorDaysOfTheWeek := s;
+      end;
+     if pos('<EMAILTESTSUBJECTLINE>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailTestSubjectLine := s;
+      end;
+     if pos('<EMAILTESTMESSAGETEXT>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailTestMessageText := s;
+      end;
+     if pos('<EMAILTESTRECIPIENTADDRESS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailTestRecipientAddress := s;
+      end;
      if pos('<START_DEFINITION>',uppercase(s)) > 0 then
       begin
        sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
@@ -1901,6 +2074,40 @@ begin
      writeln(f,'<PreferencesSchedulerRunTime7>='+timetostr(PreferencesSchedulerRunTime7));
      writeln(f,'<PreferencesSchedulerRunTime8>='+timetostr(PreferencesSchedulerRunTime8));
 
+     writeln(f,'# Start of Email Notifications settings:');
+     if EmailAllowSinktoSendEmailNotifications then
+      writeln(f,'<EmailAllowSinktoSendEmailNotifications>=Y')
+     else
+      writeln(f,'<EmailAllowSinktoSendEmailNotifications>=N');
+     writeln(f,'<EmailHostServer>='+EmailHostServer);
+     writeln(f,'<EmailUserName>='+EmailUserName);
+     writeln(f,'<EmailPassword>='+EmailPassword);
+     writeln(f,'<EmailPort>='+inttostr(trunc(EmailPort)));
+     if EmailUseSSL then
+      writeln(f,'<EmailUseSSL>=Y')
+     else
+      writeln(f,'<EmailUseSSL>=N');
+     if EmailUseTLS then
+      writeln(f,'<EmailUseTLS>=Y')
+     else
+      writeln(f,'<EmailUseTLS>=N');
+     writeln(f,'<EmailSenderAddress>='+EmailSenderAddress);
+     writeln(f,'<EmailSubjectForSuccessfulRuns>='+EmailSubjectForSuccessfulRuns);
+     writeln(f,'<EmailSubjectForErrorRuns>='+EmailSubjectForErrorRuns);
+     if EmailAttachLogfileForSuccessfulRuns then
+      writeln(f,'<EmailAttachLogfileForSuccessfulRuns>=Y')
+     else
+     writeln(f,'<EmailAttachLogfileForSuccessfulRuns>=N');
+     if EmailAttachLogfileForErrorRuns then
+      writeln(f,'<EmailAttachLogfileForErrorRuns>=Y')
+     else
+     writeln(f,'<EmailAttachLogfileForErrorRuns>=N');
+     writeln(f,'<EmailSendIfSuccessfulDaysOfTheWeek>='+EmailSendIfSuccessfulDaysOfTheWeek);
+     writeln(f,'<EmailSendIfErrorDaysOfTheWeek>='+EmailSendIfErrorDaysOfTheWeek);
+     writeln(f,'<EmailTestSubjectLine>='+EmailTestSubjectLine);
+     writeln(f,'<EmailTestMessageText>='+EmailTestMessageText);
+     writeln(f,'<EmailTestRecipientAddress>='+EmailTestRecipientAddress);
+
      writeln(f,'# Start of source and target folder jobs definitions:');
      ct := 0;
      while ct < source_and_target_array_count do
@@ -1966,6 +2173,42 @@ begin
  PreferencesSchedulerRunTime7DateTimePicker.DateTime := PreferencesSchedulerRunTime7;
  PreferencesSchedulerRunTime8DateTimePicker.DateTime := PreferencesSchedulerRunTime8;
 
+ EmailAllowSinktoSendEmailNotificationsCheckBox.checked := EmailAllowSinktoSendEmailNotifications;
+ EmailHostServerEdit.Text := EmailHostServer;
+ EmailUserNameEdit.Text := EmailUserName;
+ EmailPasswordEdit.Text := EmailPassword;
+ EmailPortSpinEdit.value := EmailPort;
+ EmailUseSSLCheckBox.checked := EmailUseSSL;
+ EmailUseTLSCheckBox.checked := EmailUseTLS;
+ EmailSenderAddressEdit.text := EmailSenderAddress;
+ EmailSubjectForSuccessfulRunsEdit.text := EmailSubjectForSuccessfulRuns;
+ EmailSubjectForErrorRunsEdit.text := EmailSubjectForErrorRuns;
+ EmailAttachLogfileForSuccessfulRunsCheckBox.checked := EmailAttachLogfileForSuccessfulRuns;
+ EmailAttachLogfileForErrorRunsCheckBox.checked := EmailAttachLogfileForErrorRuns;
+ ct := 0; while ct <= 6 do begin EmailSendIfSuccessfulDaysOfTheWeekCheckGroup.Checked[ct] := false; inc(ct); end;
+ if EmailSendIfSuccessfulDaysOfTheWeek <> '' then
+  begin
+   ct := 1;
+   while ct <= length(EmailSendIfSuccessfulDaysOfTheWeek) do
+    begin
+     if EmailSendIfSuccessfulDaysOfTheWeek[ct] = 'Y' then EmailSendIfSuccessfulDaysOfTheWeekCheckGroup.Checked[ct-1] := true;
+     inc(ct);
+    end;
+  end;
+ ct := 0; while ct <= 6 do begin EmailSendIfErrorDaysOfTheWeekCheckGroup.Checked[ct] := false; inc(ct); end;
+ if EmailSendIfErrorDaysOfTheWeek <> '' then
+  begin
+   ct := 1;
+   while ct <= length(EmailSendIfErrorDaysOfTheWeek) do
+    begin
+     if EmailSendIfErrorDaysOfTheWeek[ct] = 'Y' then EmailSendIfErrorDaysOfTheWeekCheckGroup.Checked[ct-1] := true;
+     inc(ct);
+    end;
+  end;
+ EmailTestSubjectLineEdit.text := EmailTestSubjectLine;
+ EmailTestMessageTextEdit.text := EmailTestMessageText;
+ EmailTestRecipientAddressEdit.text := EmailTestRecipientAddress;
+
  PreferencesApplyChangesBitBtn.enabled := false;
  PreferencesDiscardChangesBitBtn.Enabled := false;
 end;
@@ -2001,6 +2244,36 @@ begin
  PreferencesSchedulerRunTime6 := PreferencesSchedulerRunTime6DateTimePicker.DateTime;
  PreferencesSchedulerRunTime7 := PreferencesSchedulerRunTime7DateTimePicker.DateTime;
  PreferencesSchedulerRunTime8 := PreferencesSchedulerRunTime8DateTimePicker.DateTime;
+
+ EmailAllowSinktoSendEmailNotifications := EmailAllowSinktoSendEmailNotificationsCheckbox.Checked;
+ EmailHostServer := EmailHostServerEdit.Text;
+ EmailUserName := EmailUserNameEdit.Text;
+ EmailPassword := EmailPasswordEdit.Text;
+ EmailPort := EmailPortSpinEdit.Value;
+ EmailUseSSL := EmailUseSSLCheckbox.Checked;
+ EmailUseTLS  := EmailUseTLSCheckbox.Checked;
+ EmailSenderAddress := EmailSenderAddressEdit.Text;
+ EmailSubjectForSuccessfulRuns := EmailSubjectForSuccessfulRunsEdit.Text;
+ EmailSubjectForErrorRuns := EmailSubjectForErrorRunsEdit.Text;
+ EmailAttachLogfileForSuccessfulRuns := EmailAttachLogfileForSuccessfulRunsCheckbox.Checked;
+ EmailAttachLogfileForErrorRuns := EmailAttachLogfileForErrorRunsCheckbox.Checked;
+ EmailSendIfSuccessfulDaysOfTheWeek := '';
+ ct := 0;
+ while ct <= 6 do
+  begin
+   if EmailSendIfSuccessfulDaysOfTheWeekCheckGroup.Checked[ct] then EmailSendIfSuccessfulDaysOfTheWeek := EmailSendIfSuccessfulDaysOfTheWeek + 'Y' else EmailSendIfSuccessfulDaysOfTheWeek := EmailSendIfSuccessfulDaysOfTheWeek + 'N';
+   inc(ct);
+  end;
+ EmailSendIfErrorDaysOfTheWeek := '';
+ ct := 0;
+ while ct <= 6 do
+  begin
+   if EmailSendIfErrorDaysOfTheWeekCheckGroup.Checked[ct] then EmailSendIfErrorDaysOfTheWeek := EmailSendIfErrorDaysOfTheWeek + 'Y' else EmailSendIfErrorDaysOfTheWeek := EmailSendIfErrorDaysOfTheWeek + 'N';
+   inc(ct);
+  end;
+ EmailTestSubjectLine := EmailTestSubjectLineEdit.Text;
+ EmailTestMessageText := EmailTestMessageTextEdit.Text;
+ EmailTestRecipientAddress := EmailTestRecipientAddressEdit.Text;
 end;
 
 procedure Tsinkmainform.ApplyChangesBitBtnClick(Sender: TObject);
@@ -2163,6 +2436,7 @@ begin
  abort := false;
  try
   ResumeScheduledJobsbutton.visible := false;
+  pathlabel.caption := ''; // Clear the "you can click..." info in "pathlabel".
   run_process(runmodecopyfiles);
  finally
   stopbutton.visible := false; startbutton.Visible := true;
@@ -2419,6 +2693,24 @@ begin
  PreferencesSchedulerRunTime6 := 0;
  PreferencesSchedulerRunTime7 := 0;
  PreferencesSchedulerRunTime8 := 0;
+
+ EmailAllowSinktoSendEmailNotifications := false;
+ EmailHostServer := '';
+ EmailUserName := '';
+ EmailPassword := '';
+ EmailPort := 587;
+ EmailUseSSL := false;
+ EmailUseTLS := true;
+ EmailSenderAddress := '';
+ EmailSubjectForSuccessfulRuns := 'Sink file and folder backup/sync application ran successfully.';
+ EmailSubjectForErrorRuns := 'ERRORS: Sink file and folder backup/sync application ran with errors reported.';
+ EmailAttachLogfileForSuccessfulRuns := false;
+ EmailAttachLogfileForErrorRuns := true;
+ EmailSendIfSuccessfulDaysOfTheWeek := 'YYYYYYY';
+ EmailSendIfErrorDaysOfTheWeek := 'YYYYYYY';
+ EmailTestSubjectLine := 'Test email from the Sink file and folder backup/sync application.';
+ EmailTestMessageText := 'This is a test email from the Sink file and folder backup/sync application.';
+ EmailTestRecipientAddress := '';
 end;
 
 procedure Tsinkmainform.setup_tools_options; // Set up the "Tools" options:
@@ -2777,6 +3069,21 @@ end;
 procedure Tsinkmainform.ResumeScheduledJobsbuttonClick(Sender: TObject);
 begin
  set_sink_run_status;
+end;
+
+procedure Tsinkmainform.EmailSendTestEmailBitBtnClick(Sender: TObject);
+begin
+ EmailTestEmailResultsMemo.Clear;
+ EmailTestEmailResultsMemo.Lines.Text := send_email(EmailHostServerEdit.Text,
+                                                    EmailUserNameEdit.Text,
+                                                    EmailPasswordEdit.Text,
+                                                    inttostr(EmailPortSpinEdit.Value),
+                                                    EmailUseSSLCheckbox.Checked,
+                                                    EmailUseTLSCheckbox.Checked,
+                                                    EmailSenderAddressEdit.Text,
+                                                    EmailTestRecipientAddressEdit.Text,
+                                                    EmailTestSubjectLineEdit.Text,
+                                                    EmailTestMessageTextEdit.Text);
 end;
 
 end.
