@@ -18,9 +18,10 @@ function send_email(lEmailHostServer : string;
                     lEmailUseSSL : boolean;
                     lEmailUseTLS : boolean;
                     lEmailSenderAddress : string;
-                    lEmailTestRecipientAddress : string;
-                    lEmailTestSubjectLine : string;
-                    lEmailTestMessageText : string) : string;
+                    lEmailRecipientAddress : string;
+                    lEmailSubjectLine : string;
+                    lEmailMessageTextStringList : TStringList;
+                    iEmailAttachementFileName : string) : string;
 
 implementation
 
@@ -86,9 +87,34 @@ function send_email(lEmailHostServer : string;
                     lEmailUseSSL : boolean;
                     lEmailUseTLS : boolean;
                     lEmailSenderAddress : string;
-                    lEmailTestRecipientAddress : string;
-                    lEmailTestSubjectLine : string;
-                    lEmailTestMessageText : string) : string;
+                    lEmailRecipientAddress : string;
+                    lEmailSubjectLine : string;
+                    lEmailMessageTextStringList : TStringList;
+                    iEmailAttachementFileName : string) : string;
+var
+ ct,x : integer;
+ tempEmailRecipientAddress,thisemailaddress : string;
+
+function strip(s : string) : string;
+var
+ i : integer;
+begin
+ i := length(s);
+ while (i > 0) and (s[i] = ' ') do dec(i);
+ setlength(s,i);
+ result := s;
+end;
+
+function stripfront(s : string) : string;
+var
+ i,l : integer;
+begin
+ i := 1;  l := length(s);
+ while (i <= l) and (s[i] = ' ') do inc(i);
+ delete(s,1,i-1);
+ result := s;
+end;
+
 begin
  if IsOpenSSLAvailable then
   begin
@@ -97,9 +123,46 @@ begin
     try
      // Mail
      Mail.Sender := lEmailSenderAddress;
-     Mail.Receivers.Add(lEmailTestRecipientAddress);
-     Mail.Subject := lEmailTestSubjectLine;
-     Mail.Message.Add(lEmailTestMessageText);
+     if pos(';',lEmailRecipientAddress) > 0 then
+      begin
+       tempEmailRecipientAddress := lEmailRecipientAddress;
+       while length(tempEmailRecipientAddress) > 1 do
+        begin
+         x := pos(';',tempEmailRecipientAddress);
+         if x > 0 then
+          begin
+           thisemailaddress := copy(tempEmailRecipientAddress,1,x-1);
+           thisemailaddress := stringreplace(thisemailaddress,';','',[rfreplaceall]);
+           thisemailaddress := stringreplace(thisemailaddress,'"','',[rfreplaceall]);
+           thisemailaddress := strip(stripfront(thisemailaddress));
+           if pos('@',thisemailaddress) > 0 then
+            begin
+             Mail.Receivers.Add(thisemailaddress);
+            end;
+           tempEmailRecipientAddress := copy(tempEmailRecipientAddress,x+1,length(tempEmailRecipientAddress));
+           if length(tempEmailRecipientAddress) > 1 then
+            begin
+             tempEmailRecipientAddress := strip(stripfront(tempEmailRecipientAddress));
+             if copy(tempEmailRecipientAddress,length(tempEmailRecipientAddress),1) <> ';' then tempEmailRecipientAddress := tempEmailRecipientAddress + ';';
+            end;
+          end;
+        end;
+      end
+      else Mail.Receivers.Add(strip(stripfront(lEmailRecipientAddress)));
+     Mail.Subject := lEmailSubjectLine;
+     if lEmailMessageTextStringList.Count > 0 then
+      begin
+       ct := 0;
+       while ct < lEmailMessageTextStringList.count do
+        begin
+         Mail.Message.Add(lEmailMessageTextStringList[ct]);
+         inc(ct);
+        end;
+      end;
+     if iEmailAttachementFileName <> '' then
+      begin
+       Mail.Attachments.Add(iEmailAttachementFileName);
+      end;
      // SMTP
      Mail.Smtp.UserName := lEmailUserName;
      Mail.Smtp.Password := lEmailPassword;

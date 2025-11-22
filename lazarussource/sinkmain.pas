@@ -37,6 +37,7 @@ type
     AllowDeletefilesCheckBox: TCheckBox;
     AllowDeleteFoldersCheckBox: TCheckBox;
     AllowDiskFreeChecksCheckBox: TCheckBox;
+    EmailRecipientAddressEdit: TEdit;
     EmailAllowSinktoSendEmailNotificationsCheckBox: TCheckBox;
     EmailSendTestEmailBitBtn: TBitBtn;
     EmailSenderAddressEdit: TEdit;
@@ -68,6 +69,7 @@ type
     Label14: TLabel;
     Label15: TLabel;
     Label16: TLabel;
+    Label17: TLabel;
     Label8: TLabel;
     Label9: TLabel;
     EmailTestEmailResultsMemo: TMemo;
@@ -216,6 +218,7 @@ type
     EmailTestSubjectLine : string;
     EmailTestMessageText : string;
     EmailTestRecipientAddress : string;
+    EmailRecipientAddress : string;
     source_and_target_array : array of source_and_target_rec;
     source_and_target_array_count : integer;
     stats_filesize : int64;
@@ -238,6 +241,7 @@ type
     filesinsourcealsointargetstringlist_lastfilenameadded : string;
     ok_to_use_filesinsourcealsointargetstringlist : boolean;
     status_app_startup_datetime : TDateTime;
+    email_last_success_email_sent : TDateTime;
     status_next_sheduled_run_datetime : TDateTime;
     status_done_app_startup_run : boolean;
   public
@@ -249,7 +253,7 @@ type
     procedure setup_tools_options; // Set up the "Tools" options:
     procedure load_ini_settings;
     procedure save_ini_settings;
-    procedure Save_ActivityLogMemo_to_Log_File;
+    procedure Save_ActivityLogMemo_to_Log_File(var logfilename : string);
     procedure purge_old_Log_Files;
     procedure fill_in_SourceAndTargetFoldersStringGrid;
     procedure set_preferences_controls;
@@ -257,6 +261,7 @@ type
     function fn_SourceAndTargetFoldersStringGrid_has_changed : boolean;
     procedure run_process(runmode : integer);
     procedure sIncProgress(numw : int64);
+    function fn_email_settings_ok : string;
   end;
 
 var
@@ -372,6 +377,20 @@ begin
  end;
 end;
 
+function Tsinkmainform.fn_email_settings_ok : string;
+begin
+ result := ''; // Return blank if all OK.
+ if (strip(stripfront(EmailHostServer)) = '') or
+    (strip(stripfront(EmailUserName)) = '') or
+    (strip(stripfront(EmailPassword)) = '') or
+    (EmailPort <=1) or
+    (strip(stripfront(EmailSenderAddress)) = '') or
+    (strip(stripfront(EmailRecipientAddress)) = '') then
+  begin
+   result := 'Unable to send emails. Please ensure that all of the Email Notification settings have been filled in (Email Host Server, Email User Name, Email Password, Email Port > 1, Email Sender Address and Email Recipient(s) Address).';
+  end;
+end;
+
 procedure Tsinkmainform.enable_tab_controls;
 begin
  configurationtabsheet.Enabled := true; documentationtabsheet.Enabled := true; preferencestabsheet.Enabled := true; toolstabsheet.Enabled := true;
@@ -443,11 +462,12 @@ end;
 
 procedure Tsinkmainform.run_process(runmode : integer);
 var
- sourcefolder,targetfolder,s1 : string;
- statsstringlist : TStringList;
+ sourcefolder,targetfolder,s1,attachmentstr,resultstr,logfilename,subjectstr : string;
+ statsstringlist,emailmessagestringlist : TStringList;
  copymode : integer;
  deletefiles : boolean;
  pass,ct,ct1,num_jobs_failed : integer;
+ today_day_of_week : integer;
 
 function fn_make_and_test_folder(foldername : string) : boolean; {returns false if no go} // Danny 1-10-2014 FB 10604.
 var
@@ -1098,6 +1118,7 @@ begin
  targetfolderfoldersstringlist := TStringlist.create;
  filesinsourcealsointargetstringlist := TStringlist.create;
  statsstringlist := TStringList.create;
+ emailmessagestringlist := TStringList.create;
  filesinsourcealsointargetstringlist_count := 0;
  filesinsourcealsointargetstringlist_bytesadded := 0;
  ok_to_use_filesinsourcealsointargetstringlist := true;
@@ -1113,12 +1134,13 @@ begin
  LabelTimeElapsed.Caption := 'Time Elapsed: ......';
  LabelTimeRemaining.Caption := 'Time Remaining: ......';
  copyfilesstarttime := now; processstarttime := now; copyfilesendtime := now;
+ num_jobs_failed := 0; stats_numerrors := 0;
  try
   targetfolderfoldersstringlist.clear;
   filesinsourcealsointargetstringlist.clear;
   filesinsourcealsointargetstringlist.Sorted := true;
   statsstringlist.clear;
-  stats_filesize := 0; stats_bytes_written := 0; stats_numfiles_scanned := 0; stats_numfiles_copied := 0; stats_filesize_scanned := 0; stats_numfiles_deleted := 0; stats_numerrors := 0;
+  stats_filesize := 0; stats_bytes_written := 0; stats_numfiles_scanned := 0; stats_numfiles_copied := 0; stats_filesize_scanned := 0; stats_numfiles_deleted := 0;
   // Mark all jobs (source_and_target_array records) as "job failed = false".
   if source_and_target_array_count > 0 then
    begin
@@ -1265,7 +1287,7 @@ begin
   statsstringlist.Add(' ');
   statsstringlist.Add('Stats:');
   statsstringlist.Add('Total number of jobs run: '+inttostr(source_and_target_array_count));
-  ct := 0; num_jobs_failed := 0;
+  ct := 0;
   if source_and_target_array_count > 0 then
    begin
     while ct < source_and_target_array_count do
@@ -1321,9 +1343,101 @@ begin
        end;
      end;
    end;
-  filenamelabel.caption := '';
+  filenamelabel.caption := '';  logfilename := '';
+  Save_ActivityLogMemo_to_Log_File(logfilename);
+  // OK: Do we need to send any emails?
+  if EmailAllowSinktoSendEmailNotifications then // Are we allowed to send Sink email notifications?
+   begin
+    if (num_jobs_failed > 0) or (stats_numerrors > 0) then // Errors occured.
+     begin
+      today_day_of_week := DayOfTheWeek(now); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+      if copy(EmailSendIfErrorDaysOfTheWeek,today_day_of_week,1) = 'Y' then // OK to send on today's day of the week?
+       begin
+        emailmessagestringlist.clear;
+        emailmessagestringlist.add('Errors were reported during the last Sink run on this machine. Statistics follow.');
+        if EmailAttachLogfileForErrorRuns then emailmessagestringlist.add('Today''s Sink Log File has also been attached for reference.');
+        if statsstringlist.count > 0 then
+         begin
+          ct := 0;
+          while (ct < statsstringlist.count) do
+           begin
+            emailmessagestringlist.add(statsstringlist[ct]);
+            inc(ct);
+           end;
+         end;
+        if EmailAttachLogfileForErrorRuns and fileexists(logfilename) then attachmentstr := logfilename else attachmentstr := '';
+        subjectstr := EmailSubjectForErrorRuns; if strip(stripfront(subjectstr)) = '' then subjectstr := 'ERRORS: Sink file and folder backup/sync application ran with errors reported.'; // Just in case they blanked the erorrs run subject text.
+        try
+         if fn_email_settings_ok = '' then // "fn_email_settings_ok" returns blank string if all key email settings have been populated.
+          begin
+           resultstr := send_email(EmailHostServer,
+                                   EmailUserName,
+                                   EmailPassword,
+                                   inttostr(EmailPort),
+                                   EmailUseSSL,
+                                   EmailUseTLS,
+                                   EmailSenderAddress,
+                                   EmailRecipientAddress,
+                                   subjectstr,
+                                   emailmessagestringlist,
+                                   attachmentstr); // No attachement path+filename required for test email.
+          end
+          else resultstr := fn_email_settings_ok;
+         resultstr := 'Attempted to send Sink Notification Email. Result: '+resultstr;
+        except
+         resultstr := 'Failed to send error notification email.';
+        end;
+        ActivityLogMemo.Lines.Add(resultstr);
+       end;
+     end
+     else // Ran successfully.
+     begin
+      today_day_of_week := DayOfTheWeek(now); // DayOfTheWeek is the ISO-conformal function where the week begins with Monday: 1 = Monday, 7 = Sunday
+      if copy(EmailSendIfSuccessfulDaysOfTheWeek,today_day_of_week,1) = 'Y' then // OK to send on today's day of the week?
+       begin
+        if trunc(email_last_success_email_sent) <> trunc(now) then // Try to limit to 1 success email per day so if we have already sent one today then do nothing.
+         begin
+          emailmessagestringlist.clear;
+          emailmessagestringlist.add('The last Sink run on this machine was Successful. Statistics follow.');
+          if EmailAttachLogfileForSuccessfulRuns then emailmessagestringlist.add('Today''s Sink Log File has also been attached for reference.');
+          if statsstringlist.count > 0 then
+           begin
+            ct := 0;
+            while (ct < statsstringlist.count) do
+             begin
+              emailmessagestringlist.add(statsstringlist[ct]);
+              inc(ct);
+             end;
+           end;
+          if EmailAttachLogfileForSuccessfulRuns and fileexists(logfilename) then attachmentstr := logfilename else attachmentstr := '';
+          subjectstr := EmailSubjectForSuccessfulRuns; if strip(stripfront(subjectstr)) = '' then subjectstr := 'Sink file and folder backup/sync application ran successfully.'; // Just in case they blanked the success run subject text.
+          try
+           email_last_success_email_sent := now;
+           if fn_email_settings_ok = '' then // "fn_email_settings_ok" returns blank string if all key email settings have been populated.
+            begin
+             resultstr := send_email(EmailHostServer,
+                                     EmailUserName,
+                                     EmailPassword,
+                                     inttostr(EmailPort),
+                                     EmailUseSSL,
+                                     EmailUseTLS,
+                                     EmailSenderAddress,
+                                     EmailRecipientAddress,
+                                     subjectstr,
+                                     emailmessagestringlist,
+                                     attachmentstr); // No attachement path+filename required for test email.
+            end
+            else resultstr := fn_email_settings_ok;
+           resultstr := 'Attempted to send Sink Notification Email. Result: '+resultstr;
+          except
+           resultstr := 'Failed to send error notification email.';
+          end;
+          ActivityLogMemo.Lines.Add(resultstr);
+         end;
+       end;
+     end;
+   end;
  finally
-  Save_ActivityLogMemo_to_Log_File;
   progressbarbr.visible := false;
   LabelTimeElapsed.Caption := 'Time Elapsed: ......';
   LabelTimeRemaining.Caption := 'Time Remaining: ......';
@@ -1333,6 +1447,8 @@ begin
   filesinsourcealsointargetstringlist.free;
   statsstringlist.clear;
   statsstringlist.free;
+  emailmessagestringlist.clear;
+  emailmessagestringlist.free;
   abort := false; // Ready for next run...
   set_sink_run_status; // Resent the jobs schedule timer.
  end;
@@ -1842,6 +1958,13 @@ begin
        s := strip(stripfront(s));
        EmailTestRecipientAddress := s;
       end;
+     if pos('<EMAILRECIPIENTADDRESS>',uppercase(s)) > 0 then
+      begin
+       x := pos('=',uppercase(s));
+       s := copy(s,x+1,length(s));
+       s := strip(stripfront(s));
+       EmailRecipientAddress := s;
+      end;
      if pos('<START_DEFINITION>',uppercase(s)) > 0 then
       begin
        sourcefolder := ''; targetfolder := ''; copymode := copyifnotpresent; deletefiles := false;
@@ -1940,7 +2063,7 @@ begin
  findclose(mysearchrec); // Release the memory claimed by using this instance of searchrec.
 end;
 
-procedure Tsinkmainform.Save_ActivityLogMemo_to_Log_File;
+procedure Tsinkmainform.Save_ActivityLogMemo_to_Log_File(var logfilename : string);
 var
  todaystr,s : string;
  y,m,d : word;
@@ -1951,6 +2074,7 @@ begin
  // Do we have a log file for today?
  decodedate(now,y,m,d);
  todaystr := inttostr(y)+'-'+inttostr(m)+'-'+inttostr(d);
+ logfilename := usersettingsdir+'sinklogfile_'+todaystr+'.txt';
  if fileexists(usersettingsdir+'sinklogfile_'+todaystr+'.txt') then
   begin
    failed := false;
@@ -2092,6 +2216,7 @@ begin
      else
       writeln(f,'<EmailUseTLS>=N');
      writeln(f,'<EmailSenderAddress>='+EmailSenderAddress);
+     writeln(f,'<EmailRecipientAddress>='+EmailRecipientAddress);
      writeln(f,'<EmailSubjectForSuccessfulRuns>='+EmailSubjectForSuccessfulRuns);
      writeln(f,'<EmailSubjectForErrorRuns>='+EmailSubjectForErrorRuns);
      if EmailAttachLogfileForSuccessfulRuns then
@@ -2181,6 +2306,7 @@ begin
  EmailUseSSLCheckBox.checked := EmailUseSSL;
  EmailUseTLSCheckBox.checked := EmailUseTLS;
  EmailSenderAddressEdit.text := EmailSenderAddress;
+ EmailRecipientAddressEdit.text := EmailRecipientAddress;
  EmailSubjectForSuccessfulRunsEdit.text := EmailSubjectForSuccessfulRuns;
  EmailSubjectForErrorRunsEdit.text := EmailSubjectForErrorRuns;
  EmailAttachLogfileForSuccessfulRunsCheckBox.checked := EmailAttachLogfileForSuccessfulRuns;
@@ -2253,6 +2379,7 @@ begin
  EmailUseSSL := EmailUseSSLCheckbox.Checked;
  EmailUseTLS  := EmailUseTLSCheckbox.Checked;
  EmailSenderAddress := EmailSenderAddressEdit.Text;
+ EmailRecipientAddress := EmailRecipientAddressEdit.Text;
  EmailSubjectForSuccessfulRuns := EmailSubjectForSuccessfulRunsEdit.Text;
  EmailSubjectForErrorRuns := EmailSubjectForErrorRunsEdit.Text;
  EmailAttachLogfileForSuccessfulRuns := EmailAttachLogfileForSuccessfulRunsCheckbox.Checked;
@@ -2702,6 +2829,7 @@ begin
  EmailUseSSL := false;
  EmailUseTLS := true;
  EmailSenderAddress := '';
+ EmailRecipientAddress := '';
  EmailSubjectForSuccessfulRuns := 'Sink file and folder backup/sync application ran successfully.';
  EmailSubjectForErrorRuns := 'ERRORS: Sink file and folder backup/sync application ran with errors reported.';
  EmailAttachLogfileForSuccessfulRuns := false;
@@ -2770,6 +2898,7 @@ begin
   SchedulerTimer.Enabled := false;
   status_app_startup_datetime := now;
   status_done_app_startup_run := false;
+  email_last_success_email_sent := 0;
 
   pagecontrol1.ActivePage := HomeTabSheet; // Switch to the Home tab.
   PreferencesPageControl.ActivePage := PreferencesGeneralSettingsTabSheet; // Set the Preferences page control to the "General Settings" tab.
@@ -3072,18 +3201,35 @@ begin
 end;
 
 procedure Tsinkmainform.EmailSendTestEmailBitBtnClick(Sender: TObject);
+var
+ EmailTestMessageTextStringList : TStringList;
 begin
  EmailTestEmailResultsMemo.Clear;
- EmailTestEmailResultsMemo.Lines.Text := send_email(EmailHostServerEdit.Text,
-                                                    EmailUserNameEdit.Text,
-                                                    EmailPasswordEdit.Text,
-                                                    inttostr(EmailPortSpinEdit.Value),
-                                                    EmailUseSSLCheckbox.Checked,
-                                                    EmailUseTLSCheckbox.Checked,
-                                                    EmailSenderAddressEdit.Text,
-                                                    EmailTestRecipientAddressEdit.Text,
-                                                    EmailTestSubjectLineEdit.Text,
-                                                    EmailTestMessageTextEdit.Text);
+ EmailTestMessageTextStringList := TStringList.Create;
+ try
+  EmailTestMessageTextStringList.Add(EmailTestMessageTextEdit.Text);
+  if fn_email_settings_ok = '' then // "fn_email_settings_ok" returns blank string if all key email settings have been populated.
+   begin
+    EmailTestEmailResultsMemo.Lines.Text := send_email(EmailHostServerEdit.Text,
+                                                       EmailUserNameEdit.Text,
+                                                       EmailPasswordEdit.Text,
+                                                       inttostr(EmailPortSpinEdit.Value),
+                                                       EmailUseSSLCheckbox.Checked,
+                                                       EmailUseTLSCheckbox.Checked,
+                                                       EmailSenderAddressEdit.Text,
+                                                       EmailTestRecipientAddressEdit.Text,
+                                                       EmailTestSubjectLineEdit.Text,
+                                                       EmailTestMessageTextStringList,
+                                                       ''); // No attachement path+filename required for test email.
+   end
+   else
+   begin
+    EmailTestEmailResultsMemo.Lines.Text := fn_email_settings_ok;
+   end;
+ finally
+  EmailTestMessageTextStringList.clear;
+  EmailTestMessageTextStringList.free;
+ end;
 end;
 
 end.

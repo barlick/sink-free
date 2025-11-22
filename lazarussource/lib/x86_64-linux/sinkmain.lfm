@@ -1,7 +1,7 @@
 object sinkmainform: Tsinkmainform
-  Left = 829
+  Left = 698
   Height = 668
-  Top = 50
+  Top = 395
   Width = 959
   Caption = 'Sink'
   ClientHeight = 668
@@ -1189,6 +1189,8 @@ object sinkmainform: Tsinkmainform
                 Height = 21
                 Top = 55
                 Width = 273
+                EchoMode = emPassword
+                PasswordChar = '*'
                 TabOrder = 2
                 Text = 'EmailPasswordEdit'
                 OnChange = AllowDeletefilesCheckBoxChange
@@ -1239,6 +1241,23 @@ object sinkmainform: Tsinkmainform
                 Width = 273
                 TabOrder = 6
                 Text = 'EmailSenderAddressEdit'
+                OnChange = AllowDeletefilesCheckBoxChange
+              end
+              object Label17: TLabel
+                Left = 420
+                Height = 13
+                Top = 114
+                Width = 126
+                Caption = 'Email Recipient(s) Address'
+              end
+              object EmailRecipientAddressEdit: TEdit
+                Left = 560
+                Height = 21
+                Top = 112
+                Width = 358
+                Anchors = [akTop, akLeft, akRight]
+                TabOrder = 7
+                Text = 'EmailRecipientAddressEdit'
                 OnChange = AllowDeletefilesCheckBoxChange
               end
             end
