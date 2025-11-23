@@ -17,8 +17,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="3166"/>
-        <CursorPos X="5" Y="3235"/>
+        <TopLine Value="1315"/>
+        <CursorPos X="91" Y="1334"/>
         <UsageCount Value="43"/>
         <Bookmarks Count="2">
           <Item0 X="29" Y="213" Left="1" Top="190" ID="2"/>
@@ -222,7 +222,7 @@
       </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
-        <Caret Line="676" Column="37" TopLine="660"/>
+        <Caret Line="357" Column="14" TopLine="349"/>
       </Position>
     </JumpHistory>
     <RunParams>
@@ -232,13 +232,6 @@
   </ProjectSession>
   <Debugging>
     <BreakPoints>
-      <Item>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="sinkmain.pas"/>
-        <Line Value="1349"/>
-      </Item>
       <Item>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
