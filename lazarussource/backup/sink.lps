@@ -17,12 +17,12 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="1315"/>
-        <CursorPos X="23" Y="1321"/>
+        <TopLine Value="1321"/>
+        <CursorPos X="34" Y="1337"/>
         <UsageCount Value="43"/>
         <Bookmarks Count="2">
-          <Item0 X="29" Y="213" Left="1" Top="190" ID="2"/>
-          <Item1 X="88" Y="1418" Left="1" Top="1361" ID="1"/>
+          <Item0 X="29" Y="214" Left="1" Top="191" ID="2"/>
+          <Item1 X="88" Y="1419" Left="1" Top="1362" ID="1"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -106,10 +106,6 @@
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="450" Column="75" TopLine="393"/>
-      </Position>
       <Position>
         <Filename Value="sinkmain.pas"/>
         <Caret Line="1327" Column="25" TopLine="1308"/>
@@ -223,6 +219,10 @@
       <Position>
         <Filename Value="sinkmain.pas"/>
         <Caret Line="357" Column="14" TopLine="349"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="1323" Column="22" TopLine="1316"/>
       </Position>
     </JumpHistory>
     <RunParams>

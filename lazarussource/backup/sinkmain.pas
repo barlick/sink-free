@@ -61,6 +61,7 @@ type
     GroupBox2: TGroupBox;
     GroupBox3: TGroupBox;
     GroupBox4: TGroupBox;
+    Image1: TImage;
     Label1: TLabel;
     Label10: TLabel;
     Label11: TLabel;
