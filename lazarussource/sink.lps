@@ -17,8 +17,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="1322"/>
-        <CursorPos X="34" Y="1337"/>
+        <TopLine Value="1325"/>
+        <CursorPos X="25" Y="1328"/>
         <UsageCount Value="43"/>
         <Bookmarks Count="2">
           <Item0 X="29" Y="214" Left="1" Top="191" ID="2"/>
@@ -31,8 +31,7 @@
         <Filename Value="sinkemail.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="80"/>
-        <CursorPos X="14" Y="93"/>
+        <CursorPos X="15"/>
         <UsageCount Value="30"/>
         <Loaded Value="True"/>
       </Unit>
@@ -44,17 +43,16 @@
         <Filename Value="xmailer.pas"/>
         <UnitName Value="XMailer"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="502"/>
-        <CursorPos X="26" Y="519"/>
+        <CursorPos X="21" Y="4"/>
         <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="ssl_openssl.pas"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="66"/>
-        <CursorPos X="45" Y="87"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="76"/>
+        <CursorPos X="18" Y="108"/>
+        <UsageCount Value="10"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
@@ -104,24 +102,20 @@
         <CursorPos X="14" Y="700"/>
         <UsageCount Value="10"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\..\..\..\..\usr\share\fpcsrc\3.2.2\packages\fcl-web\src\base\fphttpclient.pp"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="ssl_openssl_lib.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="49" Y="37"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="1327" Column="25" TopLine="1308"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="281" TopLine="259"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="3216" TopLine="3159"/>
-      </Position>
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="400" Column="41" TopLine="345"/>
-      </Position>
+    <JumpHistory HistoryIndex="26">
       <Position>
         <Filename Value="sinkmain.pas"/>
         <Caret Line="3227" Column="5" TopLine="3162"/>
@@ -223,6 +217,10 @@
       <Position>
         <Filename Value="sinkmain.pas"/>
         <Caret Line="1323" Column="22" TopLine="1316"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkemail.pas"/>
+        <Caret Column="15"/>
       </Position>
     </JumpHistory>
     <RunParams>
