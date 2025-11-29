@@ -17,8 +17,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="1325"/>
-        <CursorPos X="25" Y="1328"/>
+        <TopLine Value="335"/>
+        <CursorPos X="79" Y="404"/>
         <UsageCount Value="43"/>
         <Bookmarks Count="2">
           <Item0 X="29" Y="214" Left="1" Top="191" ID="2"/>
@@ -31,7 +31,7 @@
         <Filename Value="sinkemail.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="15"/>
+        <CursorPos X="16" Y="5"/>
         <UsageCount Value="30"/>
         <Loaded Value="True"/>
       </Unit>
@@ -115,11 +115,7 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="26">
-      <Position>
-        <Filename Value="sinkmain.pas"/>
-        <Caret Line="3227" Column="5" TopLine="3162"/>
-      </Position>
+    <JumpHistory HistoryIndex="28">
       <Position>
         <Filename Value="sinkmain.pas"/>
       </Position>
@@ -221,6 +217,17 @@
       <Position>
         <Filename Value="sinkemail.pas"/>
         <Caret Column="15"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="2754" Column="18" TopLine="2736"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="sinkmain.pas"/>
+        <Caret Line="115" Column="19" TopLine="54"/>
       </Position>
     </JumpHistory>
     <RunParams>

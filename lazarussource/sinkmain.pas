@@ -399,7 +399,7 @@ end;
 
 procedure Tsinkmainform.disable_tab_controls;
 begin
- configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+ configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := TRUE; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
 end;
 
 procedure Tsinkmainform.sIncProgress(numw : int64);

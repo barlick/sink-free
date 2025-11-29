@@ -17,8 +17,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="1325"/>
-        <CursorPos X="25" Y="1328"/>
+        <TopLine Value="2736"/>
+        <CursorPos Y="2778"/>
         <UsageCount Value="43"/>
         <Bookmarks Count="2">
           <Item0 X="29" Y="214" Left="1" Top="191" ID="2"/>
@@ -31,7 +31,7 @@
         <Filename Value="sinkemail.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="15"/>
+        <CursorPos X="16" Y="5"/>
         <UsageCount Value="30"/>
         <Loaded Value="True"/>
       </Unit>

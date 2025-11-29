@@ -19,10 +19,10 @@ object sinkmainform: Tsinkmainform
     Height = 632
     Top = 0
     Width = 914
-    ActivePage = PreferencesTabSheet
+    ActivePage = DocumentationTabSheet
     Align = alClient
     Images = ImageList1
-    TabIndex = 2
+    TabIndex = 4
     TabOrder = 0
     object HomeTabSheet: TTabSheet
       Caption = 'Home'
@@ -1280,21 +1280,21 @@ object sinkmainform: Tsinkmainform
         Height = 568
         Top = 0
         Width = 904
-        ActivePage = PreferencesSchedulerTabSheet
+        ActivePage = PreferencesGeneralSettingsTabSheet
         Align = alClient
-        TabIndex = 1
+        TabIndex = 0
         TabOrder = 1
         object PreferencesGeneralSettingsTabSheet: TTabSheet
           Caption = 'General Settings'
-          ClientHeight = 540
+          ClientHeight = 564
           ClientWidth = 894
           object PreferencesPanel: TPanel
             Left = 0
-            Height = 540
+            Height = 564
             Top = 0
             Width = 894
             Align = alClient
-            ClientHeight = 540
+            ClientHeight = 564
             ClientWidth = 894
             ParentBackground = False
             TabOrder = 0
@@ -1302,7 +1302,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 16
-              Width = 257
+              Width = 299
               Caption = 'Allow Sink to delete files from target folders?'
               TabOrder = 0
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1311,7 +1311,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 44
-              Width = 367
+              Width = 429
               Caption = 'Allow Sink to delete redundant folders from target drives/folders?'
               TabOrder = 1
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1320,7 +1320,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 72
-              Width = 361
+              Width = 420
               Caption = 'Allow Sink to run disk free space checks on target drives/folders?'
               TabOrder = 2
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1393,15 +1393,15 @@ object sinkmainform: Tsinkmainform
         end
         object PreferencesSchedulerTabSheet: TTabSheet
           Caption = 'Scheduler'
-          ClientHeight = 540
+          ClientHeight = 564
           ClientWidth = 894
           object PreferencesSchedulerPanel: TPanel
             Left = 0
-            Height = 540
+            Height = 564
             Top = 0
             Width = 894
             Align = alClient
-            ClientHeight = 540
+            ClientHeight = 564
             ClientWidth = 894
             ParentBackground = False
             TabOrder = 0
@@ -1409,7 +1409,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 16
-              Width = 415
+              Width = 478
               Caption = 'Run all jobs automatically using the jobs scheduler settings defined below?'
               TabOrder = 0
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1418,7 +1418,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 44
-              Width = 404
+              Width = 463
               Caption = 'Start the Sink application in Minimized mode if using the jobs scheduler?'
               TabOrder = 1
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1438,7 +1438,7 @@ object sinkmainform: Tsinkmainform
               ChildSizing.ShrinkVertical = crsScaleChilds
               ChildSizing.Layout = cclLeftToRightThenTopToBottom
               ChildSizing.ControlsPerLine = 7
-              ClientHeight = 32
+              ClientHeight = 29
               ClientWidth = 575
               Columns = 7
               Items.Strings = (
@@ -1461,7 +1461,7 @@ object sinkmainform: Tsinkmainform
               Left = 16
               Height = 21
               Top = 128
-              Width = 158
+              Width = 177
               Caption = 'Run jobs on Sink startup?'
               TabOrder = 3
               OnChange = AllowDeletefilesCheckBoxChange
@@ -1490,7 +1490,7 @@ object sinkmainform: Tsinkmainform
               Top = 160
               Width = 577
               Caption = 'Scheduler run times (note: 00:00 means "not defined/enabled"):'
-              ClientHeight = 32
+              ClientHeight = 47
               ClientWidth = 575
               ParentBackground = False
               TabOrder = 5
@@ -1683,15 +1683,15 @@ object sinkmainform: Tsinkmainform
         end
         object EmailTabSheet: TTabSheet
           Caption = 'Email Notifications'
-          ClientHeight = 540
+          ClientHeight = 564
           ClientWidth = 894
           object EmailPanel: TPanel
             Left = 0
-            Height = 540
+            Height = 564
             Top = 0
             Width = 894
             Align = alClient
-            ClientHeight = 540
+            ClientHeight = 564
             ClientWidth = 894
             ParentBackground = False
             TabOrder = 0
@@ -1969,12 +1969,12 @@ object sinkmainform: Tsinkmainform
             end
             object GroupBox3: TGroupBox
               Left = 7
-              Height = 129
+              Height = 153
               Top = 408
               Width = 880
               Anchors = [akTop, akLeft, akRight, akBottom]
               Caption = 'Test Email Settings'
-              ClientHeight = 127
+              ClientHeight = 151
               ClientWidth = 878
               ParentBackground = False
               TabOrder = 3
@@ -2039,18 +2039,18 @@ object sinkmainform: Tsinkmainform
               end
               object GroupBox4: TGroupBox
                 Left = 164
-                Height = 47
+                Height = 71
                 Top = 80
                 Width = 707
                 Anchors = [akTop, akLeft, akRight, akBottom]
                 Caption = 'Test Email Results'
-                ClientHeight = 27
+                ClientHeight = 51
                 ClientWidth = 705
                 ParentBackground = False
                 TabOrder = 4
                 object EmailTestEmailResultsMemo: TMemo
                   Left = 0
-                  Height = 40
+                  Height = 51
                   Top = 0
                   Width = 705
                   Align = alClient
@@ -2111,7 +2111,7 @@ object sinkmainform: Tsinkmainform
           'Sink is a free and open source cross platform (Windows, Mac and Linux) application.'
           ''
           'Sink was coded by and is maintained by: Barlick.'
-          'Sink uses parts of the Synapse SMTP & OpenSSL Free Pascal source to implement the Sink Email Notification capability.'
+          'Sink uses parts of the Synapse SMTP & OpenSSL Free Pascal source which is distributed under the BSD Licence to implement the Sink Email Notification capability.'
           ''
           'It can be used by anyone but was primarily designed for home and small business users especially those using a locally hosted sever or NAS that need to backup and sync files between local PCs and the sever or NAS.'
           ''
@@ -2121,7 +2121,7 @@ object sinkmainform: Tsinkmainform
           ''
           'Sink can run on Windows, Mac and Linux systems and is free and open source.'
           ''
-          'Each Sink instance on a given system has its own Jobs configuration so each server/PC can backup/sync only the folders relevant to that PC.'
+          'Each Sink instance on a given PC/server has its own Jobs configuration so each server/PC can backup/sync only the folders relevant to that PC/server.'
           ''
           'There is no limit on the number of Sink Jobs that can be configured. Jobs are run in the order in which they were added to the Sink Job Configuration i.e. “top to bottom”.'
           ''
@@ -2138,17 +2138,19 @@ object sinkmainform: Tsinkmainform
           'Logging: Sink maintains simple human readable text based Log files for each new day and will automatically delete Log files older that a specified number of days. You can also view the Log files from the Sink, Tools menu.'
           ''
           'The Sink Configuration for each Sink instance can be exported to a .txt file and re-imported as required via the Sink, Tools menu.'
+          ''
           'Simple Example Sink configuration:'
           ''
           'This example is based on an imaginary setup consisting of a server and a desktop Windows PC with an external HDD.'
           'The objective is to run Sink on the desktop Windows PC and to configure it to backup a couple of folders on the server to a backup folder on the PC’s external HDD.'
           ''
-          'The server is mapped to the desktop PC as “i:” (drive “I”). The server has an “i:\Video” and a “I:\TV” folder both containing video files and we want to back those up to the desktop PC’s external drive “D” as “d:\backup\Video\” and “d:\backup\TV\”.'
+          'The server is mapped to the desktop PC as “i:” (drive “I”). The server has an “i:\Video” and a “i:\TV” folder both containing video files and we want to back those up to the desktop PC’s external drive “D” as “d:\backup\Video\” and “d:\backup\TV\”.'
           ''
           '1: Copy the “sink.exe” file to the desktop PC’s “Documents” folder (please feel free to change that to a different folder if you want).'
-          '2: Run sink.exe on your desktop PC. NB: Windows may complain so tell it to “Run Anyway”...'
-          '3: Go to the Sink “Jobs Configuration” tab.'
-          '4: Initially, no Jobs will be defined so to set up the fist “Job” you just need to set the “Source Folder” to “i:\Video\” and the “Target Folder” to “d:\backup\Video\” (you can either type or paste those folder values directly in the relevant text boxes or use the relevant browse folder buttons). You can leave the “Mode” as the default “Copy files from the Source folder that are not present in the Target folder” and leave “Delete files…” OFF.'
+          '2: Run sink.exe on your desktop PC. NOTE: Windows may complain so tell it to “Run Anyway”...'
+          '3: Go to the Sink “Jobs Configuration” tab. NOTE: Please read the “Jobs Configuration Tab detailed information” section if you aren’t sure how to define Sink Jobs.'
+          '4: Initially no Jobs will be defined so to set up the fist “Job” you just need to set the “Source Folder” to “i:\Video\” and the “Target Folder” to “d:\backup\Video\”. You can leave the “Mode” as the default “Copy files from the Source folder that are not present in the Target folder” and leave “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option unticked (disabled).'
+          'NOTE: The “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option will only be visible if the “Allow Sink to delete files from target folders?” check box option is enabled in Sink, Preferences, General Settings.'
           '5: Click “Apply Changes” – The first “Job” is now defined and saved.'
           '6: Click “New”. This will add a new Job.'
           '7: Set the “Source Folder” to “i:\TV\” and the “Target Folder” to “d:\backup\TV\”. Leave the “Mode” as the default “Copy files from the Source folder that are not present in the Target folder” and leave “Delete files…” OFF.'
@@ -2159,8 +2161,8 @@ object sinkmainform: Tsinkmainform
           'To test that this Jobs configuration actually works, you would just need to go to the Sink, Home tab and click the “Start Jobs” button.'
           'That will work through all files in i:\Video\ (and all sub-folders under i:\Video\) and for each file detected, it will check to see if it’s present in d:\backup\Video\. If it’s not present then it will copy it to d:\backup\Video\.'
           'It will then go on to the second Job which will work through all files in i:\TV\ (and all sub-folders under i:\TV\) and for each file detected, it will check to see if it’s present in d:\backup\TV\. If it’s not present then it will copy it to d:\backup\TV\.'
-          'You get a progress bar showing you the total size of all files that need to be copied (for BOTH Jobs) as well as an “estimated time remaining” etc.'
-          'Once both Jobs have been completed it will display “Finished” in the Log/Process test window and also show you the “Stats” including the total number of files copied etc.'
+          'You will see a progress bar showing you the total size of all files that need to be copied (for BOTH Jobs) as well as an “estimated time remaining” etc.'
+          'Once both Jobs have been completed it will display “Finished” in the Home Tab’s Activity Log window and also show you the “Stats” including the total number of files copied etc.'
           ''
           'If you then go and look at the d:\backup\ folder you should find that all of the i:\Video\ and i:\TV\ files are now present in that d:\backup\ folder.'
           ''
@@ -2182,7 +2184,7 @@ object sinkmainform: Tsinkmainform
           '      '
           'To manage that I have Sink installed on the Windows NUC PC which is configured to run its Sink Jobs on a schedule which is at 3:00am each morning to automatically keep the NUC PC’s external HDD contents fully up to date and matching the files on the primary TrueNas server. All of its Jobs are configured to use the Mode “Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder” and “Delete files…” is also enabled. That ensures that its Jobs target folders should always match the source TrueNas folders and reflect any files that have been added, changed or deleted on the TrueNas server. It is also configured to send email notifications when Sink Jobs have been successfully completed but only once a week just so that I know it’s working and also if any errors occur in which case the relevant Sink Log file is attached so that I can see what caused the problem. It will send error type emails on any day of the week as and when they occur.'
           ''
-          'The two Windows desktop PCs are configured to run their configured Sink Jobs at Windows startup + 5 minutes. I use that 5 minutes “breathing room” to check for Windows updates etc. and I can cancel the Sink Jobs run if Windows indicates that it require a reboot to complete its updates. I can also choose to run the Sink Jobs later if I’m in a hurry and need to do something urgently that requires the full resources of the PC although this isn’t normally an issue as Sink Jobs runs are quite well behaved and don’t hog too many system resources so I don’t really notice when it’s running.'
+          'The two Windows desktop PCs are configured to run their configured Sink Jobs at Windows startup + 5 minutes. I use that 5 minutes “breathing room” to check for Windows updates etc. and I can cancel the Sink Jobs run if Windows indicates that it requires a reboot to complete its updates. I can also choose to run the Sink Jobs later if I’m in a hurry and need to do something urgently that requires the full resources of the PC although this isn’t normally an issue as Sink Jobs runs are quite well behaved and don’t hog too many system resources so I don’t really notice when it’s running.'
           ''
           'The Linux desktop PC is also configured to run its Sink Jobs automatically at Linux startup + 5 minutes to ensure that my home folder is safely backed up to a folder on the TrueNas server. As it’s a Linux system I had to create a mount point for the TrueNas server and ensure that I had the correct read/write permissions etc. I assume that Linux users will know how to do this(!) so I don’t intend to explain that here.'
           ''
@@ -2198,13 +2200,213 @@ object sinkmainform: Tsinkmainform
           ''
           'Home Tab detailed information:'
           ''
-          'Jobs configuration tab detailed information:'
+          'The Home tab has an “Activity Log Window” which details all activity performed by Sink when running its Jobs.'
+          'It also has a Status information panel at the bottom of the screen which tells you what state Sink is in.'
+          'It also has a “Start Jobs” button which will run the Sink Jobs defined in the “Jobs Configuration” tab when you click it.'
+          'When it’s running you can click the “Stop Jobs” button to stop the process. Sink is designed to be interruptible so you can always stop Sink from running (or close the Sink application) safely at any time.'
+          'If you are using the Sink, Preferences, “Scheduler” options then you will also see “Cancel Scheduled Job Run” and “Resume Scheduled Job Run” buttons which are used to take sink in and out of “Scheduled Run Mode”.'
+          ''
+          'Jobs Configuration detailed information:'
+          ''
+          'The Jobs Configuration tab has a grid showing all of the currently defined Sink Jobs and an “edit currently selected Job details” panel at the bottom of the screen.'
+          ''
+          'There is no limit on the number of Sink Jobs that can be configured. '
+          ''
+          'Sink Jobs are run in the order in which they were added to the Sink Job Configuration grid i.e. “top to bottom”.'
+          ''
+          'The “edit currently selected Job details” panel shows you the settings for the currently selected Sink Job. You can click on a Job row in the grid or use the up and down arrow keys to select an existing Job if you need to edit it. If no Jobs are defined as is the case when Sink is first run then the “edit currently selected Jobs details” panel will show blank source and target folder paths and default values for the “Mode” and “Delete files…” options.'
+          ''
+          'The “edit currently selected Job details” panel allows you to set the “Source Folder” and “Target Folder” paths for the currently selected Sink Job. You can either type or paste the required folder path values directly into the relevant text boxes or use the browse folder buttons on the right to select them via the folder select pop-up window.'
+          ''
+          'NOTE: Because Sink can delete files and folders from Job target folders (if the “Allow Sink to delete files from target folders?” and “Allow Sink to delete redundant folders from target drives/folders?” Preferences, General Settings options are enabled) it’s possible for a conflict to arise that would prevent Sink from working safely.'
+          ''
+          'For example: If you had a Job with a source folder defined as “i:\Video\” and a target folder defined as “d:\backup\Video\” and a second job with a source folder defined as “i:\TV\” and a target folder defined as “d:\backup\” and clicked “Apply Changes” then you would see this error message:'
+          ''
+          '“Error: The Specified Target folders: d:\backup\Video\ and d:\backup\ are in conflict. All specified Target folders must be unique and not be a sub-folder of another Target folder. Please correct this and re-apply your changes.”'
+          ''
+          'This is difficult to explain(!) but the reason for this error is that when Sink runs the first Sink Job it would see all source files in “i:\Video\” and then see if they exist in “d:\backup\Video\” any files present in the source folder but not present in the target folder would be copied over to “d:\backup\Video\” - No problem.'
+          'But when Sink runs the second Sink job then it would see all source files in “i:\TV\” and then see if they exist in “d:\backup\” any files present in the source folder but not present in the target folder would be copied over to “d:\backup\” but it would then scan for any files that aren’t present in the source folder “i:\TV\” but ARE present in “d:\backup\” and delete those files from “d:\backup\” so it would delete the contents of the “d:\backup\Video\” folder that were copied over by the first Sink Job because those files aren’t present in “i:\TV\” so that would negate the work done by the first Sink Job.'
+          ''
+          'To resolve this you should simply change the target folder of the second Sink Job to “d:\backup\TV\”. Sink would then be satisfied that no possible target folder conflicts exist.'
+          ''
+          'The “edit currently selected Job details” panel allows you to set the file copy “Mode” for the currently selected Sink Job. '
+          'There is a choice of two copy Modes: '
+          '1: “Copy files from the Source folder that are not present in the Target folder” this is the default and is ideal for simple backup jobs such as copying any new video files that have been added to a source drive to a backup target drive because “video” files tend not to change, they either exist on the backup drive or they don’t in which case they will be copied over. '
+          '2: “Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder” this does the same as #1 but will also re-copy files from the source drive that have been changed e.g. a spreadsheet that has been updated regardless of whether than spreadsheet already exists on the target drive so that’s recommended for folders that contain files that DO change over time.'
+          ''
+          'The “edit currently selected Job details” panel allows you to set the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option for the currently selected Sink Job. '
+          'NOTE: The “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option will only be visible if the “Allow Sink to delete files from target folders?” check box option is enabled in Sink, Preferences, General Settings.'
+          'If you tick (enable) the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” then Sink will remove any files (and optionally also any folders if that option is enabled in Sink, Preferences, General Settings) that exist on the target/backup drive that no longer exist on the source drive.'
+          'You only need to enable the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” option for a given Sink Job if you need to maintain an exact copy of the Job’s source folder in the Jobs’s target folder which reflects any files (or sub folders) that have been deleted from the source folder since the last time the Sink Job was run.'
+          ''
+          'The “edit currently selected Job details” panel has a “New” button to allow you to add a new Sink Job definition and a “Delete” button to allow you to delete the currently selected Sink Job.'
+          ''
+          'The “edit currently selected Job details” panel also has “Apply Changes” and “Discard Changes” buttons which are automatically enabled when you make any changes to a Sink Job. If you click “Apply Changes” then all changes made to any of your Sink Jobs will be saved to the “sinkini.txt” Sink configuration file in (typically) your “c:\Users\<your windows username>\AppData\Local\sink\” folder which will be read when Sink next starts up. '
+          'If you click the “Discard Changes” button then any changes made to your Sink Jobs configuration will be discarded.'
           ''
           'Preferences tab detailed information:'
           ''
-          'Tools tab detailed information:'
+          'General Settings:'
           ''
-          'Technical information:'
+          'The “Allow Sink to delete files from target folders?” check box option is disabled (unticked) by default. If you tick (enable) it then the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option will become visible in the Jobs configuration “edit currently selected Job details” panel.'
+          'If you tick (enable) the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” for a given Sink Job then Sink will remove any files and optionally also any folders if the “Allow Sink to delete redundant folders from target drives/folders?” option is enabled that exist on the target/backup drive that no longer exist on the source drive.'
+          'You only need to enable the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” option for a given Sink Job if you need to maintain an exact copy of the Job’s source folder in the Jobs’s target folder which reflects any files (or sub folders) that have been deleted from the source folder since the last time the Sink Job was run.'
+          ''
+          'The “Allow Sink to delete redundant folders from target drives/folders?” option is only relevant if the “Allow Sink to delete files from target folders?” check box option is enabled.'
+          'If you enable (tick) the “Allow Sink to delete redundant folders from target drives/folders?” option and the “Allow Sink to delete files from target folders?” check box option is ALSO enabled, then Sink will delete any redundant folders from the target folder of a given Sink Job definition when it that Job is run.'
+          'This is a separate option because it’s possible that you are happy to delete unwanted files from target folders but want to maintain the source folder’s directory structure on the target drive even if there are no longer any files present in those folders.'
+          ''
+          'The “Allow Sink to run disk free space checks on target drives/folders?” option is disabled (unticked) by default. If you enable it, then Sink will attempt to check the amount of free disk space on a Job’s target drive/folder before attempting to copy any files to it. The initial Job “scan phase” tells Sink the total size of all files that it thinks it needs to copy for this Job so if the free disk space on the target drive/folder is less than the amount of free disk space available (minus the minimum percentage of free disk space that must remain safety margin) then it won’t run that job and will report an error in the Home, Activity Log window and tell you how much disk space would need to be freed up to allow the Job to complete successfully.'
+          'My tests indicate that this works OK and should prevent Sink from completely filling up a target/backup drive so it’s safe to enable disk free space checking in most situations.'
+          ''
+          'The “Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation” is only relevant if the “Allow Sink to run disk free space checks on target drives/folders?” option is enabled. It defaults to 5% which should be a reasonable default value but you can always change it. '
+          'If we had a target/backup drive with a total capacity of 1Tb and a “Percentage of minimum free disk space required on target drives/folders below which the disk free space checks will not permit a copy operation” set to 5% then Sink would check that any Job file copy operation would leave at least 5% free space on that drive after the copy operation completed i.e. ~52Gb minimum free disk space.'
+          'For external HDD backup drives it’s probably “safe” to drop the minimum to 1% free but it’s generally advised to maintain a higher free disk space % on servers especially RAID based servers as they lose efficiency when free disk space is below 10% (apparently) but please check this for yourself as this may or may not be an issue for your server.'
+          ''
+          'The “Maximum No. of retries allowed within the "set target file date + time file stamp" process” defaults to 10. The retry process is occasionally necessary when copying files over to target/backup drives using Windows because (I think) “Windows Defender” (or whatever AV software you are using) may temporarily place a new file in quarantine for a few seconds whilst it scans it so it’s possible the the “set file date + time stamp” process may not be allowed to complete until that’s done so hence the need for this retry capability. It does seem to work OK so I suggest you leave this set to 10.'
+          ''
+          'The “Sleep time (milliseconds 1000 = 1 second) between retries within the "set target file date + time file stamp" process” defaults to “1000” (1 second) and is used by the set file date + time stamp retry process (see above). 1 second seems to be a sensible default but you can always increase it if Sink reports any issues setting the file date + time file stamps during Job file copy operations.'
+          ''
+          'The “Delete Sink log files older than this many days” option defaults to 30 days. When sink completes a Job run it will check the current date and see if there’s an existing Sink Log file (usually) in the “c:\Users\<your windows username>\AppData\Local\sink\” folder e.g. “sinklogfile_2026-01-30.txt” if Sink was run on the 30th January 2026. If there is an existing Sink Log file for that day then it will append the contents of the Home Activity Log window to that existing Sink Log file otherwise it will create a new Sink Log file for today’s date and copy the Home Activity Log window contents to that new Sink Log file.'
+          'That works well and Sink Log files tend not to be too big (a few MB at most in my experience) but this “Delete Sink log files older than this many days“ setting is used by Sink after it has written out a Sink Log file update to delete any Sink Log files older that the specified number of days. '
+          'Any changes made to the Sink General Settings settings can be saved by clicking the “Apply Changes” button or discarded by clicking the “Discard Changes” button.'
+          ''
+          'This prevents Sink from eating up a significant amount of disk space for its Log files. Personally I do not like applications that generate Log files (or any other unused/unwanted/unnecessary files) without a clear automatic method of purging them so this is why this option exists within Sink to ensure it’s well behaved in that regard.'
+          ''
+          'Scheduler:'
+          ''
+          'By default Sink requires the user to launch the Sink application and then click the Home, “Start Jobs” button to run Sink Jobs manually but Sink also has a “Scheduler”. The Sink scheduler is optional and can be used to automate when Sink Jobs are run.'
+          ''
+          'If you intend to use the Sink Scheduler then it will be necessary for you to configure your PC/Server to launch Sink automatically after the system has started up.'
+          ''
+          'To do this in Windows, the simplest method is this:'
+          ''
+          'Launch the “Run” window by either clicking Windows+R or clicking “Start” and typing and selecting “Run” from the start menu.'
+          ''
+          'In the “Run” window’s “Open:” text box, type: shell:startup'
+          ''
+          'Press enter and Windows will open the Startup folder in Windows Explorer. Typically this is “c:\Users\<your windows username>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\”.'
+          ''
+          'Right click in that folder and select “New”, “Shortcut”.'
+          ''
+          'In the “Create Shortcut” dialogue window click “Browse” and select “Sink.exe” from whichever folder you copied Sink.exe into (I just use “Documents” but you can put it anywhere you want).'
+          ''
+          'Click “Next” and give the shortcut a suitable name e.g. “sink.exe” and then click “Finish”.'
+          ''
+          'If you then re-boot you should find that Sink starts up automatically after Windows has booted and completed its various startup/initialisation processes. So it’s not instantaneous but usually comes up after a minute or two depending on the speed of your PC/Server and the complexity of it’s startup/initialisation processes.'
+          ''
+          'To do this in Linux you have various options depending on the specific distribution you are using. I assume that Linux users are quite savvy and will be able to work this out for themselves(!).'
+          ''
+          'Here is a description of the various Sink Scheduler options:'
+          ''
+          'The “Run all jobs automatically using the jobs scheduler settings defined below?” check box option is the main control switch that enables or disables the Sink Scheduler. If this is disabled (unticked) then Sink will not use the scheduler so you must enable (tick) this option in order to use the Sink Scheduler.'
+          ''
+          'The “Start the Sink application in Minimized mode if using the jobs scheduler?” check box option is disabled (unticked) by default. If you do enable it and Sink is configured to use the Scheduler (see above) then Sink will attempt to run in “Minimized” window mode after starting up. This appears to work OK in Windows but I’m seeing mixed results when using this option In Linux – I will try to improve this (honest!) but be advised that this option may not work in Linux.'
+          ''
+          'The “Run the jobs scheduler on these days” Monday to Sunday check boxes tell the Sink Scheduler on which days it’s allowed to run Scheduled Sink Job runs. This applies to both scheduled “Run Sink jobs on Sink startup” and also scheduled Sink Job runs at specified “Scheduler run times” (see below). Typically you would want to run this for every day of the week but you might only want to run it on specific days depending on your Jobs configuration and the requirements of the PC/server that Sink is running on so that’s why I included this option.'
+          ''
+          'The “Run jobs on Sink startup?” check box option is disabled (unticked) by default. If you enable (tick) it then Sink will run all Sink Jobs after x minutes delay (see below) when Sink starts up. This is typically used by desktop PCs or Laptops to ensure that Sink will run all Sink Jobs after a few minutes whenever the PC or Laptop boots up each day.'
+          ''
+          'The “Delay (minutes) before running the jobs on Sink startup” option defaults to 5 minutes and is only relevant if the “Run jobs on Sink startup?” check box option is enabled. This gives you 5 minutes of “breathing room” to check for Windows updates etc. and you can cancel the automated Sink Jobs run at startup process if Windows indicates that it requires a reboot to complete its updates. You can also choose to run the Sink Jobs later if you are in a hurry and need to do something urgently that requires the full resources of your PC/Laptop although this isn’t normally an issue as Sink Jobs runs are quite well behaved and don’t hog too many system resources so you shouldn’t really notice when it’s running.'
+          ''
+          'The “Scheduler run times (note: 00:00 means not defined/enabled)” controls consist of 8 hour+minute selectors which allows you to define up to 8 different HH:MM Scheduler run times. By default these are all set to 00:00 which means that they are all “not defined/enabled” if you enter an HH:MM value in one or more of these selectors other than 00:00 e.g. “03:00” and “12:30” then those Scheduled run times are “enabled” and will be used by the Scheduler (3 am and 12:30 pm in this example).'
+          ''
+          'So using all of those Scheduler options together it’s possible to configure Sink to run its Jobs automatically whenever you want it to.'
+          ''
+          'As an example, my “always on” Windows NUC PC server is used to maintain a backup of my primary server and I have configured the Sink scheduler on that NUC PC as:'
+          ''
+          '“Run all jobs automatically using the jobs scheduler settings defined below?” – Enabled.'
+          '“Start the Sink application in Minimized mode if using the jobs scheduler?” – Disabled.'
+          '“Run the jobs scheduler on these days” – All days Monday to Sunday checked (enabled).'
+          '“Run jobs on Sink startup?” – Disabled.'
+          '“Delay (minutes) before running the jobs on Sink startup” - 5 minutes (not relevant as I’m not running Sink Jobs on Sink startup).'
+          '“Scheduler run times (note: 00:00 means not defined/enabled)” – 03:00 set in the first HH:MM selector, all other HH:MM selectors set to “00:00”.'
+          ''
+          'So that means “use the Sink Scheduler, allow it to run on every day of the week, don’t run Sink Jobs at startup, run Sink Jobs every day at 3 am.'
+          ''
+          'Hopefully that gives you enough flexibility to configure the Sink Scheduler to run your Sink Jobs whenever you want on each of your PCs, Laptops and Servers depending on their specific requirements.'
+          ''
+          'Any changes made to the Sink Scheduler settings can be saved by clicking the “Apply Changes” button or discarded by clicking the “Discard Changes” button.'
+          ''
+          'Email Notifications:'
+          ''
+          'Sink has the ability to send email notifications after a Sink Jobs run has completed either successfully or with errors.'
+          ''
+          'This is optional and is disabled by default. If you want to use it then you must enable (tick) the “Allow Sink to Send Email Notifications?” check box and you must fill in all of the relevant email settings.'
+          ''
+          'Here is a description of each of the Sink email notification settings:'
+          ''
+          'Email Settings:'
+          ''
+          'The “Allow Sink to Send Email Notifications?” check box is disabled by default and must be enabled (ticked) if you want Sink to send notification emails after a Sink Job run has been completed.'
+          ''
+          'The “Email Host Server” requires the correct email host server e.g. “mail@myemailserver.com”.'
+          ''
+          'The “Email User Name” requires a valid user name for a valid email account known to the host server e.g. “me@myemailserver.com”.'
+          ''
+          'The “Email Password” requires a valid password for the email account.'
+          ''
+          'The “Email Port” requires the correct port to use. Typically this is “587” is using TLS encryption or port “465” if using SSL encryption but you will need to check with your email provider/IT administrator.'
+          ''
+          'The “Use SSL” and “Use TLS” should be enabled (ticked) or disabled (unticked) as appropriate.'
+          ''
+          'The “Email Sender Address” is the sender address that the Sink Notification emails will be “from” e.g. “me@myemailserver.com”.'
+          ''
+          'The “Email Recipient(s) Address” requires one or more valid recipient (to) email addresses e.g. “john.smith@thecompany.com”. If you need more that one recipient then use a semicolon “;” to separate them e.g. “john.smith@thecompany.com;jane.jones@anothercompany.com”.'
+          ''
+          'Email Send Options:'
+          ''
+          'The “Email Subject Line for Successfully Completed Sink Jobs Runs” is the email notification “Subject” line to use when a Sink Jobs run completes successfully. It defaults to “Sink file and folder backup/sync application ran successfully.” I suggest you change that to something like “Sink file and folder backup/sync application ran successfully on <Name of PC/Sever>” so that you know which specific PC/Sever sent the email notification.'
+          ''
+          'The “Email Subject Line for Sink Jobs Runs With Errors Reports” is the ”Subject” line to use when a Sink Jobs run completes but with errors reported. I suggest you alter this to also include the PC/Sever name.'
+          ''
+          'The “Attach Sink Log File if a Sink Run Process Was Successful?” check box option should be enabled (ticked) if you want to attach the relevant Sink Log file to a “Sink Run Successful” email notification. I can’t see any reason to do this for successful runs as the automatically generated message text should include sufficient information to tell you what happened without requiring the log file to be attached which will only serve to increase your email storage requirements.'
+          ''
+          'The “Attach Sink Log File if a Sink Run Process Reported Errors?” check box option should be enabled (ticked) if you want to attach the relevant Sink Log file to a “Sink Run Reported Errors” type email notification. This is probably wise to enable as it’s useful to have the relevant Sink Log file attached to “error” type emails.'
+          ''
+          'The “Send Emails for Successfully Completed Sink Jobs Runs on These Days (Max One Per Day)” Monday to Sunday check boxes tell the Sink Scheduler on which days it’s allowed to send “Successfully Completed Sink Jobs Runs” type email notifications. Sink will attempt to limit “Successfully Completed Sink Jobs Runs” type email notifications to just one per day to reduce the number of emails that are sent on a given day that effectively just say that “Sink ran OK on machine x”. On my always on Windows NUC backup server I set this to Monday only so that when I check my emails on Monday morning I can see that “machine x” sent a “sink ran successfully” email when it ran at 3 am Monday morning and I therefore know that Sink is running OK on “machine x” as that’s all I need to know. If I don’t get that Monday morning email from Sink on “machine x” then I need to log into it and see if Sink needs attention on that machine.'
+          ''
+          'The “Send Emails for Sink Jobs Runs That Reported Errors on These Days” Monday to Sunday check boxes tell the Sink Scheduler on which days it’s allowed to send “Sink Jobs Run Reported Errors” type email notifications. I suggest that you set this to all days of the week so that you are always notified when Sink detects errors.'
+          ''
+          'Test Email Settings:'
+          ''
+          'This is designed to allow you to test your Sink Email Notification configuration.'
+          ''
+          'The “Test Email Subject Line” defaults to “Test email from the Sink file and folder backup/sync application.” but you might want to append the machine name to that so it’s clear which PC/Sever the test email was sent from.'
+          ''
+          'The “Test Email Message Text” defaults to “This is a test email from the Sink file and folder backup/sync application” please feel free to change that to whatever you want.'
+          ''
+          'The “Test Email Recipient Address” is the email address that you want to send the Sink test email to e.g. “john.smith@thecompany.com”.'
+          ''
+          'The “Send Test Email” button will use the “Email Settings” and the “Test Email Settings” configuration and actually send a test email to the “Test Email Recipient Address”. The results of the test will be listed in the “Test Email Results” window.'
+          ''
+          'Any changes made to the Email Notification settings can be saved by clicking the “Apply Changes” button or discarded by clicking the “Discard Changes” button.'
+          ''
+          'Tools Tab detailed information:'
+          ''
+          'The “Export a current Sink configuration file” tool allows to to take a backup copy of the current Sink configuration for the running Sink instance. It’s just a small text file called “sinkini.txt” by default and you can chose to save it to any folder. This is useful if you have a complicated set of Sink Jobs defined and/or are using the Sink Scheduler or Sink Email Notification systems as that’s quite a lot of configuration and it’s good to know that you can restore it necessary or you need to set up several PCs/Servers using a similar “base” configuration.'
+          ''
+          'The “Import a current Sink configuration file” tool requires you to browse for and select a valid “sinkini.txt” type text file (although it can have a different filename if you renamed it when you exported it) as generated by the “Export a current Sink configuration file” tool (see above). If it’s “valid” then your current Sink configuration will be discarded and replaced with the Sink configuration contained within the selected “sinkini.txt” file. You can use this tool to quickly set up multiple PCs/Servers using a similar “base” configuration held in a “sinkini.txt” file.'
+          ''
+          'The “Browse/open Sink log file” tool lets you browse the Sink Log files folder which is (typically) the “c:\Users\<your windows username>\AppData\Local\sink\” folder. You can easily check how many Sink Log files are present in that folder and how big they are etc. and you can also open any selected Sink Log file which should display it in whichever application is associated with “.txt” text files by your Operating System. NOTE: If you are seeing a large number of Sink Log files and you want Sink to reduce that number of files then please see the “Delete Sink log files older than this many days” notes within the “General Settings” section.'
+          ''
+          'The “Sink Date+Time File Stamps” option is a custom tool designed to avoid unnecessary re-copying of large files that may already exist on your backup drives that weren’t originally copied over by the Sink application so may not have the correct “modified” file date+time stamps which unless “fixed” will cause Sink to re-copy them due to what it thinks (correctly!) indicate a difference between the files on the source folders and the current copies on the target/backup folders.'
+          ''
+          'It displays this information in a splash screen:'
+          ''
+          '“This option will search through all of the files in all of your defined jobs Source folders and look for matching filenames in the corresponding Target folders.'
+          'For any files that are found in a Target folder that have the same filenames as those in the corresponding Source folder it will set the date+time file stamp on the Target file to match the date+time file stamp of the Source file.'
+          'This ensures that the jobs copy process will see the same date+time file stamps on both the Source and Target files and will therefore not force a re-copy of the Target files based on non matching date+time file stamps if the relevant Source and Target folder definition uses the ''"Copy files from the Source folder that are not present in the Target folder OR have been changed in the Source folder" Copy Mode.'
+          'Note the "Copy files from the Source folder that are not present in the Target folder" Copy Mode doesn''t look at date+time file stamps so you don''''t need to run this process if you only use that Copy Mode.'
+          'Syncing the Target folder date+time stamps should help to avoid the unnecessary re-copying of files that already exist in the Target folder just because of mismatched date+time file stamps and is especially relevant if you have (say) a large number of video files in a Target folder which you don''''t want to re-copy on the initial Sink.exe copy process.'
+          'The Sink.exe copy process will set the Target date+time file stamps to match the Source date+time file stamps after successfully copying files from Source to Target so hence this "Sync Date+Time File Stamps" process only needs to be run once or if you edit your Source and Target folder definitions.'
+          'Note: This process will switch to the "Home" tab to show you the progress of the "Sync Date+Time File Stamps" process.'
+          'Click "OK" to proceed or "Cancel" to quit.”'
+          ''
+          'Hopefully that explains what the “Sink Date+Time File Stamps” tool does and why you might need to run it.'
+          ''
+          'Technical Information'
+          ''
         )
         ReadOnly = True
         ScrollBars = ssBoth
