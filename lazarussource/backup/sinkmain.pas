@@ -37,6 +37,7 @@ type
     AllowDeletefilesCheckBox: TCheckBox;
     AllowDeleteFoldersCheckBox: TCheckBox;
     AllowDiskFreeChecksCheckBox: TCheckBox;
+    ViewDocumentationInYourTextEditorBitBtn: TBitBtn;
     EmailRecipientAddressEdit: TEdit;
     EmailAllowSinktoSendEmailNotificationsCheckBox: TCheckBox;
     EmailSendTestEmailBitBtn: TBitBtn;
@@ -74,6 +75,9 @@ type
     Label8: TLabel;
     Label9: TLabel;
     EmailTestEmailResultsMemo: TMemo;
+    NavPanel: TPanel;
+    Panel5: TPanel;
+    Panel6: TPanel;
     ResumeScheduledJobsbutton: TBitBtn;
     PreferencesSchedulerRunTime1DateTimePicker: TDateTimePicker;
     PreferencesSchedulerRunTime2DateTimePicker: TDateTimePicker;
@@ -148,6 +152,7 @@ type
     Label2: TLabel;
     DeleteFilesCheckBox: TCheckBox;
     TreeView1: TTreeView;
+    TreeView2: TTreeView;
     procedure AllowDeletefilesCheckBoxChange(Sender: TObject);
     procedure CancelScheduledJobsbuttonClick(Sender: TObject);
     procedure ConfigurationTabSheetEnter(Sender: TObject);
@@ -179,6 +184,8 @@ type
     //procedure TreeView1KeyDown(Sender: TObject; var Key: Word;
     // Shift: TShiftState);
     procedure TreeView1KeyDown(Sender: TObject; var Key: Word);
+    procedure TreeView2Click(Sender: TObject);
+    procedure ViewDocumentationInYourTextEditorBitBtnClick(Sender: TObject);
   private
     { Private declarations }
     factive : boolean;
@@ -399,7 +406,7 @@ end;
 
 procedure Tsinkmainform.disable_tab_controls;
 begin
- configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := false; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
+ configurationtabsheet.Enabled := false; documentationtabsheet.Enabled := TRUE; preferencestabsheet.Enabled := false; toolstabsheet.Enabled := false;
 end;
 
 procedure Tsinkmainform.sIncProgress(numw : int64);
@@ -3232,5 +3239,66 @@ begin
   EmailTestMessageTextStringList.free;
  end;
 end;
+
+procedure Tsinkmainform.TreeView2Click(Sender: TObject);
+var
+ searchtext : string;
+ mynode : TTreenode;
+
+procedure navigateto(searchtext : string);
+var
+ ct : integer;
+ found : boolean;
+ onepercent,thispercent : real;
+begin
+ ct := 0; found := false;
+ while (ct < memo1.Lines.Count) and not found do
+  begin
+   if strip(stripfront(memo1.Lines[ct])) = searchtext then
+    begin
+     found := true;
+    end
+    else inc(ct);
+  end;
+ if found then
+  begin
+   onepercent := memo1.Lines.Count;
+   onepercent :=  onepercent / 100;
+   thispercent := ct / onepercent;
+   memo1.VertScrollBar.Position := 0;
+   application.ProcessMessages;
+   //memo1.VertScrollBar.Position := trunc(thispercent);
+   Memo1.CaretPos := Point(0, ct);
+   application.ProcessMessages;
+  end;
+end;
+
+begin
+ try
+  mynode := treeview2.Selected;
+  searchtext := uppercase(mynode.Text) + ':';
+  if searchtext <> '' then
+   begin
+    navigateto(searchtext);
+   end;
+ except
+ end;
+end;
+
+procedure Tsinkmainform.ViewDocumentationInYourTextEditorBitBtnClick(
+ Sender: TObject);
+begin
+ try
+  Memo1.Lines.SaveToFile(usersettingsdir+'sink_documentation.txt');
+  if fileexists(usersettingsdir+'sink_documentation.txt') then
+   begin
+    if not OpenDocument(usersettingsdir+'sink_documentation.txt') then
+     begin
+     end;
+   end;
+ except
+ end;
+end;
+
 
 end.
