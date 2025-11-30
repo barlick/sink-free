@@ -3249,7 +3249,6 @@ procedure navigateto(searchtext : string);
 var
  ct : integer;
  found : boolean;
- onepercent,thispercent : real;
 begin
  ct := 0; found := false;
  while (ct < memo1.Lines.Count) and not found do
@@ -3262,13 +3261,16 @@ begin
   end;
  if found then
   begin
-   onepercent := memo1.Lines.Count;
-   onepercent :=  onepercent / 100;
-   thispercent := ct / onepercent;
    memo1.VertScrollBar.Position := 0;
    application.ProcessMessages;
-   //memo1.VertScrollBar.Position := trunc(thispercent);
-   Memo1.CaretPos := Point(0, ct);
+   if (fn_Osversion = 'Windows') then
+    begin
+     memo1.VertScrollBar.Position := ct;
+    end
+    else
+    begin
+     Memo1.CaretPos := Point(0, ct);
+    end;
    application.ProcessMessages;
   end;
 end;
