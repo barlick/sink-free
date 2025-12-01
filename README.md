@@ -104,6 +104,8 @@ If you are using the Sink, Preferences, “Scheduler” options then you will al
 
 JOBS CONFIGURATION DETAILED INFORMATION:
 
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_jobs_configuration.png)
+
 The Jobs Configuration tab has a grid showing all of the currently defined Sink Jobs and an “edit currently selected Job details” panel at the bottom of the screen.
 
 There is no limit on the number of Sink Jobs that can be configured. 
