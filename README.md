@@ -11,7 +11,7 @@ It can be used by anyone but was primarily designed for home and small business 
 
 Sink is designed to be as simple as possible to setup, test and use without having to pay for a commercial backup solution and/or spend hours studying manuals to get your backup processes working.
 
-![[https://github.com/barlick/sink-free/blob/main/home_screen.png]]
+![alt text](https://github.com/barlick/sink-free/blob/main/home_screen.png)
 
 KEY FEATURES:
 
