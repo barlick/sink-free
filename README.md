@@ -146,6 +146,8 @@ PREFERENCES TAB DETAILED INFORMATION:
 
 GENERAL SETTINGS:
 
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_preferences_general_settings.png)
+
 The “Allow Sink to delete files from target folders?” check box option is disabled (unticked) by default. If you enable (tick) it then the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” check box option will become visible in the Jobs configuration “edit currently selected Job details” panel.
 If you enable (tick) the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” for a given Sink Job then Sink will remove any files and optionally also any folders if the “Allow Sink to delete redundant folders from target drives/folders?” option is enabled that exist on the target/backup drive that no longer exist on the source drive.
 You only need to enable the “Delete files from the Target folder that are no longer present in the Source folder after syncing Source and Target folders?” option for a given Sink Job if you need to maintain an exact copy of the Job’s source folder in the Jobs’s target folder which reflects any files (or sub folders) that have been deleted from the source folder since the last time the Sink Job was run.
@@ -173,6 +175,8 @@ This prevents Sink from eating up a significant amount of disk space for its Log
 Any changes made to the Sink General Settings settings can be saved by clicking the “Apply Changes” button or discarded by clicking the “Discard Changes” button.
 
 SCHEDULER:
+
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_preferences_scheduler.png)
 
 By default Sink requires the user to launch the Sink application and then click the Home, “Start Jobs” button to run Sink Jobs manually but Sink also has a “Scheduler”. The Sink scheduler is optional and can be used to automate when Sink Jobs are run.
 
@@ -229,6 +233,8 @@ Any changes made to the Sink Scheduler settings can be saved by clicking the “
 
 EMAIL NOTIFICATIONS:
 
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_preferences_email_notifications.png)
+
 Sink has the ability to send email notifications after a Sink Jobs run has completed either successfully or with errors.
 
 This is optional and is disabled by default. If you want to use it then you must enable (tick) the “Allow Sink to Send Email Notifications?” check box and you must fill in all of the relevant email settings.
@@ -282,6 +288,8 @@ The “Send Test Email” button will use the “Email Settings” and the “Te
 Any changes made to the Email Notification settings can be saved by clicking the “Apply Changes” button or discarded by clicking the “Discard Changes” button.
 
 TOOLS TAB DETAILED INFORMATION:
+
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_tools.png)
 
 The “Export a current Sink configuration file” tool allows to to take a backup copy of the current Sink configuration for the running Sink instance. It’s just a small text file called “sinkini.txt” by default and you can chose to save it to any folder. This is useful if you have a complicated set of Sink Jobs defined and/or are using the Sink Scheduler or Sink Email Notification systems as that’s quite a lot of configuration and it’s good to know that you can restore it necessary or you need to set up several PCs/Servers using a similar “base” configuration.
 
@@ -420,3 +428,5 @@ If Sink is running on Windows and the Sink Scheduler is enabled in Sink, Email N
 If Sink is running on Linux and the Sink Scheduler is enabled in Sink, Email Notifications, “Allow Sink to Send Email Notifications?” check box is enabled (ticked) then Sink will require access to the OpenSSL libraries on you Linux system. I haven’t actually used Linux to send emails from Sink so I haven’t checked this out but I assume that if you do a web search for “Lazarus Linux Synapse OpenSSL” (or similar) then you should be able to work out what needs to be installed to get the Linux Sink email process working.
 
 END OF SINK DOCUMENTATION
+
+![alt text](https://github.com/barlick/sink-free/blob/main/sink_documentation.png)
