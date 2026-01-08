@@ -2565,6 +2565,15 @@ end;
 procedure Tsinkmainform.StartButtonClick(Sender: TObject);
 begin
  // OK: Go:
+
+ // If the jobs schedule timer is active then we need to simulate clicking the cancel scheduled jobs button to prevent the jobs schedule timer from running jobs a second time after we manually start a run via the start button:
+ if SchedulerTimer.Enabled then
+  begin
+   SchedulerTimer.Enabled := false;
+   CancelScheduledJobsbuttonClick(Sender);
+   ResumeScheduledJobsbutton.visible := false;
+  end;
+
  startbutton.Visible := false; stopbutton.visible := true;
  disable_tab_controls;
  abort := false;
